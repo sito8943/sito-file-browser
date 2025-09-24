@@ -1,39 +1,31 @@
-# filefly
+# README OF SITO FILE BROWSER
 
-[![Discord Badge](https://dcbadge.vercel.app/api/server/jnXEtWQwdA)](https://discord.gg/jnXEtWQwdA)
+# 1. Clone the project
 
-FileFly is a faster file explorer alternative.
+```
+git clone https://github.com/sito8943/sito-file-browser.git
+```
 
-![Preview](preview.png)
-![Preview2](preview2.png)
+# 2. Requirements:
 
-## To-Do List
+1. Node https://nodejs.org/en/blog/release/v18.18.0/
+2. Rust https://www.rust-lang.org/tools/install
 
--  [x] Implement main functions
+*and optional if you don't have curl*
+3. Curl https://curl.se/windows/
 
-   -  [x] Open
-   -  [x] Open in terminal
-   -  [ ] Copy
-   -  [ ] Cut
-   -  [ ] Delete
-   -  [ ] Rename
+# 3. How to run?
 
--  [ ] Make it work offline (font, icons, etc.)
+To install all dependencies, only one time per clone
 
--  [x] Create a custom context menu (ensure functionality!)
+```
+npm install
+```
 
--  [ ] Refactor code for cleaner structure
+To run frontend and desktop app
 
--  [x] Fix file names (e.g., .gitignore)
+```
+npm run tauri dev
+```
 
--  [x] Add audio file preview
-
--  [ ] Add video file preview
-
--  [x] Add image file preview
-
--  [x] Add markdown file preview
-
--  [ ] Manage favorite folders on the sidebar and make them functional
-
--  [ ] Ensure the context bar is always visible (if there's not enough space)
+This will install rust packages if they are not in hard drive yet, this will happen one time only
