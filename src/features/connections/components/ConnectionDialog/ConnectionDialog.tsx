@@ -4,6 +4,9 @@ import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
 import Button from "@/shared/components/elements/Button";
+import TextInput from "@/shared/components/elements/TextInput";
+import Select from "@/shared/components/elements/Select";
+import PasswordInput from "@/shared/components/patterns/PasswordInput";
 import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import type { NewConnection } from "@/shared/services/api";
 import { classNames } from "@/shared/utils";
@@ -56,8 +59,8 @@ const ConnectionDialog = ({
       setHost(initial?.host ?? "");
       setPort(String(initial?.port ?? SSH_DEFAULT_PORT));
       setUser(initial?.user ?? "");
-      setAuthKind(AUTH_KIND.AGENT);
-      setKeyPath("");
+      setAuthKind(initial?.keyPath ? AUTH_KIND.KEY : AUTH_KIND.AGENT);
+      setKeyPath(initial?.keyPath ?? "");
       setKeyPassphrase("");
       setPassword("");
       setBusy(false);
@@ -124,7 +127,7 @@ const ConnectionDialog = ({
       >
         <label className="connection_field">
           <span>{t.connections.fieldName}</span>
-          <input
+          <TextInput
             autoFocus
             value={name}
             placeholder={t.connections.fieldNamePlaceholder}
@@ -134,7 +137,7 @@ const ConnectionDialog = ({
 
         <label className="connection_field">
           <span>{t.connections.fieldHost}</span>
-          <input
+          <TextInput
             value={host}
             placeholder={t.connections.fieldHostPlaceholder}
             onChange={(event) => setHost(event.target.value)}
@@ -144,7 +147,7 @@ const ConnectionDialog = ({
         <div className="connection_row">
           <label className="connection_field connection_field_user">
             <span>{t.connections.fieldUser}</span>
-            <input
+            <TextInput
               value={user}
               placeholder={t.connections.fieldUserPlaceholder}
               onChange={(event) => setUser(event.target.value)}
@@ -152,7 +155,7 @@ const ConnectionDialog = ({
           </label>
           <label className="connection_field connection_field_port">
             <span>{t.connections.fieldPort}</span>
-            <input
+            <TextInput
               type="number"
               min={1}
               max={65535}
@@ -164,8 +167,7 @@ const ConnectionDialog = ({
 
         <label className="connection_field">
           <span>{t.connections.fieldAuth}</span>
-          <select
-            className="connection_select"
+          <Select
             value={authKind}
             onChange={(event) => setAuthKind(event.target.value as AuthKind)}
           >
@@ -174,14 +176,14 @@ const ConnectionDialog = ({
             <option value={AUTH_KIND.PASSWORD}>
               {t.connections.authPassword}
             </option>
-          </select>
+          </Select>
         </label>
 
         {authKind === AUTH_KIND.KEY && (
           <>
             <label className="connection_field">
               <span>{t.connections.fieldKeyPath}</span>
-              <input
+              <TextInput
                 value={keyPath}
                 placeholder={t.connections.fieldKeyPathPlaceholder}
                 onChange={(event) => setKeyPath(event.target.value)}
@@ -189,8 +191,7 @@ const ConnectionDialog = ({
             </label>
             <label className="connection_field">
               <span>{t.connections.fieldKeyPassphrase}</span>
-              <input
-                type="password"
+              <PasswordInput
                 value={keyPassphrase}
                 placeholder={t.connections.optional}
                 onChange={(event) => setKeyPassphrase(event.target.value)}
@@ -202,8 +203,7 @@ const ConnectionDialog = ({
         {authKind === AUTH_KIND.PASSWORD && (
           <label className="connection_field">
             <span>{t.connections.fieldPassword}</span>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
@@ -219,10 +219,7 @@ const ConnectionDialog = ({
           </Button>
           <Button
             type="submit"
-            className={classNames(
-              "connection_submit",
-              !canSubmit && "disabled",
-            )}
+            className={classNames("primary", !canSubmit && "disabled")}
             disabled={!canSubmit}
           >
             {editing ? t.connections.save : t.connections.create}
