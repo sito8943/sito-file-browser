@@ -83,6 +83,7 @@
   --size-info-panel-width: 300px;
   --size-info-preview-height: 240px;
   /* List-view column template widths (see --list-grid in Directory.css). */
+  --size-list-col-min: 64px;
   --size-list-col-date: 110px;
   --size-list-col-size: 90px;
   --size-list-col-kind: 100px;

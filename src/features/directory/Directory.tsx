@@ -20,7 +20,11 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 import { DirEntry } from "@/shared/models";
 
-import { COLUMN_KEYS, buildListGrid } from "./columns";
+import {
+  COLUMN_KEYS,
+  buildListGrid,
+  type ColumnWidths,
+} from "./columns";
 import type { PendingDrop } from "./types";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
 import { useFolderView } from "./hooks/useFolderView";
@@ -180,6 +184,20 @@ const Directory = () => {
 
   const { visible: visibleColumns, toggle: toggleColumn } =
     useColumnVisibility(path);
+  const visibleColumnsKey = visibleColumns.join(":");
+  const [columnLayout, setColumnLayout] = useState<{
+    key: string;
+    widths: ColumnWidths;
+  }>({ key: "", widths: {} });
+  // A different visible-column set starts from its canonical tracks. Keeping the key beside the
+  // widths avoids a reset effect (and its extra paint); resizing this layout replaces the record.
+  const columnWidths =
+    columnLayout.key === visibleColumnsKey ? columnLayout.widths : {};
+  const handleColumnWidthsChange = useCallback(
+    (widths: ColumnWidths) =>
+      setColumnLayout({ key: visibleColumnsKey, widths }),
+    [visibleColumnsKey],
+  );
   const hiddenColumns = COLUMN_KEYS.filter(
     (key) => !visibleColumns.includes(key),
   );
@@ -342,7 +360,7 @@ const Directory = () => {
         )}
         style={
           {
-            "--list-grid": buildListGrid(visibleColumns),
+            "--list-grid": buildListGrid(visibleColumns, columnWidths),
             "--zoom": zoom,
           } as CSSProperties
         }
@@ -368,6 +386,7 @@ const Directory = () => {
               onSort={handleSort}
               visibleColumns={visibleColumns}
               onToggleColumn={toggleColumn}
+              onColumnWidthsChange={handleColumnWidthsChange}
             />
           )}
 

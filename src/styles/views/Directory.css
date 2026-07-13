@@ -455,6 +455,45 @@ body.is-entry-dragging .drag_ghost {
   background-color: var(--color-overlay-hover);
 }
 
+/* Wide invisible hit target centred on each divider. The inner line only gains accent feedback on
+   hover/drag; the existing button::after remains the resting divider. */
+.directory_page .list_header button .list_column_resize {
+  position: absolute;
+  z-index: 2;
+  top: calc(-1 * var(--space-1-5));
+  right: calc(var(--space-2) / -2);
+  bottom: calc(-1 * var(--space-1-5));
+  width: var(--space-2);
+  cursor: col-resize;
+  touch-action: none;
+  overflow: visible;
+}
+
+.directory_page .list_header button .list_column_resize::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: 50%;
+  width: var(--border-width-default);
+  transform: translateX(-50%);
+  background-color: transparent;
+}
+
+.directory_page .list_header button .list_column_resize:hover::after,
+.directory_page .list_header.resizing
+  button
+  .list_column_resize:active::after {
+  background-color: var(--color-accent);
+}
+
+.directory_page .list_header.resizing,
+.directory_page .list_header.resizing * {
+  cursor: col-resize !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .directory_page .list_header button:hover span,
 .directory_page .list_header button.active span {
   color: var(--color-text-secondary);
