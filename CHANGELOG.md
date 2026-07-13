@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.7.0]
+
+### Added
+
+- Folder image mosaics in grid view — at larger zoom levels, folders show up to four thumbnails from their direct image children, loaded lazily through the existing thumbnail queue and cache (`1583cbf`)
+- Open folders in a new tab from entry actions, with a setting to control whether newly opened tabs are activated immediately (`ee4f1b2`)
+- Open Containing Folder for entries shown outside their parent directory, including Recents and recursive search results (`4e31bdc`)
+- Resizable column headers in list view (`4b93bff`)
+- Per-history-entry scroll restoration when navigating Back or Forward, plus an optional setting to remember a parent's scroll position when navigating Up (`5fde13d`)
+
+### Changed
+
+- Quick Actions now exposes Sort as an anchored menu and uses context-aware action icons; folders use a dedicated Open icon (`ee4f1b2`)
+- List view now displays file extensions inline as part of the filename (`574ab37`)
+- Recents now queries Spotlight in progressively wider time windows, excludes directories and app-owned paths earlier, and caches results briefly to avoid redundant refreshes (`4e31bdc`)
+
+### Fixed
+
+- Type-to-find now mounts and scrolls to matching entries beyond the current lazy-render batch (`c6efb6d`)
+- Plain Backspace no longer triggers the embedded browser's history navigation (`22e65d9`)
+- Detached audio previews now use the application background instead of leaving the window surface unstyled (`cd9276b`)
+
 ## [0.6.0]
 
 ### Added
