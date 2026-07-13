@@ -71,7 +71,10 @@ const App = () => {
   } = useAppSettings();
   // Each concern owns its own state and side effects; the composition root just wires them
   // together into the shared context (see ARCHITECTURE_RULES §6, §4).
-  const tabs = useTabs(settings.activateNewTabs);
+  const tabs = useTabs(
+    settings.activateNewTabs,
+    settings.rememberScrollOnUp,
+  );
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,
@@ -233,6 +236,9 @@ const App = () => {
         canGoForward: tabs.canGoForward,
         goBack: tabs.goBack,
         goForward: tabs.goForward,
+        scrollRestoreKey: tabs.scrollRestoreKey,
+        scrollPosition: tabs.scrollPosition,
+        reportScrollPosition: tabs.reportScrollPosition,
         dirContent: directory.dirContent,
         setDirContent: directory.setDirContent,
         accessDenied: directory.accessDenied,

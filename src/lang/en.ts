@@ -381,6 +381,9 @@ export const en = {
     },
     showHidden: "Show hidden files",
     showHiddenHint: "Display dotfiles and other hidden entries in folders.",
+    rememberScrollOnUp: "Remember scroll position when navigating up",
+    rememberScrollOnUpHint:
+      "Restore the parent's last scroll position when navigating up. Back and Forward always remember their scroll positions.",
     hideSystemRecents: "Hide app files in Recents",
     hideSystemRecentsHint:
       "Keep files this app writes in the background (cache, settings, temp) out of Recents.",

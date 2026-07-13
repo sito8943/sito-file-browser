@@ -189,6 +189,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   startupMode: DEFAULT_STARTUP_MODE,
   homePath: "",
   activateNewTabs: true,
+  rememberScrollOnUp: false,
   dragDropAction: DEFAULT_DRAG_DROP_ACTION,
   confirmDragDrop: true,
   confirmDelete: true,

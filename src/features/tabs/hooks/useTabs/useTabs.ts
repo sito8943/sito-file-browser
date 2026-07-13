@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import type { Tab } from "@/shared/models";
@@ -11,6 +11,9 @@ import {
   navigateTab,
   backTab,
   forwardTab,
+  isParentNavigation,
+  setTabScrollPosition,
+  tabScrollPosition,
   canGoBack,
   canGoForward,
   loadTabs,
@@ -21,7 +24,10 @@ import {
 
 // Owns the browser-tab session: open tabs, the active one, and all navigation that acts on it
 // (path/history/search/info-panel are per-tab). Persists the session across launches.
-export const useTabs = (activateNewTabs: boolean) => {
+export const useTabs = (
+  activateNewTabs: boolean,
+  rememberScrollOnUp: boolean,
+) => {
   const [tabs, setTabs] = useState<Tab[]>(loadTabs);
   const [activeTabId, setActiveTabId] = useState<string>(() =>
     loadActiveTabId(tabs),
@@ -32,6 +38,7 @@ export const useTabs = (activateNewTabs: boolean) => {
   const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? tabs[0];
   const path = tabPath(activeTab);
   const infoPanelOpen = activeTab.infoPanelOpen;
+  const liveScrollPosition = useRef(tabScrollPosition(activeTab));
 
   // Apply a transform to the active tab only.
   const updateActiveTab = useCallback(
@@ -43,16 +50,58 @@ export const useTabs = (activateNewTabs: boolean) => {
   );
 
   const setPath = useCallback(
-    (nextPath: string) => updateActiveTab((tab) => navigateTab(tab, nextPath)),
-    [updateActiveTab],
+    (nextPath: string) => {
+      const outgoingScrollPosition = liveScrollPosition.current;
+      const preview = navigateTab(
+        setTabScrollPosition(activeTab, outgoingScrollPosition),
+        nextPath,
+        rememberScrollOnUp && isParentNavigation(path, nextPath),
+      );
+      liveScrollPosition.current = tabScrollPosition(preview);
+      updateActiveTab((tab) =>
+        navigateTab(
+          setTabScrollPosition(tab, outgoingScrollPosition),
+          nextPath,
+          rememberScrollOnUp && isParentNavigation(tabPath(tab), nextPath),
+        ),
+      );
+    },
+    [updateActiveTab, activeTab, path, rememberScrollOnUp],
   );
 
-  const goBack = useCallback(() => updateActiveTab(backTab), [updateActiveTab]);
+  const goBack = useCallback(
+    () => {
+      const outgoingScrollPosition = liveScrollPosition.current;
+      const preview = backTab(
+        setTabScrollPosition(activeTab, outgoingScrollPosition),
+      );
+      liveScrollPosition.current = tabScrollPosition(preview);
+      updateActiveTab((tab) =>
+        backTab(setTabScrollPosition(tab, outgoingScrollPosition)),
+      );
+    },
+    [updateActiveTab, activeTab],
+  );
 
   const goForward = useCallback(
-    () => updateActiveTab(forwardTab),
-    [updateActiveTab],
+    () => {
+      const outgoingScrollPosition = liveScrollPosition.current;
+      const preview = forwardTab(
+        setTabScrollPosition(activeTab, outgoingScrollPosition),
+      );
+      liveScrollPosition.current = tabScrollPosition(preview);
+      updateActiveTab((tab) =>
+        forwardTab(setTabScrollPosition(tab, outgoingScrollPosition)),
+      );
+    },
+    [updateActiveTab, activeTab],
   );
+
+  // Directory reports its live scroll into this ref. It is committed to the tab model only when
+  // leaving the history entry, avoiding an app-wide render and localStorage write on every pixel.
+  const reportScrollPosition = useCallback((position: number) => {
+    liveScrollPosition.current = Math.max(0, position);
+  }, []);
 
   const setSearch = useCallback(
     (nextSearch: string) =>
@@ -80,11 +129,22 @@ export const useTabs = (activateNewTabs: boolean) => {
       // otherwise pass the DOM event as `nextPath` and make the tab's path a non-string → crash.
       const start = typeof nextPath === "string" ? nextPath : path;
       const tab = makeTab(start, infoPanelOpen);
-      setTabs((prev) => [...prev, tab]);
-      if (typeof nextPath !== "string" || activateNewTabs)
+      const activate = typeof nextPath !== "string" || activateNewTabs;
+      const outgoingScrollPosition = liveScrollPosition.current;
+      setTabs((prev) => [
+        ...prev.map((item) =>
+          activate && item.id === activeTabId
+            ? setTabScrollPosition(item, outgoingScrollPosition)
+            : item,
+        ),
+        tab,
+      ]);
+      if (activate) {
+        liveScrollPosition.current = tabScrollPosition(tab);
         setActiveTabId(tab.id);
+      }
     },
-    [path, infoPanelOpen, activateNewTabs],
+    [path, infoPanelOpen, activateNewTabs, activeTabId],
   );
 
   // Close a tab; always keep at least one open. When closing the active tab, activate the
@@ -95,13 +155,33 @@ export const useTabs = (activateNewTabs: boolean) => {
       const index = tabs.findIndex((tab) => tab.id === id);
       const remaining = tabs.filter((tab) => tab.id !== id);
       setTabs(remaining);
-      if (id === activeTabId)
-        setActiveTabId(remaining[Math.min(index, remaining.length - 1)].id);
+      if (id === activeTabId) {
+        const next = remaining[Math.min(index, remaining.length - 1)];
+        liveScrollPosition.current = tabScrollPosition(next);
+        setActiveTabId(next.id);
+      }
     },
     [tabs, activeTabId],
   );
 
-  const selectTab = useCallback((id: string) => setActiveTabId(id), []);
+  const selectTab = useCallback(
+    (id: string) => {
+      if (id === activeTabId) return;
+      const next = tabs.find((tab) => tab.id === id);
+      if (!next) return;
+      const outgoingScrollPosition = liveScrollPosition.current;
+      setTabs((prev) =>
+        prev.map((tab) =>
+          tab.id === activeTabId
+            ? setTabScrollPosition(tab, outgoingScrollPosition)
+            : tab,
+        ),
+      );
+      liveScrollPosition.current = tabScrollPosition(next);
+      setActiveTabId(id);
+    },
+    [tabs, activeTabId],
+  );
 
   // Move the tab at `from` to position `to` (drag-to-reorder). Bounds-checked; a no-op move
   // leaves the array reference unchanged so React skips the re-render.
@@ -142,11 +222,14 @@ export const useTabs = (activateNewTabs: boolean) => {
     search: activeTab.search,
     filters: activeTab.filters ?? DEFAULT_FILTERS,
     infoPanelOpen,
+    scrollRestoreKey: `${activeTab.id}:${activeTab.history.index}`,
+    scrollPosition: tabScrollPosition(activeTab),
     canGoBack: canGoBack(activeTab),
     canGoForward: canGoForward(activeTab),
     setPath,
     goBack,
     goForward,
+    reportScrollPosition,
     setSearch,
     setFilters,
     toggleInfoPanel,

@@ -44,6 +44,9 @@ pub struct AppSettings {
     home_path: String,
     // Switch to a tab immediately when a folder/location is opened in a new tab.
     activate_new_tabs: bool,
+    // Restore a parent's last known scroll position when navigating Up. Back/Forward always
+    // restore their own history entry regardless of this setting.
+    remember_scroll_on_up: bool,
     // What dragging entries onto a folder does: "move" or "copy".
     drag_drop_action: String,
     // Whether a confirmation dialog is shown before a drag-and-drop move/copy.
@@ -121,6 +124,7 @@ impl Default for AppSettings {
             startup_mode: "restore".to_string(),
             home_path: String::new(),
             activate_new_tabs: true,
+            remember_scroll_on_up: false,
             drag_drop_action: "move".to_string(),
             confirm_drag_drop: true,
             confirm_delete: true,

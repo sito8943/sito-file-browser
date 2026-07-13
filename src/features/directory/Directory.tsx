@@ -72,6 +72,9 @@ const Directory = () => {
     toggleConfirmDragDrop,
     dragToExternalApps,
     infoPanelOpen,
+    scrollRestoreKey,
+    scrollPosition,
+    reportScrollPosition,
   } = useStateContext();
 
   const [typeaheadQuery, setTypeaheadQuery] = useState("");
@@ -364,6 +367,10 @@ const Directory = () => {
             "--zoom": zoom,
           } as CSSProperties
         }
+        onScroll={(event) => {
+          if (!searchActive && !showLoader)
+            reportScrollPosition(event.currentTarget.scrollTop);
+        }}
       >
         {accessDenied && <AccessDeniedNotice />}
 
@@ -419,6 +426,8 @@ const Directory = () => {
             bindDrag={bindDrag}
             metadataTooltipDisabled={metadataTooltipDisabled}
             typeaheadQuery={typeaheadQuery}
+            scrollRestoreKey={scrollRestoreKey}
+            scrollPosition={searchActive ? 0 : scrollPosition}
             revealID={revealID}
             clearRevealID={clearRevealID}
           />

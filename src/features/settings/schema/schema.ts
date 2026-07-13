@@ -41,6 +41,14 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
   },
   {
     kind: SETTING_KIND.TOGGLE,
+    key: "rememberScrollOnUp",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.filesFolders,
+    label: () => t.settings.rememberScrollOnUp,
+    hint: () => t.settings.rememberScrollOnUpHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
     key: "hideSystemRecents",
     section: SETTINGS_SECTION.GENERAL,
     subsection: () => t.settings.subsections.filesFolders,

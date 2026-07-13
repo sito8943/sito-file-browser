@@ -56,6 +56,9 @@ type Tag = {
 type NavHistory = {
   stack: string[];
   index: number;
+  // One scroll position per stack entry. Kept parallel to `stack` so revisiting the same path via
+  // Back/Forward restores that specific visit rather than sharing one global position per folder.
+  scrollPositions: number[];
 };
 
 type Tab = {

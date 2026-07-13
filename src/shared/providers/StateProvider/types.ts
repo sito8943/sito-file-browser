@@ -26,6 +26,11 @@ export type State = {
   canGoForward: boolean;
   goBack: () => void;
   goForward: () => void;
+  // Current history entry's saved directory viewport. The key changes for each tab/history visit,
+  // including two visits to the same path, so Directory knows exactly when to restore it.
+  scrollRestoreKey: string;
+  scrollPosition: number;
+  reportScrollPosition: (position: number) => void;
   dirContent: DirEntry[];
   setDirContent: (dirContent: DirEntry[]) => void;
   // True when the current directory could not be read due to OS privacy protection

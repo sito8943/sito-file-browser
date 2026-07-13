@@ -30,18 +30,49 @@ const EntriesView = ({
   bindDrag,
   metadataTooltipDisabled,
   typeaheadQuery,
+  scrollRestoreKey,
+  scrollPosition,
   revealID,
   clearRevealID,
 }: EntriesViewProps) => {
   const { fs, setPath, dateFormat, remoteThumbnails } = useStateContext();
   const { tags: tagsByPath, loadTags } = useTags();
   const [renderCount, setRenderCount] = useState(RENDER_BATCH_SIZE);
+  const viewRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const restoredScrollKeyRef = useRef<string | null>(null);
 
   const hasMore = renderCount < entries.length;
   const typeaheadRevealID =
     typeaheadQuery && selectedIDs.length === 1 ? selectedIDs[0] : null;
   const scrollTargetID = revealID ?? typeaheadRevealID;
+
+  // Restore this exact history entry's viewport. A deep position may be beyond the height of the
+  // initial lazy-render batch; grow one batch at a time until the container can reach it, then set
+  // the final scrollTop. The ref prevents ordinary rerenders from snapping the user back.
+  useEffect(() => {
+    if (restoredScrollKeyRef.current === scrollRestoreKey) return;
+    const container = viewRef.current?.closest<HTMLElement>(
+      ".directory_content",
+    );
+    if (!container) return;
+    const maxScrollTop = Math.max(
+      0,
+      container.scrollHeight - container.clientHeight,
+    );
+    if (scrollPosition > maxScrollTop && hasMore) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRenderCount((count) =>
+        Math.min(count + RENDER_BATCH_SIZE, entries.length),
+      );
+      return;
+    }
+    const raf = requestAnimationFrame(() => {
+      container.scrollTop = Math.min(scrollPosition, maxScrollTop);
+      restoredScrollKeyRef.current = scrollRestoreKey;
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [scrollRestoreKey, scrollPosition, hasMore, entries.length, renderCount]);
 
   // Scroll a revealed or type-to-find entry into view. If it sits past the current render batch,
   // grow the slice to include it first (this effect re-runs once it's mounted), then scroll. An
@@ -102,6 +133,7 @@ const EntriesView = ({
 
   return (
     <div
+      ref={viewRef}
       className={view}
       role="listbox"
       aria-multiselectable="true"
