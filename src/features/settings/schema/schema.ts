@@ -41,6 +41,14 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
   },
   {
     kind: SETTING_KIND.TOGGLE,
+    key: "rememberScrollOnUp",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.filesFolders,
+    label: () => t.settings.rememberScrollOnUp,
+    hint: () => t.settings.rememberScrollOnUpHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
     key: "hideSystemRecents",
     section: SETTINGS_SECTION.GENERAL,
     subsection: () => t.settings.subsections.filesFolders,
@@ -91,6 +99,14 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
         startupMode: defaults.startupMode,
         homePath: defaults.homePath,
       }),
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "activateNewTabs",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.tabs,
+    label: () => t.settings.activateNewTabs,
+    hint: () => t.settings.activateNewTabsHint,
   },
   // macOS integration. OS state (Launch Services), not an AppSettings field: the control reads/
   // writes it live, so it's never "modified" and has no reset (synthetic key).

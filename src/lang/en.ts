@@ -47,6 +47,7 @@ export const en = {
     newFolder: "New Folder",
     open: "Open",
     openInNewTab: "Open in New Tab",
+    openContainingFolder: "Open Containing Folder",
     openInTerminal: "Open in Terminal",
     emptyTrash: "Empty Trash",
     eject: "Eject",
@@ -367,6 +368,7 @@ export const en = {
       filesFolders: "Files & folders",
       folderSizes: "Folder sizes",
       startup: "Startup",
+      tabs: "Tabs",
       systemIntegration: "System integration",
       previews: "Previews",
       statusBar: "Status bar",
@@ -380,6 +382,9 @@ export const en = {
     },
     showHidden: "Show hidden files",
     showHiddenHint: "Display dotfiles and other hidden entries in folders.",
+    rememberScrollOnUp: "Remember scroll position when navigating up",
+    rememberScrollOnUpHint:
+      "Restore the parent's last scroll position when navigating up. Back and Forward always remember their scroll positions.",
     hideSystemRecents: "Hide app files in Recents",
     hideSystemRecentsHint:
       "Keep files this app writes in the background (cache, settings, temp) out of Recents.",
@@ -446,6 +451,9 @@ export const en = {
     startupRestore: "Restore previous session",
     startupVolumes: "New session (Volumes)",
     startupHome: "New session (home folder)",
+    activateNewTabs: "Switch to newly opened tabs",
+    activateNewTabsHint:
+      "When opening a folder or location in a new tab, switch to it immediately.",
     homeFolder: "Home folder",
     homeFolderHint:
       "Folder opened when a new session starts at your home folder.",

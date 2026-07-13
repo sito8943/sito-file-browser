@@ -5,6 +5,7 @@ import {
 import Icon from "@/shared/components/elements/Icon";
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { extension } from "@/shared/utils";
+import { RECENTS } from "@/shared/constants";
 import { useKeymap, formatBinding, isMacPlatform } from "@/shared/keymap";
 
 import { TagPicker } from "./TagPicker";
@@ -14,6 +15,7 @@ import {
   ACTION_SEPARATOR,
   resolveActionIds,
   isActionVisible,
+  resolveActionIcon,
   type EntryActionContext,
   type EntryActionId,
 } from "../../actions";
@@ -45,7 +47,9 @@ const EntryContextMenu = ({
 }: EntryContextMenuProps) => {
   const {
     fs,
+    path,
     setPath,
+    newTab,
     showHidden,
     toggleShowHidden,
     previewImagesInApp,
@@ -54,7 +58,7 @@ const EntryContextMenu = ({
   const { onCompress, onExtract, onExtractToFolder } =
     useArchiveActions(fileOps);
   const sevenzipAvailable = useSevenzipAvailable();
-  const { sort, handleSort } = useDirectory();
+  const { sort, handleSort, searchActive } = useDirectory();
   const { keymap } = useKeymap();
   const layout = useContextMenuLayout();
 
@@ -67,10 +71,12 @@ const EntryContextMenu = ({
     elementType,
     targets,
     isCurrentDirectory,
+    isDispersedView: path === RECENTS || searchActive,
     canPaste,
     fs,
     fileOps,
     setPath,
+    openInNewTab: newTab,
     onClose,
     onStartRename,
     onPreview,
@@ -142,7 +148,7 @@ const EntryContextMenu = ({
           <ContextMenuItem
             key={action.id}
             text={action.label()}
-            icon={<Icon icon={action.icon} />}
+            icon={<Icon icon={resolveActionIcon(action, ctx)} />}
             hotkey={hotkey}
             color={action.color}
             checked={action.checked?.(ctx)}

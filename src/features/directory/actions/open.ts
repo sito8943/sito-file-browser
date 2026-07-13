@@ -1,4 +1,7 @@
-import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowUpRightFromSquare,
+  faFolderOpen,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { KEY } from "@/shared/constants";
 import { ENTRY_KIND } from "@/features/directory/constants";
@@ -14,7 +17,10 @@ import type { EntryAction } from "./types";
 export const openAction: EntryAction = {
   id: ENTRY_ACTION.OPEN,
   label: () => t.contextMenu.open,
-  icon: faArrowUpRightFromSquare,
+  icon: ({ elementType }) =>
+    elementType === ENTRY_KIND.DIRECTORY
+      ? faFolderOpen
+      : faArrowUpRightFromSquare,
   hotkey: formatBinding({ keys: [KEY.ENTER] }),
   run: async ({
     fs,

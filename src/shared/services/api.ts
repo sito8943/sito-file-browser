@@ -42,6 +42,11 @@ export type AppSettings = {
   startupMode: string;
   // Folder opened on launch when startupMode is "home" (empty = Volumes view).
   homePath: string;
+  // Switch to a tab immediately when a folder/location is opened in a new tab.
+  activateNewTabs: boolean;
+  // Restore a parent's last known scroll position when navigating Up. Back/Forward always restore
+  // their own history entry regardless of this setting.
+  rememberScrollOnUp: boolean;
   // What dragging entries onto a folder does: "move" | "copy" (see DRAG_DROP_ACTION).
   dragDropAction: string;
   // Whether a confirmation dialog is shown before a drag-and-drop move/copy.

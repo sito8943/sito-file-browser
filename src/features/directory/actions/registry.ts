@@ -3,6 +3,8 @@ import type { EntryAction } from "./types";
 
 import { newFolderAction } from "./newFolder";
 import { openAction } from "./open";
+import { openInNewTabAction } from "./openInNewTab";
+import { openContainingFolderAction } from "./openContainingFolder";
 import { openInTerminalAction } from "./openInTerminal";
 import { previewAction } from "./preview";
 import { copyAction } from "./copy";
@@ -24,6 +26,8 @@ import { toggleHiddenAction } from "./toggleHidden";
 export const ENTRY_ACTIONS: Record<EntryActionId, EntryAction> = {
   [ENTRY_ACTION.NEW_FOLDER]: newFolderAction,
   [ENTRY_ACTION.OPEN]: openAction,
+  [ENTRY_ACTION.OPEN_IN_NEW_TAB]: openInNewTabAction,
+  [ENTRY_ACTION.OPEN_CONTAINING_FOLDER]: openContainingFolderAction,
   [ENTRY_ACTION.OPEN_IN_TERMINAL]: openInTerminalAction,
   [ENTRY_ACTION.PREVIEW]: previewAction,
   [ENTRY_ACTION.COPY]: copyAction,

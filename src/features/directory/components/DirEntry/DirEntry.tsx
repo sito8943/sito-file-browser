@@ -20,6 +20,7 @@ import { t } from "@/lang";
 
 import { METADATA_TOOLTIP_DELAY } from "./constants";
 import { useEntryThumbnail } from "./useEntryThumbnail";
+import { useFolderThumbnails } from "./useFolderThumbnails";
 import { useInlineRename } from "./useInlineRename";
 import { useEntryContextMenu } from "./useEntryContextMenu";
 import { EntryMetadata } from "./EntryMetadata";
@@ -54,6 +55,7 @@ const DirEntryItemComponent = ({
   bindDrag,
   metadataTooltipDisabled,
   remoteThumbnails,
+  showFolderThumbnails,
 }: DirEntryItemProps) => {
   const itemRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +94,7 @@ const DirEntryItemComponent = ({
   const hasExtension = entry.metadata.isFile && lastDot > 0;
   const name = hasExtension ? entry.name.slice(0, lastDot) : entry.name;
   const extension = hasExtension ? entry.name.slice(lastDot + 1) : "";
+  const extensionSuffix = hasExtension ? entry.name.slice(lastDot) : "";
 
   const ext = extension.toLowerCase().trim();
   const isImage = entry.metadata.isFile && IMAGE_FORMATS.includes(ext);
@@ -118,6 +121,12 @@ const DirEntryItemComponent = ({
     // Remote files can't be drawn straight from disk (convertFileSrc needs a local path); route
     // them through the backend thumbnail (which downloads first) instead of the direct SVG path.
     isSvg && !remote,
+  );
+  const { thumbnails: folderThumbnails } = useFolderThumbnails(
+    entry.path,
+    fs,
+    entry.metadata.isDir && showFolderThumbnails && thumbnailAllowed,
+    itemRef,
   );
 
   const { renameInputRef, submitRename, handleRenameKeyDown } = useInlineRename(
@@ -185,9 +194,19 @@ const DirEntryItemComponent = ({
             imgSrc={imgSrc}
             imgRef={imgRef}
             finishLoad={finishLoad}
+            folderThumbnails={folderThumbnails}
           />
           <span className="entry_label">
-            {renaming ? renameInput : <h3>{name || extension}</h3>}
+            {renaming ? (
+              renameInput
+            ) : (
+              <h3>
+                {name || extension}
+                {extensionSuffix && (
+                  <span className="list_name_extension">{extensionSuffix}</span>
+                )}
+              </h3>
+            )}
             <TagDots tags={tags} />
           </span>
         </div>

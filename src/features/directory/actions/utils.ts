@@ -1,4 +1,5 @@
 import { ENTRY_KIND } from "@/features/directory/constants";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { ContextMenuLayout } from "@/shared/models";
 
 import type { EntryAction, EntryActionContext, ResolveArgs } from "./types";
@@ -31,3 +32,10 @@ export const isActionVisible = (
 ): boolean =>
   (action.multiple !== false || ctx.targets.length <= 1) &&
   (action.isVisible ? action.isVisible(ctx) : true);
+
+// Resolve the action's icon at render time so a shared descriptor can adapt to the entry kind.
+export const resolveActionIcon = (
+  action: EntryAction,
+  ctx: EntryActionContext,
+): IconDefinition =>
+  typeof action.icon === "function" ? action.icon(ctx) : action.icon;

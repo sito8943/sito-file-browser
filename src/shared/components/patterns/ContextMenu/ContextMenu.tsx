@@ -5,7 +5,7 @@ import { classNames } from "@/shared/utils";
 import { KEY } from "@/shared/constants";
 import "@/styles/components/ContextMenu.css";
 
-import { MENU_ITEM_SELECTOR } from "./constants";
+import { MENU_ITEM_SELECTOR, MENU_ROLE } from "./constants";
 import type { ContextMenuProps } from "./types";
 
 export const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(
@@ -49,7 +49,7 @@ export const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(
     return (
       <div
         className={classNames("context_menu", contextMenuVisible && "visible")}
-        role="menu"
+        role={MENU_ROLE}
         aria-orientation="vertical"
         ref={innerRef}
         onKeyDown={handleKeyDown}

@@ -10,7 +10,12 @@ import { useContextMenu } from "../../hooks/useContextMenu";
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 import ColumnsMenu from "./ColumnsMenu";
-import { COLUMNS } from "./constants";
+import {
+  COLUMNS,
+  LIST_COLUMN_RESIZE_CLASS,
+  LIST_COLUMN_RESIZE_SELECTOR,
+} from "./constants";
+import { useColumnResize } from "./useColumnResize";
 import type { ListHeaderProps } from "./types";
 
 // Sortable column headers for the list view. Clicking a column sorts by it; the active column
@@ -20,8 +25,13 @@ const ListHeader = ({
   onSort,
   visibleColumns,
   onToggleColumn,
+  onColumnWidthsChange,
 }: ListHeaderProps) => {
   const menu = useContextMenu();
+  const { headerRef, bindResize, resizing } = useColumnResize(
+    visibleColumns,
+    onColumnWidthsChange,
+  );
 
   const openMenu = (e: MouseEvent) => {
     e.preventDefault();
@@ -31,26 +41,53 @@ const ListHeader = ({
 
   return (
     <>
-      <div className="list_header" onContextMenu={openMenu}>
-        {COLUMNS.map((col) => (
-          <Button
-            key={col.key}
-            unstyled
-            className={classNames(col.key, sort.key === col.key && "active")}
-            onClick={() => onSort(col.key)}
-          >
-            <span>{col.label}</span>
-            {sort.key === col.key && (
-              <Icon
-                icon={
-                  sort.direction === SORT_DIRECTION.ASC
-                    ? faChevronUp
-                    : faChevronDown
-                }
-              />
-            )}
-          </Button>
-        ))}
+      <div
+        ref={headerRef}
+        className={classNames("list_header", resizing && "resizing")}
+        onContextMenu={openMenu}
+      >
+        {COLUMNS.map((col) => {
+          const visibleIndex = visibleColumns.indexOf(col.key);
+          const resizable =
+            visibleIndex >= 0 && visibleIndex < visibleColumns.length - 1;
+          return (
+            <Button
+              key={col.key}
+              unstyled
+              data-column={col.key}
+              className={classNames(col.key, sort.key === col.key && "active")}
+              onClick={(event) => {
+                if (
+                  (event.target as HTMLElement).closest(
+                    LIST_COLUMN_RESIZE_SELECTOR,
+                  )
+                )
+                  return;
+                onSort(col.key);
+              }}
+            >
+              <span>{col.label}</span>
+              {sort.key === col.key && (
+                <Icon
+                  icon={
+                    sort.direction === SORT_DIRECTION.ASC
+                      ? faChevronUp
+                      : faChevronDown
+                  }
+                />
+              )}
+              {resizable && (
+                <span
+                  className={LIST_COLUMN_RESIZE_CLASS}
+                  aria-hidden="true"
+                  {...bindResize(col.key)}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onClick={(event) => event.stopPropagation()}
+                />
+              )}
+            </Button>
+          );
+        })}
       </div>
 
       <ColumnsMenu

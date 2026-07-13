@@ -29,10 +29,14 @@ export type EntryActionContext = {
   elementType: EntryKind;
   targets: string[];
   isCurrentDirectory: boolean;
+  // Recents and recursive search results contain entries from directories other than the one
+  // represented by the current path, so they can offer navigation to the real parent folder.
+  isDispersedView: boolean;
   canPaste: boolean;
   fs: FileSystemManager;
   fileOps: FileActions;
   setPath: (path: string) => void;
+  openInNewTab: (path: string) => void;
   onClose: () => void;
   onStartRename: (id: string) => void;
   onPreview: (id: string) => void;
@@ -79,7 +83,9 @@ export type EntryAction = {
   id: EntryActionId;
   // Lazy so it always reads the current language dictionary.
   label: () => string;
-  icon: IconDefinition;
+  // Static for most actions; context-dependent when the same action represents different kinds
+  // of entries (for example Open uses a folder icon for directories).
+  icon: IconDefinition | ((ctx: EntryActionContext) => IconDefinition);
   // Rebindable hotkey: resolved against the live keymap for its glyph.
   keymapAction?: KeymapAction;
   // Fixed (non-rebindable) hotkey glyph, e.g. Open = Enter.

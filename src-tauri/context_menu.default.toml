@@ -4,6 +4,8 @@
 #
 # Action ids map to the predefined actions in the app:
 #   open               open a file with the OS default app, or enter a folder
+#   open_in_new_tab    open a folder in a fresh tab and focus it
+#   open_containing_folder  open a Recents/search result's parent in a fresh tab
 #   open_in_terminal   open a terminal at the folder (folders / a file's parent)
 #   preview            in-app preview (images, markdown, pdf, video, audio)
 #   copy               copy to the internal clipboard
@@ -41,6 +43,8 @@ actions = [
 [folder]
 actions = [
   "open",
+  "open_in_new_tab",
+  "open_containing_folder",
   "open_in_terminal",
   "copy",
   "copy_path",
@@ -58,6 +62,7 @@ actions = [
 [file]
 actions = [
   "open",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",
@@ -75,6 +80,7 @@ actions = [
 [trash]
 actions = [
   "open",
+  "open_containing_folder",
   "restore",
   "separator",
   "destroy",
@@ -91,6 +97,7 @@ extensions = ["png", "jpg", "jpeg", "webp", "gif"]
 actions = [
   "open",
   "preview",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",
@@ -108,6 +115,7 @@ extensions = ["md", "markdown"]
 actions = [
   "open",
   "preview",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",
@@ -125,6 +133,7 @@ extensions = ["pdf"]
 actions = [
   "open",
   "preview",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",
@@ -143,6 +152,7 @@ actions = [
 extensions = ["mp4", "webm", "mov", "m4v", "ogv"]
 actions = [
   "open",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",
@@ -160,6 +170,7 @@ extensions = ["mp3", "wav", "ogg", "flac", "m4a"]
 actions = [
   "open",
   "preview",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",
@@ -179,6 +190,7 @@ actions = [
 extensions = ["zip", "7z"]
 actions = [
   "open",
+  "open_containing_folder",
   "copy",
   "copy_path",
   "cut",

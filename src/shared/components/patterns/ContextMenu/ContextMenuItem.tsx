@@ -10,6 +10,7 @@ import { KEY, UI_COLOR } from "@/shared/constants";
 import { SubItem } from "./SubItem";
 import {
   MENU_ITEM_ROLE,
+  MENU_ROLE,
   SUBMENU_CLOSE_DELAY,
   SUBMENU_VIEWPORT_PADDING,
 } from "./constants";
@@ -141,7 +142,7 @@ export const ContextMenuItem = ({
           <div
             ref={flyoutRef}
             className="context_menu context_menu_submenu visible"
-            role="menu"
+            role={MENU_ROLE}
             aria-orientation="vertical"
             onMouseEnter={openSubmenu}
             onMouseLeave={closeSubmenu}

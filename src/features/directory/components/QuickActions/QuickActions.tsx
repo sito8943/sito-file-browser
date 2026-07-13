@@ -2,7 +2,7 @@ import { useStateContext } from "@/shared/providers/StateProvider";
 import { useKeymap, formatBinding } from "@/shared/keymap";
 import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
-import { TRASH_DIR_NAME } from "@/shared/constants";
+import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
 
 import { useDirectory } from "../../providers/DirectoryProvider";
@@ -10,24 +10,28 @@ import { useContextMenuLayout } from "../../hooks/useContextMenuLayout";
 import { useArchiveActions } from "../../hooks/useArchiveActions";
 import { useSevenzipAvailable } from "@/shared/hooks/useSevenzipAvailable";
 import {
+  ENTRY_ACTION,
   ENTRY_ACTIONS,
   ACTION_SEPARATOR,
   resolveActionIds,
   isActionVisible,
+  resolveActionIcon,
   type EntryActionContext,
   type EntryActionId,
 } from "../../actions";
 
+import QuickActionMenu from "./QuickActionMenu";
+
 import "@/styles/components/QuickActions.css";
 
-// Quick-actions toolbar (left of the QuickBar): the same context-menu actions, but driven by
-// the current selection — the folder's own actions when nothing is selected, the selected
-// entry's actions otherwise (applied to every selected entry).
+// Quick-actions toolbar (left of the QuickBar): Sort always targets the folder being viewed; the
+// remaining context-menu actions target that folder when nothing is selected, or the selection.
 const QuickActions = () => {
   const {
     fs,
     path,
     setPath,
+    newTab,
     showHidden,
     toggleShowHidden,
     previewImagesInApp,
@@ -42,6 +46,7 @@ const QuickActions = () => {
     fileOps,
     preview,
     properties,
+    searchActive,
     sort,
     handleSort,
   } = useDirectory();
@@ -67,10 +72,12 @@ const QuickActions = () => {
     elementType,
     targets: hasSelection ? selectedIDs : [path],
     isCurrentDirectory,
+    isDispersedView: path === RECENTS || searchActive,
     canPaste: !!fileOps.clipboard,
     fs,
     fileOps,
     setPath,
+    openInNewTab: newTab,
     onClose: () => {},
     onStartRename: setRenamingID,
     onPreview: preview.open,
@@ -90,23 +97,37 @@ const QuickActions = () => {
     ),
   };
 
+  // Sort always belongs to the folder being viewed, not to the current selection. Keep its Quick
+  // Bar menu available while file/folder actions adapt to whatever the user has selected.
+  const sortCtx: EntryActionContext = {
+    ...ctx,
+    elementId: path,
+    elementType: ENTRY_KIND.DIRECTORY,
+    targets: [path],
+    isCurrentDirectory: true,
+    isDispersedView: false,
+    opensInAppPreview: false,
+  };
+  const sortAction = ENTRY_ACTIONS[ENTRY_ACTION.SORT_BY];
+
   const actionIds = resolveActionIds(layout, {
     isCurrentDirectory,
     inTrash,
     elementType,
     extension: fileExtension,
-  }).filter((id) => id !== ACTION_SEPARATOR);
+  }).filter((id) => id !== ACTION_SEPARATOR && id !== ENTRY_ACTION.SORT_BY);
 
-  if (path === "" || actionIds.length === 0) return null;
+  if (path === "") return null;
 
   return (
     <div className="quick_actions">
+      <QuickActionMenu action={sortAction} ctx={sortCtx} />
       {actionIds.map((id) => {
         const action = ENTRY_ACTIONS[id as EntryActionId];
         if (!action || !isActionVisible(action, ctx)) return null;
-        // Submenu actions (e.g. Sort By) can't render as a flat toolbar button — skip them here;
-        // they remain available in the right-click menu.
-        if (action.submenu || !action.run) return null;
+        if (action.submenu)
+          return <QuickActionMenu key={action.id} action={action} ctx={ctx} />;
+        if (!action.run) return null;
 
         const enabled = action.isEnabled ? action.isEnabled(ctx) : true;
         const hotkey =
@@ -118,7 +139,7 @@ const QuickActions = () => {
         return (
           <IconButton
             key={action.id}
-            icon={action.icon}
+            icon={resolveActionIcon(action, ctx)}
             tooltip={action.label()}
             hotkey={hotkey}
             disabled={!enabled}
