@@ -20,6 +20,14 @@
   transition-delay: 0s;
 }
 
+/* Detached preview root: audio only renders its floating controls, so this surface remains visible
+   behind them when there is no artwork. Fixed to the viewport because #root has no explicit size. */
+.preview_window {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-background-app);
+}
+
 .preview_container {
   position: fixed;
   z-index: 1001;
