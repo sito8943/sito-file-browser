@@ -11,10 +11,11 @@ export type {
 } from "./types";
 
 export { ENTRY_ACTIONS } from "./registry";
-export { resolveActionIds, isActionVisible } from "./utils";
+export { resolveActionIds, isActionVisible, resolveActionIcon } from "./utils";
 
 export { newFolderAction } from "./newFolder";
 export { openAction } from "./open";
+export { openInNewTabAction } from "./openInNewTab";
 export { openInTerminalAction } from "./openInTerminal";
 export { previewAction } from "./preview";
 export { copyAction } from "./copy";

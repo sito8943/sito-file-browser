@@ -42,6 +42,8 @@ pub struct AppSettings {
     startup_mode: String,
     // Folder opened on launch when startup_mode is "home" (empty = Volumes view).
     home_path: String,
+    // Switch to a tab immediately when a folder/location is opened in a new tab.
+    activate_new_tabs: bool,
     // What dragging entries onto a folder does: "move" or "copy".
     drag_drop_action: String,
     // Whether a confirmation dialog is shown before a drag-and-drop move/copy.
@@ -118,6 +120,7 @@ impl Default for AppSettings {
             show_toasts: true,
             startup_mode: "restore".to_string(),
             home_path: String::new(),
+            activate_new_tabs: true,
             drag_drop_action: "move".to_string(),
             confirm_drag_drop: true,
             confirm_delete: true,

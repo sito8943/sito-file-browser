@@ -62,9 +62,6 @@ const App = () => {
   // Single domain manager instance for the whole app, provided through context.
   const fs = useMemo(() => new FileSystemManager(), []);
 
-  // Each concern owns its own state and side effects; the composition root just wires them
-  // together into the shared context (see ARCHITECTURE_RULES §6, §4).
-  const tabs = useTabs();
   // App-wide settings persisted in settings.toml; hydrated on launch.
   const {
     settings,
@@ -72,6 +69,9 @@ const App = () => {
     saving: savingSettings,
     ready: settingsReady,
   } = useAppSettings();
+  // Each concern owns its own state and side effects; the composition root just wires them
+  // together into the shared context (see ARCHITECTURE_RULES §6, §4).
+  const tabs = useTabs(settings.activateNewTabs);
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,

@@ -21,7 +21,7 @@ import {
 
 // Owns the browser-tab session: open tabs, the active one, and all navigation that acts on it
 // (path/history/search/info-panel are per-tab). Persists the session across launches.
-export const useTabs = () => {
+export const useTabs = (activateNewTabs: boolean) => {
   const [tabs, setTabs] = useState<Tab[]>(loadTabs);
   const [activeTabId, setActiveTabId] = useState<string>(() =>
     loadActiveTabId(tabs),
@@ -72,8 +72,8 @@ export const useTabs = () => {
     [updateActiveTab],
   );
 
-  // Open a new tab and focus it. Defaults to cloning the current location; pass a path to open
-  // the new tab there instead (e.g. the sidebar's "Open in new tab"). Panel state is inherited.
+  // Open a new tab. An explicit New Tab command (no path) always focuses it; opening a folder or
+  // location in a new tab follows the user's activation preference. Panel state is inherited.
   const newTab = useCallback(
     (nextPath?: string) => {
       // Guard against being wired straight to an event handler (onClick / useHotkey), which would
@@ -81,9 +81,10 @@ export const useTabs = () => {
       const start = typeof nextPath === "string" ? nextPath : path;
       const tab = makeTab(start, infoPanelOpen);
       setTabs((prev) => [...prev, tab]);
-      setActiveTabId(tab.id);
+      if (typeof nextPath !== "string" || activateNewTabs)
+        setActiveTabId(tab.id);
     },
-    [path, infoPanelOpen],
+    [path, infoPanelOpen, activateNewTabs],
   );
 
   // Close a tab; always keep at least one open. When closing the active tab, activate the

@@ -14,6 +14,7 @@ import {
   ACTION_SEPARATOR,
   resolveActionIds,
   isActionVisible,
+  resolveActionIcon,
   type EntryActionContext,
   type EntryActionId,
 } from "../../actions";
@@ -46,6 +47,7 @@ const EntryContextMenu = ({
   const {
     fs,
     setPath,
+    newTab,
     showHidden,
     toggleShowHidden,
     previewImagesInApp,
@@ -71,6 +73,7 @@ const EntryContextMenu = ({
     fs,
     fileOps,
     setPath,
+    openInNewTab: newTab,
     onClose,
     onStartRename,
     onPreview,
@@ -142,7 +145,7 @@ const EntryContextMenu = ({
           <ContextMenuItem
             key={action.id}
             text={action.label()}
-            icon={<Icon icon={action.icon} />}
+            icon={<Icon icon={resolveActionIcon(action, ctx)} />}
             hotkey={hotkey}
             color={action.color}
             checked={action.checked?.(ctx)}

@@ -188,6 +188,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showToasts: true,
   startupMode: DEFAULT_STARTUP_MODE,
   homePath: "",
+  activateNewTabs: true,
   dragDropAction: DEFAULT_DRAG_DROP_ACTION,
   confirmDragDrop: true,
   confirmDelete: true,

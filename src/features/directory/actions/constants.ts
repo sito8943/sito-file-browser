@@ -3,6 +3,7 @@
 export const ENTRY_ACTION = {
   NEW_FOLDER: "new_folder",
   OPEN: "open",
+  OPEN_IN_NEW_TAB: "open_in_new_tab",
   OPEN_IN_TERMINAL: "open_in_terminal",
   PREVIEW: "preview",
   COPY: "copy",

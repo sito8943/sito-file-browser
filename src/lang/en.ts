@@ -367,6 +367,7 @@ export const en = {
       filesFolders: "Files & folders",
       folderSizes: "Folder sizes",
       startup: "Startup",
+      tabs: "Tabs",
       systemIntegration: "System integration",
       previews: "Previews",
       statusBar: "Status bar",
@@ -446,6 +447,9 @@ export const en = {
     startupRestore: "Restore previous session",
     startupVolumes: "New session (Volumes)",
     startupHome: "New session (home folder)",
+    activateNewTabs: "Switch to newly opened tabs",
+    activateNewTabsHint:
+      "When opening a folder or location in a new tab, switch to it immediately.",
     homeFolder: "Home folder",
     homeFolderHint:
       "Folder opened when a new session starts at your home folder.",
