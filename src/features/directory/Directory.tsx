@@ -418,6 +418,7 @@ const Directory = () => {
             }}
             bindDrag={bindDrag}
             metadataTooltipDisabled={metadataTooltipDisabled}
+            typeaheadQuery={typeaheadQuery}
             revealID={revealID}
             clearRevealID={clearRevealID}
           />

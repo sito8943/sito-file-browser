@@ -29,6 +29,7 @@ const EntriesView = ({
   menu,
   bindDrag,
   metadataTooltipDisabled,
+  typeaheadQuery,
   revealID,
   clearRevealID,
 }: EntriesViewProps) => {
@@ -38,14 +39,18 @@ const EntriesView = ({
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const hasMore = renderCount < entries.length;
+  const typeaheadRevealID =
+    typeaheadQuery && selectedIDs.length === 1 ? selectedIDs[0] : null;
+  const scrollTargetID = revealID ?? typeaheadRevealID;
 
-  // Scroll a revealed entry into view. If it sits past the current render batch, grow the slice to
-  // include it first (this effect re-runs once it's mounted), then scroll and clear the request.
+  // Scroll a revealed or type-to-find entry into view. If it sits past the current render batch,
+  // grow the slice to include it first (this effect re-runs once it's mounted), then scroll. An
+  // external reveal is cleared after handling; a type-to-find target follows the active query.
   useEffect(() => {
-    if (!revealID) return;
-    const index = entries.findIndex((entry) => entry.path === revealID);
+    if (!scrollTargetID) return;
+    const index = entries.findIndex((entry) => entry.path === scrollTargetID);
     if (index === -1) {
-      clearRevealID(); // not in this folder (e.g. wrong window) — drop the request
+      if (revealID) clearRevealID(); // wrong folder/window — drop external reveals
       return;
     }
     if (index >= renderCount) {
@@ -55,12 +60,12 @@ const EntriesView = ({
     }
     const raf = requestAnimationFrame(() => {
       document
-        .getElementById(revealID)
+        .getElementById(scrollTargetID)
         ?.scrollIntoView({ block: "center", inline: "nearest" });
-      clearRevealID();
+      if (revealID) clearRevealID();
     });
     return () => cancelAnimationFrame(raf);
-  }, [revealID, entries, renderCount, clearRevealID]);
+  }, [scrollTargetID, revealID, entries, renderCount, clearRevealID]);
 
   // Finder tags for the rows currently rendered (lazy — grows with the slice, never reads twice).
   const renderedPaths = useMemo(
