@@ -16,6 +16,7 @@ export { resolveActionIds, isActionVisible, resolveActionIcon } from "./utils";
 export { newFolderAction } from "./newFolder";
 export { openAction } from "./open";
 export { openInNewTabAction } from "./openInNewTab";
+export { openContainingFolderAction } from "./openContainingFolder";
 export { openInTerminalAction } from "./openInTerminal";
 export { previewAction } from "./preview";
 export { copyAction } from "./copy";

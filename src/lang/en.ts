@@ -47,6 +47,7 @@ export const en = {
     newFolder: "New Folder",
     open: "Open",
     openInNewTab: "Open in New Tab",
+    openContainingFolder: "Open Containing Folder",
     openInTerminal: "Open in Terminal",
     emptyTrash: "Empty Trash",
     eject: "Eject",

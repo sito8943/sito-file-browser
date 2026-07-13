@@ -29,6 +29,9 @@ export type EntryActionContext = {
   elementType: EntryKind;
   targets: string[];
   isCurrentDirectory: boolean;
+  // Recents and recursive search results contain entries from directories other than the one
+  // represented by the current path, so they can offer navigation to the real parent folder.
+  isDispersedView: boolean;
   canPaste: boolean;
   fs: FileSystemManager;
   fileOps: FileActions;

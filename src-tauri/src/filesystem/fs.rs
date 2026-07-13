@@ -9,15 +9,15 @@ use std::io::Read;
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
-use std::time::{Duration, SystemTime};
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant, SystemTime};
 use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
 
 use crate::ignore::IgnoreList;
 use crate::index::SizeIndex;
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DirMetadata {
     is_dir: bool,
@@ -27,7 +27,7 @@ pub struct DirMetadata {
     created: SystemTime,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DirEntry {
     name: String,
@@ -1116,6 +1116,44 @@ pub fn empty_trash_core() -> Result<u32, String> {
 // Most recent files to return (Finder-style "Recents").
 const RECENTS_LIMIT: usize = 50;
 
+// Query the newest time band first and stop widening once it already contains enough files. This
+// avoids asking metadata for every file touched during the full month on the common path.
+const RECENTS_WINDOWS_DAYS: [u8; 3] = [1, 7, 30];
+
+// Window-focus refreshes and quick revisits should not rerun Spotlight immediately. Separate cache
+// slots preserve the hide-app-files setting, and holding the cache lock during a miss also folds
+// concurrent requests into the same query.
+const RECENTS_CACHE_TTL: Duration = Duration::from_secs(15);
+
+struct RecentFilesCache {
+    loaded_at: Instant,
+    entries: Vec<DirEntry>,
+}
+
+static RECENT_FILES_CACHE: OnceLock<Mutex<[Option<RecentFilesCache>; 2]>> = OnceLock::new();
+
+fn cached_recent_files(
+    app_dirs: Vec<PathBuf>,
+    hide_app_files: bool,
+) -> Result<Vec<DirEntry>, String> {
+    let cache = RECENT_FILES_CACHE.get_or_init(|| Mutex::new([None, None]));
+    let mut cache = cache.lock().map_err(|error| error.to_string())?;
+    let slot = hide_app_files as usize;
+
+    if let Some(cached) = &cache[slot] {
+        if cached.loaded_at.elapsed() < RECENTS_CACHE_TTL {
+            return Ok(cached.entries.clone());
+        }
+    }
+
+    let entries = recent_files_core(app_dirs)?;
+    cache[slot] = Some(RecentFilesCache {
+        loaded_at: Instant::now(),
+        entries: entries.clone(),
+    });
+    Ok(entries)
+}
+
 // Recently modified files in the user's home, à la Finder's Recents smart folder. Backed by
 // Spotlight (`mdfind`), so it only works on macOS with indexing enabled. Returns files newest
 // first; directories are excluded (Finder shows documents).
@@ -1138,44 +1176,71 @@ pub async fn get_recent_files(
         Vec::new()
     };
 
-    tauri::async_runtime::spawn_blocking(move || recent_files_core(app_dirs))
+    tauri::async_runtime::spawn_blocking(move || cached_recent_files(app_dirs, hide_app_files))
         .await
         .map_err(|e| e.to_string())?
 }
 
-// Recently modified files under $HOME (via Spotlight/`mdfind`), newest first, capped. Any path
-// under one of `app_dirs` (or a write-probe temp file) is filtered out, so passing this app's
-// config/cache dirs hides its background writes; pass an empty list to keep everything. Shared by
-// the Tauri command and the CLI.
+// Recently modified files under $HOME (via Spotlight/`mdfind`), newest first, capped. Spotlight is
+// queried in non-overlapping time bands (last day, days 1-7, then days 7-30), stopping as soon as a
+// band brings the candidate count to the display limit. The query excludes directories before
+// they reach Rust; app-owned paths are also discarded before their filesystem metadata is read.
+// Shared by the Tauri command and the CLI (the CLI intentionally bypasses the GUI's short cache).
 pub fn recent_files_core(app_dirs: Vec<PathBuf>) -> Result<Vec<DirEntry>, String> {
     let home = std::env::var("HOME").map_err(|e| e.to_string())?;
-    let output = std::process::Command::new("mdfind")
-        .arg("-onlyin")
-        .arg(&home)
-        .arg("kMDItemContentModificationDate >= $time.today(-30)")
-        .output()
-        .map_err(|e| e.to_string())?;
-
-    let is_app_file = |entry: &DirEntry| -> bool {
-        if app_dirs.iter().any(|dir| entry.path.starts_with(dir)) {
+    let is_app_path = |path: &Path| -> bool {
+        if app_dirs.iter().any(|dir| path.starts_with(dir)) {
             return true;
         }
-        entry
-            .path
+        path
             .file_name()
             .and_then(|name| name.to_str())
             .map(|name| name.starts_with(WRITE_PROBE_PREFIX))
             .unwrap_or(false)
     };
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let mut entries: Vec<DirEntry> = stdout
-        .lines()
-        .filter(|line| !line.is_empty())
-        .filter_map(|line| build_dir_entry(PathBuf::from(line)).ok())
-        .filter(|entry| entry.metadata.is_file)
-        .filter(|entry| !is_app_file(entry))
-        .collect();
+    let mut entries = Vec::new();
+    let mut newer_than_days = None;
+
+    for oldest_days in RECENTS_WINDOWS_DAYS {
+        let upper_bound = newer_than_days
+            .map(|days| format!(" && kMDItemFSContentChangeDate < $time.today(-{days})"))
+            .unwrap_or_default();
+        let query = format!(
+            "kMDItemFSContentChangeDate >= $time.today(-{oldest_days}){upper_bound} && kMDItemContentTypeTree == 'public.data'"
+        );
+        let output = std::process::Command::new("mdfind")
+            .arg("-onlyin")
+            .arg(&home)
+            .arg(query)
+            .output()
+            .map_err(|error| error.to_string())?;
+
+        if !output.status.success() {
+            let error = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            return Err(if error.is_empty() {
+                format!("mdfind failed with status {}", output.status)
+            } else {
+                error
+            });
+        }
+
+        entries.extend(
+            String::from_utf8_lossy(&output.stdout)
+                .lines()
+                .filter(|line| !line.is_empty())
+                .map(PathBuf::from)
+                .filter(|path| !is_app_path(path))
+                .filter_map(|path| build_dir_entry(path).ok())
+                // Defensive: the Spotlight type predicate should already exclude directories.
+                .filter(|entry| entry.metadata.is_file),
+        );
+
+        if entries.len() >= RECENTS_LIMIT {
+            break;
+        }
+        newer_than_days = Some(oldest_days);
+    }
 
     // Newest first, then cap.
     entries.sort_by(|a, b| b.metadata.modified.cmp(&a.metadata.modified));

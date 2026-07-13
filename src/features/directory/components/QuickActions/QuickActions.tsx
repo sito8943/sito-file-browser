@@ -2,7 +2,7 @@ import { useStateContext } from "@/shared/providers/StateProvider";
 import { useKeymap, formatBinding } from "@/shared/keymap";
 import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
-import { TRASH_DIR_NAME } from "@/shared/constants";
+import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
 
 import { useDirectory } from "../../providers/DirectoryProvider";
@@ -46,6 +46,7 @@ const QuickActions = () => {
     fileOps,
     preview,
     properties,
+    searchActive,
     sort,
     handleSort,
   } = useDirectory();
@@ -71,6 +72,7 @@ const QuickActions = () => {
     elementType,
     targets: hasSelection ? selectedIDs : [path],
     isCurrentDirectory,
+    isDispersedView: path === RECENTS || searchActive,
     canPaste: !!fileOps.clipboard,
     fs,
     fileOps,
@@ -103,6 +105,7 @@ const QuickActions = () => {
     elementType: ENTRY_KIND.DIRECTORY,
     targets: [path],
     isCurrentDirectory: true,
+    isDispersedView: false,
     opensInAppPreview: false,
   };
   const sortAction = ENTRY_ACTIONS[ENTRY_ACTION.SORT_BY];
