@@ -312,6 +312,11 @@ body.is-entry-dragging .drag_ghost {
   order: -1;
 }
 
+/* Grid keeps the compact stem + corner badge; list mode shows this suffix inline with the name. */
+.directory_page .grid .dir_entry_item .list_name_extension {
+  display: none;
+}
+
 .directory_page .grid .dir_entry_item .entry_label h3 {
   text-align: center;
   font-size: var(--font-size-sm);
@@ -471,7 +476,7 @@ body.is-entry-dragging .drag_ghost {
     border-color 0.1s ease-in-out;
 }
 
-/* Grid-only extension badge is hidden in the list (the Kind column shows it). */
+/* Grid-only extension badge is hidden in the list, where the full name includes the extension. */
 .directory_page .list .dir_entry_item .extension {
   display: none;
 }

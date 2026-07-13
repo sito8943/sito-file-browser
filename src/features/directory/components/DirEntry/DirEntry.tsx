@@ -92,6 +92,7 @@ const DirEntryItemComponent = ({
   const hasExtension = entry.metadata.isFile && lastDot > 0;
   const name = hasExtension ? entry.name.slice(0, lastDot) : entry.name;
   const extension = hasExtension ? entry.name.slice(lastDot + 1) : "";
+  const extensionSuffix = hasExtension ? entry.name.slice(lastDot) : "";
 
   const ext = extension.toLowerCase().trim();
   const isImage = entry.metadata.isFile && IMAGE_FORMATS.includes(ext);
@@ -187,7 +188,18 @@ const DirEntryItemComponent = ({
             finishLoad={finishLoad}
           />
           <span className="entry_label">
-            {renaming ? renameInput : <h3>{name || extension}</h3>}
+            {renaming ? (
+              renameInput
+            ) : (
+              <h3>
+                {name || extension}
+                {extensionSuffix && (
+                  <span className="list_name_extension">
+                    {extensionSuffix}
+                  </span>
+                )}
+              </h3>
+            )}
             <TagDots tags={tags} />
           </span>
         </div>
