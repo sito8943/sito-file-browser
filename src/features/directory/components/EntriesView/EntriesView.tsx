@@ -53,16 +53,14 @@ const EntriesView = ({
   // the final scrollTop. The ref prevents ordinary rerenders from snapping the user back.
   useEffect(() => {
     if (restoredScrollKeyRef.current === scrollRestoreKey) return;
-    const container = viewRef.current?.closest<HTMLElement>(
-      ".directory_content",
-    );
+    const container =
+      viewRef.current?.closest<HTMLElement>(".directory_content");
     if (!container) return;
     const maxScrollTop = Math.max(
       0,
       container.scrollHeight - container.clientHeight,
     );
     if (scrollPosition > maxScrollTop && hasMore) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRenderCount((count) =>
         Math.min(count + RENDER_BATCH_SIZE, entries.length),
       );

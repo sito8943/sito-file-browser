@@ -203,9 +203,7 @@ const DirEntryItemComponent = ({
               <h3>
                 {name || extension}
                 {extensionSuffix && (
-                  <span className="list_name_extension">
-                    {extensionSuffix}
-                  </span>
+                  <span className="list_name_extension">{extensionSuffix}</span>
                 )}
               </h3>
             )}

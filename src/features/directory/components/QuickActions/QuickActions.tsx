@@ -115,9 +115,7 @@ const QuickActions = () => {
     inTrash,
     elementType,
     extension: fileExtension,
-  }).filter(
-    (id) => id !== ACTION_SEPARATOR && id !== ENTRY_ACTION.SORT_BY,
-  );
+  }).filter((id) => id !== ACTION_SEPARATOR && id !== ENTRY_ACTION.SORT_BY);
 
   if (path === "") return null;
 

@@ -1,7 +1,4 @@
-import type {
-  EntryAction,
-  EntryActionContext,
-} from "../../actions";
+import type { EntryAction, EntryActionContext } from "../../actions";
 
 export type QuickActionMenuProps = {
   action: EntryAction;

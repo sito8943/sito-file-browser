@@ -5,6 +5,7 @@ import IconButton from "@/shared/components/elements/IconButton";
 import {
   ContextMenu,
   ContextMenuItem,
+  MENU_ROLE,
 } from "@/shared/components/patterns/ContextMenu";
 
 import { resolveActionIcon } from "../../actions";
@@ -16,12 +17,12 @@ import type { QuickActionMenuProps } from "./types";
 // It renders those same descriptor-owned choices as a flat anchored menu instead of duplicating
 // their labels, checked state, or behavior.
 const QuickActionMenu = ({ action, ctx }: QuickActionMenuProps) => {
-  const menu = useContextMenu();
+  const { ref: contextMenuRef, visible, openAt, setVisible } = useContextMenu();
   const items = action.submenu?.(ctx) ?? [];
 
   const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
     const anchor = event.currentTarget.getBoundingClientRect();
-    menu.openAt(anchor.left, anchor.bottom, ctx.elementId, ctx.elementType);
+    openAt(anchor.left, anchor.bottom, ctx.elementId, ctx.elementType);
   };
 
   return (
@@ -31,11 +32,11 @@ const QuickActionMenu = ({ action, ctx }: QuickActionMenuProps) => {
         tooltip={action.label()}
         onClick={openMenu}
         disabled={action.isEnabled ? !action.isEnabled(ctx) : false}
-        aria-haspopup="menu"
-        aria-expanded={menu.visible}
+        aria-haspopup={MENU_ROLE}
+        aria-expanded={visible}
         className={action.color ? `qa_${action.color}` : undefined}
       />
-      <ContextMenu contextMenuVisible={menu.visible} ref={menu.ref}>
+      <ContextMenu contextMenuVisible={visible} ref={contextMenuRef}>
         {items.map((item) => (
           <ContextMenuItem
             key={item.key}
@@ -47,7 +48,7 @@ const QuickActionMenu = ({ action, ctx }: QuickActionMenuProps) => {
               item.onClick
                 ? () => {
                     item.onClick?.();
-                    menu.setVisible(false);
+                    setVisible(false);
                   }
                 : undefined
             }

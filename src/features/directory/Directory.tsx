@@ -24,11 +24,7 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 import { DirEntry } from "@/shared/models";
 
-import {
-  COLUMN_KEYS,
-  buildListGrid,
-  type ColumnWidths,
-} from "./columns";
+import { COLUMN_KEYS, buildListGrid, type ColumnWidths } from "./columns";
 import type { PendingDrop } from "./types";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
 import { useFolderView } from "./hooks/useFolderView";

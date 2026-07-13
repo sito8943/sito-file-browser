@@ -359,11 +359,7 @@ body.is-entry-dragging .drag_ghost {
   grid-row: 1 / -1;
 }
 
-.directory_page
-  .grid
-  .dir_entry_item
-  .icon
-  .folder_thumbnails[data-count="2"] {
+.directory_page .grid .dir_entry_item .icon .folder_thumbnails[data-count="2"] {
   grid-template-rows: minmax(0, 1fr);
 }
 
@@ -563,9 +559,7 @@ body.is-entry-dragging .drag_ghost {
 }
 
 .directory_page .list_header button .list_column_resize:hover::after,
-.directory_page .list_header.resizing
-  button
-  .list_column_resize:active::after {
+.directory_page .list_header.resizing button .list_column_resize:active::after {
   background-color: var(--color-accent);
 }
 

@@ -10,7 +10,11 @@ import { useContextMenu } from "../../hooks/useContextMenu";
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 import ColumnsMenu from "./ColumnsMenu";
-import { COLUMNS } from "./constants";
+import {
+  COLUMNS,
+  LIST_COLUMN_RESIZE_CLASS,
+  LIST_COLUMN_RESIZE_SELECTOR,
+} from "./constants";
 import { useColumnResize } from "./useColumnResize";
 import type { ListHeaderProps } from "./types";
 
@@ -51,14 +55,11 @@ const ListHeader = ({
               key={col.key}
               unstyled
               data-column={col.key}
-              className={classNames(
-                col.key,
-                sort.key === col.key && "active",
-              )}
+              className={classNames(col.key, sort.key === col.key && "active")}
               onClick={(event) => {
                 if (
                   (event.target as HTMLElement).closest(
-                    ".list_column_resize",
+                    LIST_COLUMN_RESIZE_SELECTOR,
                   )
                 )
                   return;
@@ -77,7 +78,7 @@ const ListHeader = ({
               )}
               {resizable && (
                 <span
-                  className="list_column_resize"
+                  className={LIST_COLUMN_RESIZE_CLASS}
                   aria-hidden="true"
                   {...bindResize(col.key)}
                   onMouseDown={(event) => event.stopPropagation()}

@@ -13,3 +13,6 @@ export const COLUMNS = [
 // Smallest width a column may reach while dragging a divider. The value is geometry in CSS pixels;
 // the matching layout minimum lives in theme.css as --size-list-col-min.
 export const LIST_COLUMN_MIN_WIDTH = 64;
+
+export const LIST_COLUMN_RESIZE_CLASS = "list_column_resize";
+export const LIST_COLUMN_RESIZE_SELECTOR = `.${LIST_COLUMN_RESIZE_CLASS}`;

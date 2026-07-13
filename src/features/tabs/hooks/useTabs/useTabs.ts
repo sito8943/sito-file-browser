@@ -69,33 +69,27 @@ export const useTabs = (
     [updateActiveTab, activeTab, path, rememberScrollOnUp],
   );
 
-  const goBack = useCallback(
-    () => {
-      const outgoingScrollPosition = liveScrollPosition.current;
-      const preview = backTab(
-        setTabScrollPosition(activeTab, outgoingScrollPosition),
-      );
-      liveScrollPosition.current = tabScrollPosition(preview);
-      updateActiveTab((tab) =>
-        backTab(setTabScrollPosition(tab, outgoingScrollPosition)),
-      );
-    },
-    [updateActiveTab, activeTab],
-  );
+  const goBack = useCallback(() => {
+    const outgoingScrollPosition = liveScrollPosition.current;
+    const preview = backTab(
+      setTabScrollPosition(activeTab, outgoingScrollPosition),
+    );
+    liveScrollPosition.current = tabScrollPosition(preview);
+    updateActiveTab((tab) =>
+      backTab(setTabScrollPosition(tab, outgoingScrollPosition)),
+    );
+  }, [updateActiveTab, activeTab]);
 
-  const goForward = useCallback(
-    () => {
-      const outgoingScrollPosition = liveScrollPosition.current;
-      const preview = forwardTab(
-        setTabScrollPosition(activeTab, outgoingScrollPosition),
-      );
-      liveScrollPosition.current = tabScrollPosition(preview);
-      updateActiveTab((tab) =>
-        forwardTab(setTabScrollPosition(tab, outgoingScrollPosition)),
-      );
-    },
-    [updateActiveTab, activeTab],
-  );
+  const goForward = useCallback(() => {
+    const outgoingScrollPosition = liveScrollPosition.current;
+    const preview = forwardTab(
+      setTabScrollPosition(activeTab, outgoingScrollPosition),
+    );
+    liveScrollPosition.current = tabScrollPosition(preview);
+    updateActiveTab((tab) =>
+      forwardTab(setTabScrollPosition(tab, outgoingScrollPosition)),
+    );
+  }, [updateActiveTab, activeTab]);
 
   // Directory reports its live scroll into this ref. It is committed to the tab model only when
   // leaving the history entry, avoiding an app-wide render and localStorage write on every pixel.

@@ -71,10 +71,7 @@ const App = () => {
   } = useAppSettings();
   // Each concern owns its own state and side effects; the composition root just wires them
   // together into the shared context (see ARCHITECTURE_RULES §6, §4).
-  const tabs = useTabs(
-    settings.activateNewTabs,
-    settings.rememberScrollOnUp,
-  );
+  const tabs = useTabs(settings.activateNewTabs, settings.rememberScrollOnUp);
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,
