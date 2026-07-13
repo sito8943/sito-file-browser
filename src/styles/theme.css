@@ -137,6 +137,11 @@
   --color-surface-floating: rgba(0, 0, 0, 0.7);
   --color-surface-modal: rgba(20, 20, 20, 0.85);
   --color-surface-toast: rgba(40, 40, 40, 0.95);
+  /* Theme-independent transparency canvas for SVG thumbnails. Alternating neutral values keep
+     both black and white artwork visible without changing the source asset. */
+  --color-transparency-grid-light: rgb(232, 232, 236);
+  --color-transparency-grid-dark: rgb(172, 172, 180);
+  --color-transparency-grid-border: rgba(0, 0, 0, 0.24);
   /* Modal-surface background as raw RGB channels + a user-adjustable alpha, composed in Dialog.css
      so the --dialog-opacity override (set on the document root in App) takes effect. */
   --color-surface-modal-rgb: 20, 20, 20;

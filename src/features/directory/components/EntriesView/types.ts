@@ -8,6 +8,8 @@ import type { EntryKind } from "@/features/directory/constants";
 export type EntriesViewProps = {
   entries: DirEntry[];
   view: ViewMode;
+  // True only in grid view at a zoom where the folder image mosaic is legible.
+  showFolderThumbnails: boolean;
   selectedIDs: string[];
   // Paths currently on the clipboard in cut mode, dimmed until the cut is pasted or cleared.
   cutPaths: Set<string>;

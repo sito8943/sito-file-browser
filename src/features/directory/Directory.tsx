@@ -14,7 +14,11 @@ import {
   RECENTS,
   DRAG_DROP_ACTION,
 } from "@/shared/constants";
-import { ENTRY_KIND, CLIPBOARD_MODE } from "@/features/directory/constants";
+import {
+  ENTRY_KIND,
+  CLIPBOARD_MODE,
+  FOLDER_THUMBNAIL_MIN_ZOOM,
+} from "@/features/directory/constants";
 import { classNames, isTagsPath, basename, dirname } from "@/shared/utils";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
@@ -410,6 +414,9 @@ const Directory = () => {
             key={searchActive ? "search" : path}
             entries={sorted}
             view={view}
+            showFolderThumbnails={
+              view === VIEW_MODE.GRID && zoom >= FOLDER_THUMBNAIL_MIN_ZOOM
+            }
             selectedIDs={selectedIDs}
             cutPaths={cutPaths}
             renamingID={renamingID}

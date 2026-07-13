@@ -18,6 +18,7 @@ import type { EntriesViewProps } from "./types";
 const EntriesView = ({
   entries,
   view,
+  showFolderThumbnails,
   selectedIDs,
   cutPaths,
   renamingID,
@@ -166,6 +167,7 @@ const EntriesView = ({
             bindDrag={bindDrag}
             metadataTooltipDisabled={metadataTooltipDisabled}
             remoteThumbnails={remoteThumbnails}
+            showFolderThumbnails={showFolderThumbnails}
           />
         );
       })}

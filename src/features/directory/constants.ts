@@ -64,6 +64,11 @@ export const IMAGE_FORMATS: readonly string[] = [
   "gif",
   SVG_FORMAT,
 ];
+
+// Folder image mosaics are only useful once the grid tile is large enough to read. Below this
+// zoom folders keep their regular glyph and, importantly, never inspect their contents.
+export const FOLDER_THUMBNAIL_MIN_ZOOM = 1.5;
+export const FOLDER_THUMBNAIL_COUNT = 4;
 // Whether opening an entry with the given (lowercased) extension launches the in-app preview
 // rather than the OS default app, per the user's preview-in-app settings. Single source of truth
 // shared by open-routing (Directory.openFile) and by hiding the redundant Preview action when

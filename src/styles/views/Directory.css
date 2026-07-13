@@ -287,11 +287,93 @@ body.is-entry-dragging .drag_ghost {
   color: var(--color-accent);
 }
 
-.directory_page .grid .dir_entry_item .icon img {
+.directory_page .grid .dir_entry_item .icon > img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   border-radius: var(--radius-xs);
+}
+
+/* At larger zoom levels, folders containing images keep their folder glyph and layer a compact
+   contact sheet over its body. The grid shape adapts for 1-4 previews without changing the tile. */
+.directory_page .grid .dir_entry_item .icon.has_folder_thumbnails > svg {
+  width: 94%;
+  height: 94%;
+}
+
+.directory_page .grid .dir_entry_item .icon .folder_thumbnails {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  width: 78%;
+  height: 58%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--border-width-default);
+  padding: var(--space-0-5);
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--color-surface-solid);
+  border-radius: var(--radius-xs);
+}
+
+.directory_page .grid .dir_entry_item .icon .folder_thumbnails img {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: cover;
+  border-radius: var(--radius-xs);
+}
+
+/* SVGs keep their transparent canvas when loaded directly. A neutral checkerboard behind only
+   those cells guarantees contrast for black and white artwork in either application theme. */
+.directory_page
+  .grid
+  .dir_entry_item
+  .icon
+  .folder_thumbnails
+  .folder_thumbnail.is_svg {
+  background-color: var(--color-transparency-grid-light);
+  background-image: conic-gradient(
+    var(--color-transparency-grid-dark) 25%,
+    var(--color-transparency-grid-light) 0 50%,
+    var(--color-transparency-grid-dark) 0 75%,
+    var(--color-transparency-grid-light) 0
+  );
+  background-size: var(--space-2) var(--space-2);
+  border: var(--border-width-default) solid
+    var(--color-transparency-grid-border);
+  object-fit: contain;
+}
+
+.directory_page
+  .grid
+  .dir_entry_item
+  .icon
+  .folder_thumbnails[data-count="1"]
+  img {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+}
+
+.directory_page
+  .grid
+  .dir_entry_item
+  .icon
+  .folder_thumbnails[data-count="2"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.directory_page
+  .grid
+  .dir_entry_item
+  .icon
+  .folder_thumbnails[data-count="3"]
+  img:first-child {
+  grid-row: 1 / -1;
 }
 
 /* Bottom label bar: name centred, tag dots to its left. Absolute so the icon can occupy the
