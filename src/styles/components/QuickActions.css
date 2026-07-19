@@ -5,7 +5,7 @@
   gap: var(--space-1);
 }
 
-/* Danger-colored action (destroy). */
+/* Danger-colored actions (move to Trash and permanent delete). */
 .QuickBar .quick_actions .qa_danger svg {
   color: var(--color-danger);
 }

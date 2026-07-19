@@ -34,6 +34,8 @@ const EntryContextMenu = ({
   contextMenuRef,
   visible,
   onClose,
+  actionIds: providedActionIds,
+  showTags = true,
   elementId,
   elementType,
   isCurrentDirectory,
@@ -96,20 +98,23 @@ const EntryContextMenu = ({
     ),
   };
 
-  const actionIds = resolveActionIds(layout, {
-    isCurrentDirectory,
-    inTrash,
-    elementType,
-    extension: fileExtension,
-  });
+  const actionIds =
+    providedActionIds ??
+    resolveActionIds(layout, {
+      isCurrentDirectory,
+      inTrash,
+      elementType,
+      extension: fileExtension,
+    });
 
   // Finder tags: a colour-swatch row at the top, for a real entry (not the empty-directory menu
   // or the Trash). macOS only — tags are a native macOS feature.
-  const showTags = isMacPlatform() && !isCurrentDirectory && !inTrash;
+  const shouldShowTags =
+    showTags && isMacPlatform() && !isCurrentDirectory && !inTrash;
 
   return (
     <ContextMenu contextMenuVisible={visible} ref={contextMenuRef}>
-      {showTags && (
+      {shouldShowTags && (
         <>
           <TagPicker targets={targets} onClose={onClose} />
           <ContextMenuItem isSeparator />

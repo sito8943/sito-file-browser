@@ -21,6 +21,11 @@ export type EntryContextMenuProps = {
   contextMenuRef: RefObject<HTMLDivElement | null>;
   visible: boolean;
   onClose: () => void;
+  // Optional reduced action list for surfaces that reuse the entry menu (e.g. path breadcrumbs).
+  // When omitted, the configured context_menu.toml layout remains the source of truth.
+  actionIds?: readonly string[];
+  // Finder tags belong to directory-entry menus, not reduced menus on navigation surfaces.
+  showTags?: boolean;
   elementId: string;
   elementType: EntryKind;
   isCurrentDirectory: boolean;
