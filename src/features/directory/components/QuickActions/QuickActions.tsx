@@ -110,21 +110,63 @@ const QuickActions = () => {
   };
   const sortAction = ENTRY_ACTIONS[ENTRY_ACTION.SORT_BY];
 
+  // Keep the context menu's conceptual groups in the Quick Bar. Actions hidden for the current
+  // context are removed before separators are normalized, avoiding empty or duplicate dividers.
+  // Sort is rendered separately because it always targets the folder being viewed.
   const actionIds = resolveActionIds(layout, {
     isCurrentDirectory,
     inTrash,
     elementType,
     extension: fileExtension,
-  }).filter((id) => id !== ACTION_SEPARATOR && id !== ENTRY_ACTION.SORT_BY);
+  }).reduce<string[]>((items, id) => {
+    if (id === ENTRY_ACTION.SORT_BY) return items;
+
+    if (id === ACTION_SEPARATOR) {
+      if (
+        items.length > 0 &&
+        items[items.length - 1] !== ACTION_SEPARATOR
+      )
+        items.push(id);
+      return items;
+    }
+
+    const action = ENTRY_ACTIONS[id as EntryActionId];
+    if (
+      action &&
+      isActionVisible(action, ctx) &&
+      (action.submenu || action.run)
+    )
+      items.push(id);
+    return items;
+  }, []);
+
+  if (actionIds[actionIds.length - 1] === ACTION_SEPARATOR) actionIds.pop();
 
   if (path === "") return null;
 
   return (
     <div className="quick_actions">
       <QuickActionMenu action={sortAction} ctx={sortCtx} />
-      {actionIds.map((id) => {
+      {actionIds.length > 0 && (
+        <span
+          className="quick_action_separator"
+          role="separator"
+          aria-orientation="vertical"
+        />
+      )}
+      {actionIds.map((id, index) => {
+        if (id === ACTION_SEPARATOR)
+          return (
+            <span
+              className="quick_action_separator"
+              role="separator"
+              aria-orientation="vertical"
+              key={`separator-${index}`}
+            />
+          );
+
         const action = ENTRY_ACTIONS[id as EntryActionId];
-        if (!action || !isActionVisible(action, ctx)) return null;
+        if (!action) return null;
         if (action.submenu)
           return <QuickActionMenu key={action.id} action={action} ctx={ctx} />;
         if (!action.run) return null;
