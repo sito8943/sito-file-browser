@@ -1052,21 +1052,73 @@ pub fn delete_permanently_core(path: &str) -> Result<(), String> {
     }
 }
 
-// Permanently empty the user's Trash (~/.Trash), removing every item it contains. Irreversible.
-// Returns the number of top-level items removed. macOS guards ~/.Trash behind Full Disk Access
-// (TCC), so reading it can fail with a permission error just like listing it in the UI.
-//
-// Uses `symlink_metadata` so a symlink in the Trash is deleted as a link (never followed into the
-// target's directory). Per-volume Trashes (/Volumes/*/.Trashes) are intentionally out of scope.
+// Permanently empty the system Trash. The GUI delegates to Finder on macOS so the OS owns the
+// progress UI; other platforms retain the manual cross-platform implementation used by the CLI.
+// Either path runs off the async runtime's main thread because a large Trash can take a while.
 #[tauri::command]
 pub async fn empty_trash() -> Result<u32, String> {
-    tauri::async_runtime::spawn_blocking(empty_trash_core)
-        .await
-        .map_err(|e| e.to_string())?
+    #[cfg(target_os = "macos")]
+    {
+        tauri::async_runtime::spawn_blocking(empty_trash_with_finder)
+            .await
+            .map_err(|e| e.to_string())?
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        tauri::async_runtime::spawn_blocking(empty_trash_core)
+            .await
+            .map_err(|e| e.to_string())?
+    }
+}
+
+// Ask Finder to empty every Trash it manages (including per-volume Trashes). Besides matching the
+// native macOS behavior, Finder supplies its own progress window instead of making the Tauri app
+// appear frozen while Rust recursively removes a large tree. The fixed script contains no user
+// input, and the process is awaited by `spawn_blocking` above.
+#[cfg(target_os = "macos")]
+fn empty_trash_with_finder() -> Result<u32, String> {
+    use std::process::Command;
+
+    const SCRIPT: &str = r#"tell application "Finder"
+set removedCount to count of items of trash
+empty the trash
+return removedCount
+end tell"#;
+
+    let output = Command::new("/usr/bin/osascript")
+        .args(["-e", SCRIPT])
+        .output()
+        .map_err(|error| error.to_string())?;
+
+    if output.status.success() {
+        let count = String::from_utf8_lossy(&output.stdout);
+        return count
+            .trim()
+            .parse::<u32>()
+            .map_err(|error| {
+                format!("Finder emptied the Trash but returned an invalid count: {error}")
+            });
+    }
+
+    let reason = String::from_utf8_lossy(&output.stderr).trim().to_string();
+    if reason.contains("-1743") {
+        return Err(
+            "macOS denied permission to control Finder. Allow Sito File Browser in Privacy & Security > Automation."
+                .to_string(),
+        );
+    }
+    if reason.is_empty() {
+        Err(format!("Finder could not empty the Trash ({})", output.status))
+    } else {
+        Err(format!("Finder could not empty the Trash: {reason}"))
+    }
 }
 
 // Permanently empty the user's Trash (~/.Trash). Returns the count of top-level items removed.
-// Shared by the Tauri command and the CLI.
+// Used by the CLI on every platform and by the GUI outside macOS. Uses `symlink_metadata` so a
+// symlink is removed as a link (never followed into its target). Per-volume Trashes are out of
+// scope for this fallback.
 pub fn empty_trash_core() -> Result<u32, String> {
     let home = std::env::var("HOME").map_err(|e| e.to_string())?;
     let trash = Path::new(&home).join(".Trash");
