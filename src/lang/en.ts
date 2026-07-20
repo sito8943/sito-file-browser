@@ -481,6 +481,9 @@ export const en = {
     },
     defaultZoom: "Default zoom",
     defaultZoomHint: "Zoom level for folders you haven't zoomed yet.",
+    zoomWithModifierWheel: "Zoom with Command/Ctrl + scroll wheel",
+    zoomWithModifierWheelHint:
+      "Change the current folder's zoom while holding Command on macOS or Ctrl on other platforms.",
     zoomPercent: (percent: number) => `${percent}%`,
     dateFormat: "Date format",
     dateFormatHint: "How dates are shown in folders and properties.",

@@ -178,6 +178,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: DEFAULT_THEME,
   accentColor: DEFAULT_ACCENT,
   defaultZoom: ZOOM_DEFAULT,
+  zoomWithModifierWheel: true,
   dateFormat: DEFAULT_DATE_FORMAT,
   sidebarOpacity: DEFAULT_SIDEBAR_OPACITY,
   contextMenuOpacity: DEFAULT_CONTEXT_MENU_OPACITY,

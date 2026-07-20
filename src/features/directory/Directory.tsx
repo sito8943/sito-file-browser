@@ -34,6 +34,7 @@ import { useNativeDropTarget } from "./hooks/useNativeDropTarget";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { useClipboardShortcuts } from "./hooks/useClipboardShortcuts";
 import { useZoomShortcuts } from "./hooks/useZoomShortcuts";
+import { useZoomWheel } from "./hooks/useZoomWheel";
 import { useContextMenu } from "./hooks/useContextMenu";
 import { useWritability } from "./hooks/useWritability";
 import { useDirectory } from "./providers/DirectoryProvider";
@@ -311,6 +312,14 @@ const Directory = () => {
   });
 
   useZoomShortcuts(!preview.visible && !properties.visible);
+
+  useZoomWheel(directoryRef, {
+    enabled:
+      !preview.visible &&
+      !properties.visible &&
+      !anyModalOpen &&
+      !menu.visible,
+  });
 
   // The empty floor of the entries area represents the directory currently being viewed.
   // Restrict the menu to that area: not the list header, the status bar, or an entry row.

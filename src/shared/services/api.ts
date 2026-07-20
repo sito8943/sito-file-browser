@@ -26,6 +26,8 @@ export type AppSettings = {
   // Accent hue driving selection/focus/links: "blue" | "navy" | "red" | "teal" | "gold" (see ACCENT).
   accentColor: string;
   defaultZoom: number;
+  // Zoom folders with Command/Ctrl + scroll wheel.
+  zoomWithModifierWheel: boolean;
   dateFormat: string;
   sidebarOpacity: number;
   // Context-menu background opacity (alpha of the popover surface), 0..1.
