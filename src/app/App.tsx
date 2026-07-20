@@ -73,12 +73,20 @@ const App = () => {
   // Each concern owns its own state and side effects; the composition root just wires them
   // together into the shared context (see ARCHITECTURE_RULES §6, §4).
   const tabs = useTabs(settings.activateNewTabs, settings.rememberScrollOnUp);
+  // A denied system folder must never strand the active tab. Prefer the real history transition
+  // so Back/Forward semantics stay intact; a restored/direct path has no previous entry, so the
+  // Volumes view is its safe fallback.
+  const leaveAccessDeniedPath = useCallback(() => {
+    if (tabs.canGoBack) tabs.goBack();
+    else tabs.setPath("");
+  }, [tabs.canGoBack, tabs.goBack, tabs.setPath]);
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,
     navigate,
     locationPathname: location.pathname,
     hideSystemRecents: settings.hideSystemRecents,
+    onAccessDenied: leaveAccessDeniedPath,
   });
   // Bounce out of a folder whose mount vanished (SMB server shut down, disk ejected) instead of
   // stranding the user in a dead, empty directory.

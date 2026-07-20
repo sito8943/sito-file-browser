@@ -29,6 +29,7 @@ export const useDirectoryContents = ({
   navigate,
   locationPathname,
   hideSystemRecents,
+  onAccessDenied,
 }: UseDirectoryContentsArgs) => {
   const [volumes, setVolumes] = useState<Volume[]>([]);
   const [dirContent, setDirContent] = useState<DirEntry[]>([]);
@@ -112,11 +113,18 @@ export const useDirectoryContents = ({
     loadDirectory(path).then(({ files, denied, error }) => {
       window.clearTimeout(stallTimer);
       setStalled(false);
+      if (denied) {
+        setDirContent([]);
+        setAccessDenied(false);
+        setLoadError(null);
+        onAccessDenied();
+        return;
+      }
       setDirContent(files);
-      setAccessDenied(denied);
+      setAccessDenied(false);
       setLoadError(error);
     });
-  }, [loadDirectory, fetchVolumes, path]);
+  }, [loadDirectory, fetchVolumes, path, onAccessDenied]);
 
   // Keep a ref to the latest refreshDir so the watcher below doesn't re-subscribe on every
   // change to it (it changes with `path`, which already re-runs the watch effect).
@@ -134,11 +142,13 @@ export const useDirectoryContents = ({
   const loadDirectoryRef = useRef(loadDirectory);
   const navigateRef = useRef(navigate);
   const locationRef = useRef(locationPathname);
+  const onAccessDeniedRef = useRef(onAccessDenied);
   useEffect(() => {
     loadDirectoryRef.current = loadDirectory;
     navigateRef.current = navigate;
     locationRef.current = locationPathname;
-  }, [loadDirectory, navigate, locationPathname]);
+    onAccessDeniedRef.current = onAccessDenied;
+  }, [loadDirectory, navigate, locationPathname, onAccessDenied]);
 
   // Watch the current directory so external changes (e.g. `mv`/`rm` from a terminal, or another
   // app) refresh the listing automatically. Debounced, and torn down when the path changes.
@@ -290,8 +300,16 @@ export const useDirectoryContents = ({
       window.clearTimeout(stallTimer);
       setLoadingDir(false);
       setStalled(false);
+      if (denied) {
+        setDirContent([]);
+        setAccessDenied(false);
+        setLoadError(null);
+        markReady();
+        onAccessDeniedRef.current();
+        return;
+      }
       setDirContent(files);
-      setAccessDenied(denied);
+      setAccessDenied(false);
       setLoadError(error);
       markReady();
       if (locationRef.current !== ROUTES.directory && path !== "")
