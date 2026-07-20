@@ -60,6 +60,24 @@ fn main() {
             // into cached ancestor sizes and emit dir-size-changed so the open view updates live.
             app.manage(watcher::DirWatcher::new());
 
+            // Pre-warm the folders a first navigation most likely lands on (home + the macOS
+            // TCC-protected trio). Their first-ever access pays a tccd round-trip plus cold
+            // metadata-cache stats (~1s on Desktop); doing it here, off-thread and in parallel
+            // with the WebView boot, makes the user's first navigation as fast as the rest.
+            {
+                let path = app.path();
+                let warm: Vec<std::path::PathBuf> = [
+                    path.home_dir(),
+                    path.desktop_dir(),
+                    path.document_dir(),
+                    path.download_dir(),
+                ]
+                .into_iter()
+                .flatten()
+                .collect();
+                std::thread::spawn(move || filesystem::fs::prewarm_directories(warm));
+            }
+
             // Trim the thumbnail cache to its size budget, off the UI thread.
             if let Ok(cache_dir) = app.path().app_cache_dir() {
                 let thumbnails = cache_dir.join("thumbnails");

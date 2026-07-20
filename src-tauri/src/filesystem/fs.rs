@@ -525,13 +525,32 @@ pub fn read_directory_local(path: &str) -> Result<Vec<DirEntry>, String> {
     Ok(result)
 }
 
+// Touch a set of directories (read_dir + one stat per entry) so the OS pays its one-time costs —
+// the macOS TCC consent round-trip on protected folders and the cold metadata cache — before the
+// user's first navigation instead of during it. Errors are ignored: a folder that is missing or
+// denied simply stays cold.
+pub fn prewarm_directories(paths: Vec<PathBuf>) {
+    for dir in paths {
+        if let Ok(entries) = fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let _ = entry.path().metadata();
+            }
+        }
+    }
+}
+
 // List a directory, local or remote. A `sftp://<conn>/path` argument routes to the SFTP backend;
 // anything else is a local path handled by `read_directory_local`. Async so the remote branch can
-// await the network without blocking the UI thread.
+// await the network without blocking the UI thread; the local branch runs its read+stat loop on
+// the blocking pool so a large or cold folder never stalls other pending commands.
 #[tauri::command]
 pub async fn read_directory(app: AppHandle, path: String) -> Result<Vec<DirEntry>, String> {
     match super::sftp::resolve(&path) {
-        super::sftp::Target::Local(p) => read_directory_local(&p),
+        super::sftp::Target::Local(p) => {
+            tauri::async_runtime::spawn_blocking(move || read_directory_local(&p))
+                .await
+                .map_err(|e| e.to_string())?
+        }
         super::sftp::Target::Remote { conn, path } => {
             super::sftp::read_dir(&app, &conn, &path).await
         }
