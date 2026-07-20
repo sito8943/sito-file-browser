@@ -42,6 +42,9 @@ export type State = {
   // True while a navigation is still fetching the new folder's listing (after a short delay, so
   // fast local reads don't flash). The directory view shows a spinner instead of the stale entries.
   loadingDir: boolean;
+  // True when a read (navigation or background refresh) has hung well past normal — typically a
+  // dead SMB mount. Drives a non-blocking overlay offering a way out to the Volumes view.
+  stalled: boolean;
   view: ViewMode;
   setView: (view: ViewMode) => void;
   // Whether hidden entries (dotfiles) are shown in the listing. Toggled via the keymap.

@@ -249,6 +249,13 @@ export type StorageKind = (typeof STORAGE_KIND)[keyof typeof STORAGE_KIND];
 // src-tauri/src/filesystem/sftp.rs. See SSH_PLAN.md.
 export const SFTP_SCHEME = "sftp://";
 
+// Path scheme marking a saved SMB (Windows share) location: `smb://<host>/<share>`. Unlike SFTP,
+// these are not browsed through a virtual backend — macOS mounts the share under /Volumes and the
+// local filesystem cores browse it there. The scheme is only how the location is stored/identified
+// in the sidebar; clicking it resolves (mounting if needed) to the real /Volumes path. Mirrors
+// SMB_SCHEME in src-tauri/src/filesystem/smb.rs.
+export const SMB_SCHEME = "smb://";
+
 // Prefix the SFTP backend puts on an authentication-failure error (vs network/other), so the UI can
 // prompt for a password/passphrase instead of a generic error. Mirrors AUTH_FAILED_MARKER in
 // src-tauri/src/filesystem/sftp.rs.

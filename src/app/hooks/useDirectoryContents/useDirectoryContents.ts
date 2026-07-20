@@ -14,6 +14,7 @@ import { t } from "@/lang";
 import { ROUTES } from "../../routes";
 import {
   DIRECTORY_LOADING_SPINNER_DELAY_MS,
+  DIRECTORY_STALL_DELAY_MS,
   DIRECTORY_WATCH_DEBOUNCE_MS,
   VOLUMES_MOUNT_DIR,
 } from "./constants";
@@ -40,6 +41,10 @@ export const useDirectoryContents = ({
   // The directory view shows a spinner instead of the stale listing (matters for slow SFTP loads).
   // Set only by the path-change effect, never by refreshDir, so background refreshes don't flash it.
   const [loadingDir, setLoadingDir] = useState<boolean>(false);
+  // True when a read (navigation OR background refresh) has been pending far too long — the mount is
+  // likely a dead SMB share whose reads block for the OS timeout. Drives a non-blocking "still
+  // loading / leave" overlay so the app stays clearly alive and the user can bail out.
+  const [stalled, setStalled] = useState<boolean>(false);
   // Flips true once the first listing (a folder, or the Volumes view at the root) has loaded, so
   // the app can reveal the window with real content instead of an empty shell. Latched once.
   const [ready, setReady] = useState(false);
@@ -94,10 +99,19 @@ export const useDirectoryContents = ({
     [fs, hideSystemRecents],
   );
 
-  // Reload the current view (used after filesystem operations like copy/move/rename/delete).
+  // Reload the current view (used after filesystem operations like copy/move/rename/delete, and by
+  // the folder watcher / focus refresh). A stall timer flags a read that hangs — e.g. a background
+  // refresh landing on a share whose server just died — so the view can surface the "leave" overlay
+  // even when the user is already sitting in the folder (not navigating).
   const refreshDir = useCallback(() => {
     if (path === "") return fetchVolumes();
+    const stallTimer = window.setTimeout(
+      () => setStalled(true),
+      DIRECTORY_STALL_DELAY_MS,
+    );
     loadDirectory(path).then(({ files, denied, error }) => {
+      window.clearTimeout(stallTimer);
+      setStalled(false);
       setDirContent(files);
       setAccessDenied(denied);
       setLoadError(error);
@@ -254,10 +268,18 @@ export const useDirectoryContents = ({
 
     // Show the spinner only if the listing hasn't arrived within the delay: fast local reads
     // never flash it, slow remotes (SFTP) cross the threshold and get it.
+    // Note: `stalled` is reset by the previous path's effect cleanup (below) before this runs, so
+    // there's no need to clear it synchronously here (which would trip the cascading-render lint).
     let cancelled = false;
     const spinnerTimer = window.setTimeout(
       () => setLoadingDir(true),
       DIRECTORY_LOADING_SPINNER_DELAY_MS,
+    );
+    // A much longer timer: if even the initial listing never arrives (dead SMB mount), swap the
+    // bare spinner for the "still loading / leave" overlay so the user isn't stuck watching it.
+    const stallTimer = window.setTimeout(
+      () => setStalled(true),
+      DIRECTORY_STALL_DELAY_MS,
     );
 
     // Guard against a stale load resolving after we've already navigated away: e.g. leaving the
@@ -265,7 +287,9 @@ export const useDirectoryContents = ({
     loadDirectoryRef.current(path).then(({ files, denied, error }) => {
       if (cancelled) return;
       window.clearTimeout(spinnerTimer);
+      window.clearTimeout(stallTimer);
       setLoadingDir(false);
+      setStalled(false);
       setDirContent(files);
       setAccessDenied(denied);
       setLoadError(error);
@@ -276,7 +300,9 @@ export const useDirectoryContents = ({
     return () => {
       cancelled = true;
       window.clearTimeout(spinnerTimer);
+      window.clearTimeout(stallTimer);
       setLoadingDir(false);
+      setStalled(false);
     };
   }, [path, markReady]);
 
@@ -288,6 +314,7 @@ export const useDirectoryContents = ({
     accessDenied,
     loadError,
     loadingDir,
+    stalled,
     refreshDir,
     ready,
   };

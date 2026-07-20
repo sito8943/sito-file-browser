@@ -17,7 +17,8 @@ use std::process::exit;
 
 use serde_json::{json, Value};
 
-use sito_file_browser_lib::filesystem::{archive, fs, sftp, tags};
+use sito_file_browser_lib::filesystem::{archive, fs, sftp, smb, tags};
+use sito_file_browser_lib::functions::sidebar;
 
 // ---- Command table (declarative registry) ----------------------------------------------------
 
@@ -411,6 +412,93 @@ const COMMANDS: &[Command] = &[
         run: |a| {
             let removed = sftp::remove_connection_from(&app_config_dir()?, a.require("id")?)?;
             Ok(json!({ "id": a.require("id")?, "removed": removed }))
+        },
+    },
+    // -- SMB diagnostics (native macOS mounting; no credentials accepted by the CLI) --------
+    Command {
+        name: "smb-diagnose",
+        group: "smb",
+        summary: "Resolve an SMB host and probe TCP port 445 without authenticating.",
+        args: &[
+            val("host", true, "Windows hostname or IP address."),
+            val(
+                "share",
+                false,
+                "Optional Windows share name, included in the reported URL.",
+            ),
+            val(
+                "timeout-ms",
+                false,
+                "Timeout per resolved address in milliseconds (default 2000).",
+            ),
+        ],
+        run: |a| {
+            let timeout_ms = match a.opt("timeout-ms") {
+                Some(raw) => raw
+                    .parse::<u64>()
+                    .map_err(|_| format!("invalid --timeout-ms: {raw}"))?,
+                None => 2_000,
+            };
+            if timeout_ms == 0 || timeout_ms > 60_000 {
+                return Err("--timeout-ms must be between 1 and 60000".to_string());
+            }
+            let result = smb::diagnose(
+                a.require("host")?,
+                a.opt("share"),
+                std::time::Duration::from_millis(timeout_ms),
+            )?;
+            to_value(&result)
+        },
+    },
+    Command {
+        name: "smb-mounts",
+        group: "smb",
+        summary: "List native SMB mounts and their local filesystem paths.",
+        args: &[],
+        run: |_a| to_value(&smb::mounts()?),
+    },
+    Command {
+        name: "smb-shares",
+        group: "smb",
+        summary: "List the disk shares a host exposes (needs a prior macOS sign-in; Keychain-backed).",
+        args: &[val("host", true, "Windows hostname or IP address.")],
+        run: |a| to_value(&smb::shares(a.require("host")?)?),
+    },
+    Command {
+        name: "smb-connect",
+        group: "smb",
+        summary: "Ask macOS to connect to an SMB share using its native credential UI.",
+        args: &[
+            val("host", true, "Windows hostname or IP address."),
+            val("share", true, "Windows share name."),
+        ],
+        run: |a| {
+            let url = smb::connect(a.require("host")?, a.require("share")?)?;
+            Ok(json!({ "url": url, "launched": true }))
+        },
+    },
+    Command {
+        name: "smb-save",
+        group: "smb",
+        summary: "Save a Windows share as a sidebar location in the Network group (sidebar.toml).",
+        args: &[
+            val("host", true, "Windows hostname or IP address."),
+            val("share", true, "Windows share name."),
+            val(
+                "name",
+                false,
+                "Optional display name (defaults to the share name).",
+            ),
+        ],
+        run: |a| {
+            let host = a.require("host")?;
+            let share = a.require("share")?;
+            // Validate host/share the same way the mount URL builder does (rejects slashes in the
+            // share, whitespace in the host, etc.) before persisting the location.
+            smb::url(host, Some(share))?;
+            let path = smb::location_path(host, share, a.opt("name"));
+            let added = sidebar::add_item_to(&app_config_dir()?, "network", path.clone())?;
+            Ok(json!({ "path": path, "added": added, "group": "network" }))
         },
     },
     // -- UI (drive the running GUI over the control socket) ---------------------------------
@@ -813,7 +901,7 @@ fn help_text() -> String {
     let mut out = String::from(
         "sfb — headless file-browser CLI (JSON out).\n\nUsage: sfb <command> [--arg value ...]\n       sfb <path>   open a folder, or reveal a file, in the app (e.g. `sfb .`, `sfb x.pdf`)\n\n",
     );
-    for group in ["read", "write", "delete", "tags", "ui"] {
+    for group in ["read", "write", "delete", "tags", "sftp", "smb", "ui"] {
         out.push_str(&format!("{}:\n", group));
         for cmd in COMMANDS.iter().filter(|c| c.group == group) {
             let names: Vec<String> = cmd

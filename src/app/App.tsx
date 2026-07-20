@@ -32,6 +32,7 @@ import AppContent from "./AppContent";
 import { useToasts } from "./hooks/useToasts";
 import { useZoom } from "./hooks/useZoom";
 import { useDirectoryContents } from "./hooks/useDirectoryContents";
+import { useStaleMountRedirect } from "./hooks/useStaleMountRedirect";
 import { useSidebarCollapsed } from "./hooks/useSidebarCollapsed";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useDockMenu } from "./hooks/useDockMenu";
@@ -79,6 +80,9 @@ const App = () => {
     locationPathname: location.pathname,
     hideSystemRecents: settings.hideSystemRecents,
   });
+  // Bounce out of a folder whose mount vanished (SMB server shut down, disk ejected) instead of
+  // stranding the user in a dead, empty directory.
+  useStaleMountRedirect(tabs.path, directory.volumes, tabs.setPath);
   useTheme(settings.theme as Theme);
   useAccent(settings.accentColor as Accent);
   const zoom = useZoom(fs, tabs.path, settings.defaultZoom);
@@ -241,6 +245,7 @@ const App = () => {
         accessDenied: directory.accessDenied,
         loadError: directory.loadError,
         loadingDir: directory.loadingDir,
+        stalled: directory.stalled,
         view,
         setView,
         showHidden: settings.showHidden,

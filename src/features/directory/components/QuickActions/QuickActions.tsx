@@ -122,10 +122,7 @@ const QuickActions = () => {
     if (id === ENTRY_ACTION.SORT_BY) return items;
 
     if (id === ACTION_SEPARATOR) {
-      if (
-        items.length > 0 &&
-        items[items.length - 1] !== ACTION_SEPARATOR
-      )
+      if (items.length > 0 && items[items.length - 1] !== ACTION_SEPARATOR)
         items.push(id);
       return items;
     }

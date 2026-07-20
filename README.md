@@ -63,6 +63,9 @@ command and its arguments, or `sfb help` for human-readable help.
 sfb list --path ~/Documents
 sfb search --path ~ --query invoice
 sfb tags-set --path report.pdf --tags '[{"name":"Work","color":4}]'
+sfb smb-diagnose --host 192.168.1.50 --share Shared
+sfb smb-connect --host 192.168.1.50 --share Shared
+sfb smb-mounts
 sfb delete --path old.log --force   # destructive ops require --force
 ```
 

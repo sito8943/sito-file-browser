@@ -40,6 +40,7 @@
   --size-path-search: 260px;
   --size-connection-dialog-width: 420px;
   --size-connection-port-width: 96px;
+  --size-smb-shares-max-height: 192px;
   --size-progress-track: var(--space-1);
   --size-slider-thumb: var(--space-2);
   --size-spinner: var(--space-12);
@@ -212,6 +213,7 @@
   --color-danger-solid-hover: rgb(160, 24, 19);
   --color-success-surface: rgba(30, 90, 50, 0.95);
   --color-success-border: rgba(80, 220, 130, 0.5);
+  --color-success: rgb(80, 220, 130);
   /* Solid success fill (+ white text) for coloured toasts. Shared across themes — white on it is
      ≈6:1. Mirrors --color-danger-solid. */
   --color-success-solid: rgb(30, 110, 62);
@@ -316,6 +318,7 @@
   --color-danger-hover: rgb(160, 24, 19);
   --color-danger-surface: rgba(197, 34, 31, 0.1);
   --color-danger-border: rgba(197, 34, 31, 0.35);
+  --color-success: rgb(30, 110, 62);
 }
 
 /* Accent presets. Each sets only the base RGB triple; selection/focus/link tokens compose from it

@@ -337,6 +337,59 @@ export const en = {
     retry: "Retry",
     authFailedRetry: (error: string) => `Still couldn't connect: ${error}`,
   },
+  smb: {
+    // Chooser shown when adding to the Network group (SSH vs Windows share).
+    chooseTitle: "Add network location",
+    chooseSsh: "SSH / SFTP",
+    chooseSshHint: "Browse a remote server over SSH.",
+    chooseSmb: "Windows share (SMB)",
+    chooseSmbHint: "A Windows PC or NAS on your network.",
+    // Add-SMB dialog (host + share). Doubles as the edit/reconnect dialog (see editTitle).
+    newTitle: "Add Windows share",
+    // Shown when a saved location is unreachable — the dialog opens prefilled to fix its address.
+    editTitle: "Update Windows share",
+    reconnectHint: (name: string, host: string) =>
+      `${name} didn't answer at ${host}. Its IP may have changed (a different network gives the PC a new address). Enter the current IP or hostname and test it.`,
+    save: "Save & connect",
+    fieldName: "Name",
+    fieldNamePlaceholder: "My PC",
+    fieldHost: "Host",
+    fieldHostPlaceholder: "192.168.1.98",
+    fieldShare: "Share",
+    fieldSharePlaceholder: "Users",
+    hint: "macOS mounts the share and asks for your Windows username and password when you open it. Nothing is stored here.",
+    test: "Test connection",
+    testing: "Testing…",
+    // Share discovery (list the host's shares as pickable folders).
+    sharesTitle: "Shared folders",
+    listShares: "List shared folders",
+    loadingShares: "Listing shared folders…",
+    pickShareHint: "Pick a shared folder, or type its name below.",
+    sharesUnavailable:
+      "Can't list shared folders yet — this works after you've signed in to the PC once (macOS remembers it). Meanwhile, on the PC run `Get-SmbShare` in PowerShell to see the names, and type one below.",
+    adminShareNote: "admin — needs a Windows administrator account",
+    reachable: "Reachable — port 445 is open.",
+    unreachable:
+      "Couldn't reach port 445. Check the PC is on and file sharing is allowed through its firewall.",
+    add: "Add",
+    invalidHost: "Enter the PC's hostname or IP address.",
+    invalidShare: "Enter the Windows share name (no slashes).",
+    // Open flow (clicking a saved SMB row). Each step is toasted so the flow isn't opaque.
+    checking: (name: string) => `Checking ${name}…`,
+    unreachableToast: (name: string, host: string) =>
+      `${name} isn't reachable — no answer from ${host} on port 445. Is the PC on, and file sharing allowed through its firewall?`,
+    connecting: (name: string) =>
+      `${name} is reachable — opening the macOS sign-in…`,
+    waitingMount: (name: string) =>
+      `Waiting for ${name} to mount (sign in to the macOS prompt)…`,
+    mounted: (name: string) => `${name} mounted.`,
+    connectTimeout:
+      "The share didn't mount. Finish signing in to the macOS prompt, or check the PC is reachable.",
+    connectError: (error: string) => `Couldn't connect: ${error}`,
+    remove: "Remove location",
+    confirmRemove: (name: string) =>
+      `Remove "${name}" from the sidebar? This only removes the saved location — it doesn't unmount or change anything on the PC.`,
+  },
   settings: {
     title: "Settings",
     search: "Search settings",
@@ -601,6 +654,14 @@ export const en = {
     remoteError: {
       title: "Can't reach this server",
       retry: "Retry",
+    },
+    // Shown (non-blocking) when a read hangs far too long — typically a network share whose server
+    // went away. The app stays alive; this offers a way out without waiting for the OS timeout.
+    stalled: {
+      title: "Still loading…",
+      description:
+        "This folder is taking a long time. If it's a network share, the server may be slow or disconnected. You can keep waiting, or leave.",
+      leave: "Go to Volumes",
     },
     ntfs: {
       title: "Read-only NTFS drive",

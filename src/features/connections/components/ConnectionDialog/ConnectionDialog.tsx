@@ -15,11 +15,9 @@ import { t } from "@/lang";
 import "@/styles/components/ConnectionDialog.css";
 
 import { AUTH_KIND, SSH_DEFAULT_PORT, type AuthKind } from "../../constants";
-import { ConnectionsManager } from "../../managers/ConnectionsManager";
+import { useConnections } from "../../providers/ConnectionsProvider";
 import { CONNECTION_TITLE_ID } from "./constants";
 import type { ConnectionDialogProps } from "./types";
-
-const manager = new ConnectionsManager();
 
 // Create-connection form (SSH_PLAN.md phase 2). Non-secret fields go to connections.toml; the
 // password / key passphrase go to the OS keychain (handled by the backend). The auth selector only
@@ -31,6 +29,7 @@ const ConnectionDialog = ({
   onClose,
 }: ConnectionDialogProps) => {
   useCloseOnEscape(visible, onClose);
+  const { manager } = useConnections();
 
   const editing = !!initial;
 
