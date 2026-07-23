@@ -290,23 +290,23 @@ Do not execute `sfb` from an agent session unless the developer explicitly autho
 
 ## Task routing table
 
-| Request | Start here |
-| --- | --- |
-| Navigation, Back/Forward, tabs, scroll restoration | `src/features/tabs/hooks/useTabs`, `src/features/tabs/utils.ts` |
-| Folder load, spinner, stalls, access denied, refresh | `src/app/hooks/useDirectoryContents` |
-| Entry list/render/selection | `src/features/directory/Directory.tsx`, `DirectoryProvider`, `EntriesView` |
-| File operations | directory actions/hooks -> `FileSystemManager` -> `api.ts` -> Rust filesystem core |
-| Preview or Properties | `src/features/directory/components/Preview` or `Properties` and their hooks |
-| Folder sizes/watchers | `useDirSizes.ts`, `src-tauri/src/index.rs`, `src-tauri/src/watcher.rs` |
-| Thumbnails | `DirEntry` thumbnail hooks and `src-tauri/src/filesystem/fs.rs` |
-| Settings | Settings schema/provider, `api.ts`, `src-tauri/src/functions/settings.rs`, translations |
-| Keyboard shortcuts | `src/shared/keymap`, `src/features/shortcuts`, keymap Settings schema |
-| Sidebar | `src/features/sidebar`; network orchestration remains in `ConnectionsProvider` |
-| SFTP | `src/features/connections`, `api.ts`, `src-tauri/src/filesystem/sftp.rs`, `SSH_PLAN.md` |
-| SMB | `ConnectionsProvider`, `SmbManager`, `src-tauri/src/filesystem/smb.rs` |
-| Volumes/eject/NTFS | `src/features/volumes`, directory writability hook, Rust volumes/system functions |
-| Tauri windows, Dock, opened URLs | `src-tauri/src/main.rs`, `window.rs`, `dock_menu.rs` |
-| Shared UI primitive | local `shared/components` wrapper first, then inspect `@sito/ui` contract |
+| Request                                              | Start here                                                                              |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Navigation, Back/Forward, tabs, scroll restoration   | `src/features/tabs/hooks/useTabs`, `src/features/tabs/utils.ts`                         |
+| Folder load, spinner, stalls, access denied, refresh | `src/app/hooks/useDirectoryContents`                                                    |
+| Entry list/render/selection                          | `src/features/directory/Directory.tsx`, `DirectoryProvider`, `EntriesView`              |
+| File operations                                      | directory actions/hooks -> `FileSystemManager` -> `api.ts` -> Rust filesystem core      |
+| Preview or Properties                                | `src/features/directory/components/Preview` or `Properties` and their hooks             |
+| Folder sizes/watchers                                | `useDirSizes.ts`, `src-tauri/src/index.rs`, `src-tauri/src/watcher.rs`                  |
+| Thumbnails                                           | `DirEntry` thumbnail hooks and `src-tauri/src/filesystem/fs.rs`                         |
+| Settings                                             | Settings schema/provider, `api.ts`, `src-tauri/src/functions/settings.rs`, translations |
+| Keyboard shortcuts                                   | `src/shared/keymap`, `src/features/shortcuts`, keymap Settings schema                   |
+| Sidebar                                              | `src/features/sidebar`; network orchestration remains in `ConnectionsProvider`          |
+| SFTP                                                 | `src/features/connections`, `api.ts`, `src-tauri/src/filesystem/sftp.rs`, `SSH_PLAN.md` |
+| SMB                                                  | `ConnectionsProvider`, `SmbManager`, `src-tauri/src/filesystem/smb.rs`                  |
+| Volumes/eject/NTFS                                   | `src/features/volumes`, directory writability hook, Rust volumes/system functions       |
+| Tauri windows, Dock, opened URLs                     | `src-tauri/src/main.rs`, `window.rs`, `dock_menu.rs`                                    |
+| Shared UI primitive                                  | local `shared/components` wrapper first, then inspect `@sito/ui` contract               |
 
 ## Documentation routing
 

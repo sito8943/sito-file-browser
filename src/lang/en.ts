@@ -697,8 +697,7 @@ export const en = {
     undo: (reason: string) => `Could not undo: ${reason}`,
     redo: (reason: string) => `Could not redo: ${reason}`,
     createFolder: (reason: string) => `Could not create folder: ${reason}`,
-    createTextFile: (reason: string) =>
-      `Could not create text file: ${reason}`,
+    createTextFile: (reason: string) => `Could not create text file: ${reason}`,
     copyImage: (reason: string) => `Could not copy image: ${reason}`,
     properties: (reason: string) => `Could not read properties: ${reason}`,
     emptyTrash: (reason: string) => `Could not empty the Trash: ${reason}`,

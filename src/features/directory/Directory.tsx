@@ -315,10 +315,7 @@ const Directory = () => {
 
   useZoomWheel(directoryRef, {
     enabled:
-      !preview.visible &&
-      !properties.visible &&
-      !anyModalOpen &&
-      !menu.visible,
+      !preview.visible && !properties.visible && !anyModalOpen && !menu.visible,
   });
 
   // The empty floor of the entries area represents the directory currently being viewed.
