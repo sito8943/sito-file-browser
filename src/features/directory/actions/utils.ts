@@ -1,8 +1,15 @@
 import { ENTRY_KIND } from "@/features/directory/constants";
+import { extension } from "@/shared/utils";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { ContextMenuLayout } from "@/shared/models";
 
 import type { EntryAction, EntryActionContext, ResolveArgs } from "./types";
+
+// True when extracting this archive requires the system 7-Zip binary: only .zip has a pure-Rust
+// path; everything else (7z, rar) shells out. Gates the extract actions' visibility so formats
+// the machine can't actually open aren't offered.
+export const archiveNeedsSevenzip = (path: string) =>
+  extension(path).toLowerCase() !== "zip";
 
 // Resolve the ordered action-id list for a given context: the current directory background,
 // a folder, or a file (matched to a file-type rule by extension, falling back to [file]).

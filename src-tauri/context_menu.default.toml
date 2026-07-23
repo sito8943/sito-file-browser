@@ -195,8 +195,10 @@ actions = [
 ]
 
 # Archive files: offer extraction actions beside Compress, in place of a preview.
+# Non-zip formats (7z, rar) extract through the system 7-Zip binary; without one on PATH the
+# extract actions hide themselves (see archiveNeedsSevenzip in the frontend action registry).
 [file_type.archive]
-extensions = ["zip", "7z"]
+extensions = ["zip", "7z", "rar"]
 actions = [
   "open",
   "open_containing_folder",
