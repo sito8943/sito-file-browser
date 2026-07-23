@@ -273,8 +273,11 @@ behavior in the core, then keep the Tauri command and CLI as adapters.
 
 ## CLI and control channel
 
-`sfb` is a sidecar binary sharing the Rust filesystem cores. Its public behavior and installation
-notes are documented in `README.md`.
+`sfb` is a sidecar binary sharing the Rust filesystem cores. Its canonical grammar is
+`sfb <verb> <resource> [target ...] [--options]`; the older flat command names remain aliases that
+resolve to the same declarative registry entries. `api-resources`, `explain`, `schema`, and `help`
+are generated from that registry. Its public behavior and installation notes are documented in
+`README.md`.
 
 The GUI exposes a Unix socket in the app config directory:
 
