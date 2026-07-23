@@ -46,6 +46,8 @@ export const en = {
   },
   contextMenu: {
     newFolder: "New Folder",
+    createFile: "Create a File",
+    textFile: "Text File",
     open: "Open",
     openInNewTab: "Open in New Tab",
     openContainingFolder: "Open Containing Folder",
@@ -640,6 +642,7 @@ export const en = {
     cut: (label: string) => `Cut ${label}`,
     pasted: (label: string) => `Pasted ${label}`,
     moved: (label: string) => `Moved ${label}`,
+    textFileCreated: (name: string) => `Created ${name}`,
     trashed: (label: string) => `Moved ${label} to Trash`,
     restored: (label: string) => `Restored ${label}`,
     deleted: (label: string) => `Deleted ${label}`,
@@ -691,6 +694,8 @@ export const en = {
     undo: (reason: string) => `Could not undo: ${reason}`,
     redo: (reason: string) => `Could not redo: ${reason}`,
     createFolder: (reason: string) => `Could not create folder: ${reason}`,
+    createTextFile: (reason: string) =>
+      `Could not create text file: ${reason}`,
     copyImage: (reason: string) => `Could not copy image: ${reason}`,
     properties: (reason: string) => `Could not read properties: ${reason}`,
     emptyTrash: (reason: string) => `Could not empty the Trash: ${reason}`,

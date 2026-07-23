@@ -107,6 +107,7 @@ fn main() {
             filesystem::fs::move_entry,
             filesystem::fs::rename_entry,
             filesystem::fs::create_folder,
+            filesystem::fs::create_text_file,
             filesystem::fs::copy_image,
             filesystem::fs::delete_entry,
             filesystem::fs::restore_trashed,

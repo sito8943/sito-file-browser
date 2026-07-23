@@ -60,7 +60,7 @@ const EntryContextMenu = ({
   const { onCompress, onExtract, onExtractToFolder } =
     useArchiveActions(fileOps);
   const sevenzipAvailable = useSevenzipAvailable();
-  const { sort, handleSort, searchActive } = useDirectory();
+  const { sort, handleSort, searchActive, focusCreatedEntry } = useDirectory();
   const { keymap } = useKeymap();
   const layout = useContextMenuLayout();
 
@@ -81,6 +81,7 @@ const EntryContextMenu = ({
     openInNewTab: newTab,
     onClose,
     onStartRename,
+    onEntryCreated: focusCreatedEntry,
     onPreview,
     onProperties,
     onCompress,

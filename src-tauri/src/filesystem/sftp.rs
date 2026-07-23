@@ -22,11 +22,12 @@ use russh::keys::agent::AgentIdentity;
 use russh::keys::ssh_key::{self, HashAlg};
 use russh::keys::{load_secret_key, PrivateKeyWithHashAlg};
 use russh_sftp::client::SftpSession;
+use russh_sftp::protocol::OpenFlags;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 use tokio::sync::Mutex;
 
-use super::fs::{remote_dir_entry, DirEntry};
+use super::fs::{remote_dir_entry, untitled_text_file_name, DirEntry};
 
 // Path scheme that marks a remote path. Mirrors SFTP_SCHEME on the frontend (constants.ts).
 pub const SFTP_SCHEME: &str = "sftp://";
@@ -825,6 +826,43 @@ pub async fn create_dir(app: &AppHandle, conn: &str, parent: &str) -> Result<Str
         }
         name = format!("untitled folder {i}");
         i += 1;
+    }
+}
+
+// Create a uniquely-named empty text file under a remote parent, mirroring the local operation.
+pub async fn create_text_file(
+    app: &AppHandle,
+    conn: &str,
+    parent: &str,
+) -> Result<String, String> {
+    let session = session_for(app, conn).await?;
+    let base = parent.trim_end_matches('/');
+    let mut suffix = 1;
+
+    loop {
+        let name = untitled_text_file_name(suffix);
+        let candidate = format!("{base}/{name}");
+
+        if session.sftp.metadata(&candidate).await.is_err() {
+            let created = session
+                .sftp
+                .open_with_flags(
+                    candidate.clone(),
+                    OpenFlags::CREATE | OpenFlags::EXCLUDE | OpenFlags::WRITE,
+                )
+                .await;
+            match created {
+                Ok(_) => return Ok(remote_url(conn, &candidate)),
+                Err(error) => {
+                    if session.sftp.metadata(&candidate).await.is_ok() {
+                        suffix += 1;
+                        continue;
+                    }
+                    return Err(format!("create failed: {error}"));
+                }
+            }
+        }
+        suffix += 1;
     }
 }
 

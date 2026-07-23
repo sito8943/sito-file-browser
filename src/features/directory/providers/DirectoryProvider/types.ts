@@ -21,6 +21,9 @@ export type DirectoryContextValue = ReturnType<typeof useDirectoryEntries> &
     // loaded. The view ensures it's rendered, scrolls to it, then calls clearRevealID.
     revealID: string | null;
     clearRevealID: () => void;
+    // Reveal, select, scroll to and start renaming a newly created child. Navigates into `parent`
+    // first when creation was triggered from a closed folder's context menu.
+    focusCreatedEntry: (parent: string, created: string) => void;
     // Open a file like a double-click in the listing: in-app preview when its setting covers the
     // type, the OS default app otherwise. Shared by the view and the path bar.
     openFile: (entry: DirEntry) => Promise<void>;

@@ -817,6 +817,38 @@ pub fn create_folder_local(parent: String) -> Result<String, String> {
     Ok(candidate.to_string_lossy().into_owned())
 }
 
+const UNTITLED_TEXT_FILE_STEM: &str = "untitled";
+const TEXT_FILE_EXTENSION: &str = "txt";
+
+pub(crate) fn untitled_text_file_name(suffix: u32) -> String {
+    if suffix == 1 {
+        format!("{UNTITLED_TEXT_FILE_STEM}.{TEXT_FILE_EXTENSION}")
+    } else {
+        format!("{UNTITLED_TEXT_FILE_STEM} {suffix}.{TEXT_FILE_EXTENSION}")
+    }
+}
+
+// Create a uniquely-named empty text file inside `parent`, without ever truncating an existing
+// entry. Returns the created path.
+pub fn create_text_file_local(parent: String) -> Result<String, String> {
+    let dir = Path::new(&parent);
+    let mut suffix = 1;
+
+    loop {
+        let candidate = dir.join(untitled_text_file_name(suffix));
+
+        match fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&candidate)
+        {
+            Ok(_) => return Ok(candidate.to_string_lossy().into_owned()),
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => suffix += 1,
+            Err(error) => return Err(error.to_string()),
+        }
+    }
+}
+
 // Create a folder locally or on a remote host, routing on the parent path. Async so the remote
 // branch can await SFTP; the local core stays sync (also used by the CLI).
 #[tauri::command]
@@ -825,6 +857,17 @@ pub async fn create_folder(app: AppHandle, parent: String) -> Result<String, Str
         super::sftp::Target::Local(p) => create_folder_local(p),
         super::sftp::Target::Remote { conn, path } => {
             super::sftp::create_dir(&app, &conn, &path).await
+        }
+    }
+}
+
+// Create an empty text file locally or on a remote host, routing on the parent path.
+#[tauri::command]
+pub async fn create_text_file(app: AppHandle, parent: String) -> Result<String, String> {
+    match super::sftp::resolve(&parent) {
+        super::sftp::Target::Local(p) => create_text_file_local(p),
+        super::sftp::Target::Remote { conn, path } => {
+            super::sftp::create_text_file(&app, &conn, &path).await
         }
     }
 }

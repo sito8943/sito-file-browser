@@ -510,6 +510,9 @@ export const renameEntry = async (
 // Create a new folder in `parent`; returns the created folder's path.
 export const createFolder = async (parent: string): Promise<string> =>
   (await invoke("create_folder", { parent })) as string;
+// Create a uniquely named empty .txt file in `parent`; returns the created file's path.
+export const createTextFile = async (parent: string): Promise<string> =>
+  (await invoke("create_text_file", { parent })) as string;
 // Copy an image file to the system clipboard as a bitmap.
 export const copyImage = async (path: string): Promise<void> =>
   await invoke("copy_image", { path });

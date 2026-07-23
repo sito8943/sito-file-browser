@@ -2,6 +2,7 @@
 // user (labels come from i18n).
 export const ENTRY_ACTION = {
   NEW_FOLDER: "new_folder",
+  CREATE_FILE: "create_file",
   OPEN: "open",
   OPEN_IN_NEW_TAB: "open_in_new_tab",
   OPEN_CONTAINING_FOLDER: "open_containing_folder",
@@ -24,6 +25,8 @@ export const ENTRY_ACTION = {
 } as const;
 
 export type EntryActionId = (typeof ENTRY_ACTION)[keyof typeof ENTRY_ACTION];
+
+export const TEXT_FILE_SUBMENU_KEY = "text_file";
 
 // Token in an action list that renders a divider between groups (not a real action).
 export const ACTION_SEPARATOR = "separator";
