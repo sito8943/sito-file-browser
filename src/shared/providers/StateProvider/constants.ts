@@ -38,6 +38,7 @@ export const initialState: State = {
   accessDenied: false,
   loadError: null,
   loadingDir: false,
+  stalled: false,
   view: VIEW_MODE.GRID,
   setView: () => {},
   showHidden: false,

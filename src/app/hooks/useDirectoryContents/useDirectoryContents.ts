@@ -14,6 +14,7 @@ import { t } from "@/lang";
 import { ROUTES } from "../../routes";
 import {
   DIRECTORY_LOADING_SPINNER_DELAY_MS,
+  DIRECTORY_STALL_DELAY_MS,
   DIRECTORY_WATCH_DEBOUNCE_MS,
   VOLUMES_MOUNT_DIR,
 } from "./constants";
@@ -28,6 +29,7 @@ export const useDirectoryContents = ({
   navigate,
   locationPathname,
   hideSystemRecents,
+  onAccessDenied,
 }: UseDirectoryContentsArgs) => {
   const [volumes, setVolumes] = useState<Volume[]>([]);
   const [dirContent, setDirContent] = useState<DirEntry[]>([]);
@@ -40,6 +42,10 @@ export const useDirectoryContents = ({
   // The directory view shows a spinner instead of the stale listing (matters for slow SFTP loads).
   // Set only by the path-change effect, never by refreshDir, so background refreshes don't flash it.
   const [loadingDir, setLoadingDir] = useState<boolean>(false);
+  // True when a read (navigation OR background refresh) has been pending far too long — the mount is
+  // likely a dead SMB share whose reads block for the OS timeout. Drives a non-blocking "still
+  // loading / leave" overlay so the app stays clearly alive and the user can bail out.
+  const [stalled, setStalled] = useState<boolean>(false);
   // Flips true once the first listing (a folder, or the Volumes view at the root) has loaded, so
   // the app can reveal the window with real content instead of an empty shell. Latched once.
   const [ready, setReady] = useState(false);
@@ -94,15 +100,31 @@ export const useDirectoryContents = ({
     [fs, hideSystemRecents],
   );
 
-  // Reload the current view (used after filesystem operations like copy/move/rename/delete).
+  // Reload the current view (used after filesystem operations like copy/move/rename/delete, and by
+  // the folder watcher / focus refresh). A stall timer flags a read that hangs — e.g. a background
+  // refresh landing on a share whose server just died — so the view can surface the "leave" overlay
+  // even when the user is already sitting in the folder (not navigating).
   const refreshDir = useCallback(() => {
     if (path === "") return fetchVolumes();
+    const stallTimer = window.setTimeout(
+      () => setStalled(true),
+      DIRECTORY_STALL_DELAY_MS,
+    );
     loadDirectory(path).then(({ files, denied, error }) => {
+      window.clearTimeout(stallTimer);
+      setStalled(false);
+      if (denied) {
+        setDirContent([]);
+        setAccessDenied(false);
+        setLoadError(null);
+        onAccessDenied();
+        return;
+      }
       setDirContent(files);
-      setAccessDenied(denied);
+      setAccessDenied(false);
       setLoadError(error);
     });
-  }, [loadDirectory, fetchVolumes, path]);
+  }, [loadDirectory, fetchVolumes, path, onAccessDenied]);
 
   // Keep a ref to the latest refreshDir so the watcher below doesn't re-subscribe on every
   // change to it (it changes with `path`, which already re-runs the watch effect).
@@ -120,11 +142,13 @@ export const useDirectoryContents = ({
   const loadDirectoryRef = useRef(loadDirectory);
   const navigateRef = useRef(navigate);
   const locationRef = useRef(locationPathname);
+  const onAccessDeniedRef = useRef(onAccessDenied);
   useEffect(() => {
     loadDirectoryRef.current = loadDirectory;
     navigateRef.current = navigate;
     locationRef.current = locationPathname;
-  }, [loadDirectory, navigate, locationPathname]);
+    onAccessDeniedRef.current = onAccessDenied;
+  }, [loadDirectory, navigate, locationPathname, onAccessDenied]);
 
   // Watch the current directory so external changes (e.g. `mv`/`rm` from a terminal, or another
   // app) refresh the listing automatically. Debounced, and torn down when the path changes.
@@ -186,22 +210,23 @@ export const useDirectoryContents = ({
     };
   }, [fetchVolumes]);
 
-  // Keep the recursive size-index watcher (Phase B) pointed at the viewed folder so live
-  // filesystem changes bubble into the cached ancestor sizes in real time — this is what keeps
-  // folder sizes (Properties, the Size column) from going stale after deep changes. Local folders
-  // only; remote/virtual listings aren't size-indexed. Stops when leaving the folder.
+  // Keep the recursive size-index watcher (Phase B) pointed at the viewed folder so live changes
+  // keep both Properties and the optional Size column accurate. Sending an empty path stops the
+  // previous watcher for virtual/remote views. Each effect run replaces it directly, without a
+  // fire-and-forget cleanup racing the next folder's registration.
   useEffect(() => {
-    if (
-      path === "" ||
-      path === RECENTS ||
-      isTagsPath(path) ||
-      path.startsWith(SFTP_SCHEME)
-    )
-      return;
-    void fs.watchDirSizes(path);
-    return () => {
-      void fs.watchDirSizes("");
-    };
+    const watchPath =
+      path !== "" &&
+      path !== RECENTS &&
+      !isTagsPath(path) &&
+      !path.startsWith(SFTP_SCHEME)
+        ? path
+        : "";
+    void fs
+      .watchDirSizes(watchPath)
+      .catch((err) =>
+        console.error("Failed to watch directory sizes:\n" + err),
+      );
   }, [fs, path]);
 
   // Initial volumes load.
@@ -254,10 +279,18 @@ export const useDirectoryContents = ({
 
     // Show the spinner only if the listing hasn't arrived within the delay: fast local reads
     // never flash it, slow remotes (SFTP) cross the threshold and get it.
+    // Note: `stalled` is reset by the previous path's effect cleanup (below) before this runs, so
+    // there's no need to clear it synchronously here (which would trip the cascading-render lint).
     let cancelled = false;
     const spinnerTimer = window.setTimeout(
       () => setLoadingDir(true),
       DIRECTORY_LOADING_SPINNER_DELAY_MS,
+    );
+    // A much longer timer: if even the initial listing never arrives (dead SMB mount), swap the
+    // bare spinner for the "still loading / leave" overlay so the user isn't stuck watching it.
+    const stallTimer = window.setTimeout(
+      () => setStalled(true),
+      DIRECTORY_STALL_DELAY_MS,
     );
 
     // Guard against a stale load resolving after we've already navigated away: e.g. leaving the
@@ -265,9 +298,19 @@ export const useDirectoryContents = ({
     loadDirectoryRef.current(path).then(({ files, denied, error }) => {
       if (cancelled) return;
       window.clearTimeout(spinnerTimer);
+      window.clearTimeout(stallTimer);
       setLoadingDir(false);
+      setStalled(false);
+      if (denied) {
+        setDirContent([]);
+        setAccessDenied(false);
+        setLoadError(null);
+        markReady();
+        onAccessDeniedRef.current();
+        return;
+      }
       setDirContent(files);
-      setAccessDenied(denied);
+      setAccessDenied(false);
       setLoadError(error);
       markReady();
       if (locationRef.current !== ROUTES.directory && path !== "")
@@ -276,7 +319,9 @@ export const useDirectoryContents = ({
     return () => {
       cancelled = true;
       window.clearTimeout(spinnerTimer);
+      window.clearTimeout(stallTimer);
       setLoadingDir(false);
+      setStalled(false);
     };
   }, [path, markReady]);
 
@@ -288,6 +333,7 @@ export const useDirectoryContents = ({
     accessDenied,
     loadError,
     loadingDir,
+    stalled,
     refreshDir,
     ready,
   };

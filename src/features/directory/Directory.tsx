@@ -34,6 +34,7 @@ import { useNativeDropTarget } from "./hooks/useNativeDropTarget";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { useClipboardShortcuts } from "./hooks/useClipboardShortcuts";
 import { useZoomShortcuts } from "./hooks/useZoomShortcuts";
+import { useZoomWheel } from "./hooks/useZoomWheel";
 import { useContextMenu } from "./hooks/useContextMenu";
 import { useWritability } from "./hooks/useWritability";
 import { useDirectory } from "./providers/DirectoryProvider";
@@ -44,6 +45,7 @@ import ListHeader from "./components/ListHeader";
 import EntriesView from "./components/EntriesView";
 import AccessDeniedNotice from "./components/AccessDeniedNotice";
 import RemoteErrorNotice from "./components/RemoteErrorNotice";
+import StalledNotice from "./components/StalledNotice";
 import EntryContextMenu from "./components/EntryContextMenu";
 import StatusBar from "./components/StatusBar";
 import TypeaheadPopup from "./components/TypeaheadPopup";
@@ -65,6 +67,7 @@ const Directory = () => {
     accessDenied,
     loadError,
     loadingDir,
+    stalled,
     zoom,
     savingSettings,
     dragDropAction,
@@ -310,6 +313,11 @@ const Directory = () => {
 
   useZoomShortcuts(!preview.visible && !properties.visible);
 
+  useZoomWheel(directoryRef, {
+    enabled:
+      !preview.visible && !properties.visible && !anyModalOpen && !menu.visible,
+  });
+
   // The empty floor of the entries area represents the directory currently being viewed.
   // Restrict the menu to that area: not the list header, the status bar, or an entry row.
   const handleEmptyContextMenu = (e: React.MouseEvent) => {
@@ -322,15 +330,23 @@ const Directory = () => {
     menu.openAt(e.clientX, e.clientY, path, ENTRY_KIND.DIRECTORY);
   };
 
+  // A read that hung far past normal (dead network share) swaps the listing for a non-blocking
+  // "still loading / leave" notice — the app stays alive and the user can bail out. Wins over the
+  // bare spinner and the listing.
+  const showStalled = !accessDenied && stalled;
+
   // Show a spinner instead of the listing while a navigation loads the new folder (matters for
   // slow SFTP), or while a search hasn't returned its first result yet. Both hide the (stale or
   // empty) directory content underneath rather than flashing it.
   const showLoader =
-    !accessDenied && (loadingDir || (searching && sorted.length === 0));
+    !accessDenied &&
+    !showStalled &&
+    (loadingDir || (searching && sorted.length === 0));
 
   // A failed remote load shows a persistent notice instead of a deceptively empty listing. The
   // loader wins while a retry is in flight.
-  const showLoadError = !accessDenied && !showLoader && !!loadError;
+  const showLoadError =
+    !accessDenied && !showStalled && !showLoader && !!loadError;
 
   return (
     <div
@@ -378,13 +394,16 @@ const Directory = () => {
           <RemoteErrorNotice error={loadError!} retry={refreshDir} />
         )}
 
-        {!accessDenied && isNtfsReadOnly && (
+        {showStalled && <StalledNotice onLeave={() => setPath("")} />}
+
+        {!accessDenied && !showStalled && isNtfsReadOnly && (
           <NtfsNotice recheck={recheckWritability} />
         )}
 
         {!accessDenied &&
           !searchActive &&
           !showLoader &&
+          !showStalled &&
           view === VIEW_MODE.LIST &&
           sorted.length > 0 && (
             <ListHeader
@@ -405,7 +424,7 @@ const Directory = () => {
           </div>
         )}
 
-        {!accessDenied && !showLoader && !showLoadError && (
+        {!accessDenied && !showLoader && !showLoadError && !showStalled && (
           <EntriesView
             key={searchActive ? "search" : path}
             entries={sorted}

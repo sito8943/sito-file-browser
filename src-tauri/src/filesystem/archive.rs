@@ -3,8 +3,9 @@
 //! reports byte progress through a generic `progress` sink, while the `#[tauri::command]` wrappers
 //! run it on a blocking thread and forward progress to an IPC Channel.
 //!
-//! v1 handles `.zip` via the pure-Rust `zip` crate (no system binary). 7z/rar are planned as a
-//! separate path that shells out to the system `7z`/`rar` binaries (detected on PATH).
+//! `.zip` is handled by the pure-Rust `zip` crate (no system binary). Every other format (`.7z`
+//! to compress/extract, `.rar` extract-only) shells out to the system 7-Zip binary (detected on
+//! PATH); without one those paths error with an install hint and the UI hides their actions.
 
 use std::collections::HashMap;
 use std::ffi::{OsStr, OsString};
@@ -171,8 +172,9 @@ pub fn compress_entries_core(
 // True if any entry in `archive` is encrypted, so the caller can prompt for a password before
 // extracting. Reads entry metadata only (no decryption), so it needs no password itself.
 pub fn archive_is_encrypted(archive: &str) -> Result<bool, String> {
-    // .7z goes through the 7-Zip binary; everything else is read as a zip.
-    if archive.to_lowercase().ends_with(".7z") {
+    // Only .zip is read natively; every other format (7z, rar, …) is listed via the 7-Zip binary,
+    // mirroring the extraction routing in extract_archive.
+    if !archive.to_lowercase().ends_with(".zip") {
         return sevenzip_is_encrypted(archive);
     }
     let file = File::open(archive).map_err(|e| e.to_string())?;

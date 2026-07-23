@@ -22,6 +22,9 @@ importers:
       "@fortawesome/react-fontawesome":
         specifier: 3.3.1
         version: 3.3.1(@fortawesome/fontawesome-svg-core@7.2.0)(react@19.2.7)
+      "@sito/ui":
+        specifier: 0.3.3
+        version: 0.3.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       "@tauri-apps/api":
         specifier: ^2
         version: 2.11.1
@@ -94,6 +97,16 @@ importers:
         version: 8.0.16(@types/node@26.0.1)
 
 packages:
+  "@sito/ui@0.3.3":
+    resolution:
+      {
+        integrity: sha512-kItJChJetoXH4eCjkgSyPwv2wrFkoofpN2T+wVXTEtiuR0P6QxkAUR6XZE6DGq22iR4RX6Qh8InoXCq9EVykCw==,
+      }
+    engines: { node: ^20.19.0 || ^22.13.0 || >=24 }
+    peerDependencies:
+      react: ^19.0.0
+      react-dom: ^19.0.0
+
   "@babel/code-frame@7.29.7":
     resolution:
       {
@@ -1757,6 +1770,11 @@ packages:
       }
 
 snapshots:
+  "@sito/ui@0.3.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)":
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+
   "@babel/code-frame@7.29.7":
     dependencies:
       "@babel/helper-validator-identifier": 7.29.7

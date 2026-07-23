@@ -2,6 +2,7 @@ import { ENTRY_ACTION, type EntryActionId } from "./constants";
 import type { EntryAction } from "./types";
 
 import { newFolderAction } from "./newFolder";
+import { createFileAction } from "./createFile";
 import { openAction } from "./open";
 import { openInNewTabAction } from "./openInNewTab";
 import { openContainingFolderAction } from "./openContainingFolder";
@@ -25,6 +26,7 @@ import { toggleHiddenAction } from "./toggleHidden";
 // Lookup from an action id (as written in context_menu.toml) to its predefined descriptor.
 export const ENTRY_ACTIONS: Record<EntryActionId, EntryAction> = {
   [ENTRY_ACTION.NEW_FOLDER]: newFolderAction,
+  [ENTRY_ACTION.CREATE_FILE]: createFileAction,
   [ENTRY_ACTION.OPEN]: openAction,
   [ENTRY_ACTION.OPEN_IN_NEW_TAB]: openInNewTabAction,
   [ENTRY_ACTION.OPEN_CONTAINING_FOLDER]: openContainingFolderAction,

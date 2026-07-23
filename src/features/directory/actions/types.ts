@@ -39,6 +39,9 @@ export type EntryActionContext = {
   openInNewTab: (path: string) => void;
   onClose: () => void;
   onStartRename: (id: string) => void;
+  // A newly created child may live in the current folder or inside a closed folder. Its owner
+  // handles navigation/refresh, selection, scrolling, focus and inline rename.
+  onEntryCreated: (parent: string, created: string) => void;
   onPreview: (id: string) => void;
   onProperties: (
     id: string,

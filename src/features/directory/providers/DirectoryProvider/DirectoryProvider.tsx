@@ -8,6 +8,7 @@ import type { DirEntry } from "@/shared/models";
 import { t } from "@/lang";
 import { revealTargetFromUrl } from "@/features/tabs/utils";
 import { opensInAppPreview } from "@/features/directory/constants";
+import { DEFAULT_FILTERS } from "@/shared/search/filters";
 
 import { useDirectoryEntries } from "../../hooks/useDirectoryEntries";
 import { useSelection } from "../../hooks/useSelection";
@@ -26,6 +27,8 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
     view,
     path,
     setPath,
+    setSearch,
+    setFilters,
     refreshDir,
     openPreviewInWindow,
     openPropertiesInWindow,
@@ -43,6 +46,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
   const [revealTarget, setRevealTarget] = useState<{
     path: string;
     paths: string[];
+    rename?: boolean;
   } | null>(revealTargetFromUrl);
 
   // The single entry to scroll into view once selected (the revealed file). Consumed by the view,
@@ -67,6 +71,22 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
     [setPath],
   );
 
+  // A newly created child must become visible immediately. Refresh when it belongs to the open
+  // folder, or navigate into its parent otherwise; the reveal effect below waits for the listing,
+  // selects and scrolls to it, then starts inline rename (which takes keyboard focus).
+  const focusCreatedEntry = useCallback(
+    (parent: string, created: string) => {
+      setRevealTarget({ path: parent, paths: [created], rename: true });
+      if (parent === path) {
+        // A search replaces the normal listing, so leave it before revealing the new file.
+        setSearch("");
+        setFilters(DEFAULT_FILTERS);
+        refreshDir();
+      } else setPath(parent);
+    },
+    [path, refreshDir, setFilters, setPath, setSearch],
+  );
+
   // Once we're in the reveal target's folder and its entries include the target paths, select
   // them (this wins over the clear-on-navigate above, which runs earlier). Tolerates misses:
   // conflict-renamed items simply aren't selected, but navigation still happened.
@@ -82,6 +102,9 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
       // batch, then scrolls). One-shot: clear the request so a later refresh doesn't repeat this.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRevealID(present[0]);
+      if (revealTarget.rename && present.length === 1) {
+        setRenamingID(present[0]);
+      }
       setRevealTarget(null);
     }
   }, [revealTarget, path, sorted, setSelectedIDs]);
@@ -174,6 +197,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
         properties: propertiesApi,
         revealID,
         clearRevealID,
+        focusCreatedEntry,
         openFile,
       }}
     >

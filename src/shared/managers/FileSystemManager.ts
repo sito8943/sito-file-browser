@@ -184,6 +184,11 @@ export class FileSystemManager {
     return api.createFolder(parent);
   }
 
+  // Create a uniquely named empty .txt file inside `parent`.
+  createTextFile(parent: string): Promise<string> {
+    return api.createTextFile(parent);
+  }
+
   // Copy an image file to the system clipboard.
   copyImage(path: string): Promise<void> {
     return api.copyImage(path);

@@ -60,6 +60,24 @@ fn main() {
             // into cached ancestor sizes and emit dir-size-changed so the open view updates live.
             app.manage(watcher::DirWatcher::new());
 
+            // Pre-warm the folders a first navigation most likely lands on (home + the macOS
+            // TCC-protected trio). Their first-ever access pays a tccd round-trip plus cold
+            // metadata-cache stats (~1s on Desktop); doing it here, off-thread and in parallel
+            // with the WebView boot, makes the user's first navigation as fast as the rest.
+            {
+                let path = app.path();
+                let warm: Vec<std::path::PathBuf> = [
+                    path.home_dir(),
+                    path.desktop_dir(),
+                    path.document_dir(),
+                    path.download_dir(),
+                ]
+                .into_iter()
+                .flatten()
+                .collect();
+                std::thread::spawn(move || filesystem::fs::prewarm_directories(warm));
+            }
+
             // Trim the thumbnail cache to its size budget, off the UI thread.
             if let Ok(cache_dir) = app.path().app_cache_dir() {
                 let thumbnails = cache_dir.join("thumbnails");
@@ -89,6 +107,7 @@ fn main() {
             filesystem::fs::move_entry,
             filesystem::fs::rename_entry,
             filesystem::fs::create_folder,
+            filesystem::fs::create_text_file,
             filesystem::fs::copy_image,
             filesystem::fs::delete_entry,
             filesystem::fs::restore_trashed,
@@ -125,6 +144,11 @@ fn main() {
             filesystem::sftp::sftp_remove_connection,
             filesystem::sftp::sftp_home,
             filesystem::sftp::sftp_download,
+            filesystem::smb::smb_diagnose,
+            filesystem::smb::smb_mounts,
+            filesystem::smb::smb_shares,
+            filesystem::smb::smb_connect,
+            filesystem::smb::smb_mount_point,
             functions::control::set_ui_state,
             functions::control::set_probe_result,
             functions::handler::is_default_folder_handler,

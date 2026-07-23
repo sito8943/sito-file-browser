@@ -1,3 +1,5 @@
+import "@sito/ui/styles.css";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -5,6 +7,7 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 import App from "./App";
 import PreviewWindow from "@/features/directory/components/Preview/PreviewWindow";
 import PropertiesWindow from "@/features/directory/components/Properties/PropertiesWindow";
+import { ConnectionsProvider } from "@/features/connections";
 
 // FontAwesome injects its sizing CSS at runtime by default. The production CSP
 // (default-src 'self', no inline styles) blocks that injection, so icons render
@@ -42,7 +45,9 @@ root.render(
   <React.StrictMode>
     {panelApp ?? (
       <BrowserRouter>
-        <App />
+        <ConnectionsProvider>
+          <App />
+        </ConnectionsProvider>
       </BrowserRouter>
     )}
   </React.StrictMode>,

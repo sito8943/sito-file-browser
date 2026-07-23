@@ -32,6 +32,7 @@ import AppContent from "./AppContent";
 import { useToasts } from "./hooks/useToasts";
 import { useZoom } from "./hooks/useZoom";
 import { useDirectoryContents } from "./hooks/useDirectoryContents";
+import { useStaleMountRedirect } from "./hooks/useStaleMountRedirect";
 import { useSidebarCollapsed } from "./hooks/useSidebarCollapsed";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useDockMenu } from "./hooks/useDockMenu";
@@ -72,13 +73,29 @@ const App = () => {
   // Each concern owns its own state and side effects; the composition root just wires them
   // together into the shared context (see ARCHITECTURE_RULES §6, §4).
   const tabs = useTabs(settings.activateNewTabs, settings.rememberScrollOnUp);
+  // A denied system folder must never strand the active tab. Prefer the real history transition
+  // so Back/Forward semantics stay intact; a restored/direct path has no previous entry, so the
+  // Volumes view is its safe fallback. The bounce must never be silent — the toast says why and
+  // clicking it opens the Full Disk Access pane (always clickable: it's the fix, not a nicety).
+  const { canGoBack, goBack, setPath } = tabs;
+  const leaveAccessDeniedPath = useCallback(() => {
+    if (canGoBack) goBack();
+    else setPath("");
+    notify(t.directory.accessDenied.bounced, TOAST_TYPE.ERROR, () =>
+      fs.openFullDiskAccessSettings(),
+    );
+  }, [canGoBack, goBack, setPath, fs]);
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,
     navigate,
     locationPathname: location.pathname,
     hideSystemRecents: settings.hideSystemRecents,
+    onAccessDenied: leaveAccessDeniedPath,
   });
+  // Bounce out of a folder whose mount vanished (SMB server shut down, disk ejected) instead of
+  // stranding the user in a dead, empty directory.
+  useStaleMountRedirect(tabs.path, directory.volumes, tabs.setPath);
   useTheme(settings.theme as Theme);
   useAccent(settings.accentColor as Accent);
   const zoom = useZoom(fs, tabs.path, settings.defaultZoom);
@@ -241,6 +258,7 @@ const App = () => {
         accessDenied: directory.accessDenied,
         loadError: directory.loadError,
         loadingDir: directory.loadingDir,
+        stalled: directory.stalled,
         view,
         setView,
         showHidden: settings.showHidden,

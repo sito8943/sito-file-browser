@@ -2,6 +2,33 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.8.0]
+
+### Added
+
+- Windows (SMB) network shares — browse SMB shares (e.g. a Windows VM) from the sidebar's Network group, with a chooser that adds either an SSH/SFTP connection or an SMB share, mount handling, and a redirect out of folders whose mount disappears (`7cdce45`)
+- RAR extraction via the system 7-Zip binary — `.rar` files get Extract Here / Extract to Folder, including password detection for encrypted archives; extract actions for formats that need 7-Zip (7z, rar) hide themselves when no binary is on PATH (`2c80c6f`)
+- Create a text file from the browser — a New File context-menu action, working locally and on remote (SFTP) folders (`3019305`)
+- Zoom the current folder with Command/Ctrl + scroll wheel, behind a new setting (`904ddbd`)
+- Breadcrumb context menus — right-clicking a path crumb opens a reduced folder menu; the path bar still switches to a raw editable path on click (`bee3149`)
+- Resource-oriented `sfb` CLI syntax (`sfb <verb> <resource>`, e.g. `sfb trash file`) layered over the existing commands, with argument aliases and a machine-readable schema for agents (`32ef6db`)
+- AI-agent docs — `AGENTS.md` and `PROJECT_CONTEXT.md` describing the architecture and conventions for coding agents (`e08513c`)
+
+### Changed
+
+- Emptying the Trash on macOS now delegates to Finder, which owns the progress UI and covers per-volume Trashes; other platforms keep the manual implementation (`7f4ffb2`)
+- Home and the macOS TCC-protected folders are pre-warmed at launch, so the first navigation doesn't pay the consent round-trip and cold metadata cache (`cb9ef25`)
+- Navigating into a folder the OS denies (e.g. the Trash without Full Disk Access) now bounces back to the previous folder — or Volumes — with an error toast that opens the Full Disk Access settings pane when clicked (`9fd1f63`, `06850ea`)
+- Context-menu groups are separated with dividers, mirrored in the quick-actions bar (`5f39618`, `c75fb6d`)
+- The Trash action is shown in the danger color (`bee3149`)
+- Form controls started migrating to the shared `@sito/ui` component library (`afc1178`)
+
+### Fixed
+
+- Directory watcher now refreshes reliably on desktop when files change externally (`35e0a89`)
+- Type-to-find now matches multi-character queries correctly while navigating with the keyboard (`1235935`)
+- Deleting from a detached preview window now asks for confirmation, honoring the confirm-before-Trash setting like the main window (`91c4225`)
+
 ## [0.7.0]
 
 ### Added

@@ -7,7 +7,6 @@ import Button from "@/shared/components/elements/Button";
 import TextInput from "@/shared/components/elements/TextInput";
 import Slider from "@/shared/components/elements/Slider";
 import PasswordInput from "@/shared/components/patterns/PasswordInput";
-import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import { t } from "@/lang";
 
 import "@/styles/components/CompressDialog.css";
@@ -27,8 +26,6 @@ const CompressDialog = ({
   onSubmit,
   onClose,
 }: CompressDialogProps) => {
-  useCloseOnEscape(visible, onClose);
-
   const [name, setName] = useState(defaultName);
   const [level, setLevel] = useState(DEFAULT_LEVEL);
   const [password, setPassword] = useState("");
@@ -59,9 +56,9 @@ const CompressDialog = ({
   return (
     <Dialog
       visible={visible}
+      title={t.archive.compressTitle}
       onClose={onClose}
       className="confirmation_modal"
-      labelledBy={TITLE_ID}
     >
       <DialogHeader
         title={t.archive.compressTitle}

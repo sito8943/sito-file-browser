@@ -5,7 +5,6 @@ import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
 import Button from "@/shared/components/elements/Button";
 import PasswordInput from "@/shared/components/patterns/PasswordInput";
-import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import { t } from "@/lang";
 
 import "@/styles/components/ConnectionDialog.css";
@@ -24,8 +23,6 @@ const ConnectionAuthDialog = ({
   onClose,
 }: ConnectionAuthDialogProps) => {
   const visible = connection !== null;
-  useCloseOnEscape(visible, onClose);
-
   const [secret, setSecret] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,9 +56,9 @@ const ConnectionAuthDialog = ({
   return (
     <Dialog
       visible={visible}
+      title={t.connections.authTitle(connection?.name ?? "")}
       onClose={onClose}
       className="connection_modal"
-      labelledBy={AUTH_TITLE_ID}
     >
       <DialogHeader
         title={t.connections.authTitle(connection?.name ?? "")}

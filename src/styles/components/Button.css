@@ -2,6 +2,9 @@
    IconButton and other variants layer on top of this. */
 .Button {
   font: inherit;
+  height: auto;
+  min-height: var(--space-0);
+  font-weight: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;

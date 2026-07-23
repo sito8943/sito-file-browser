@@ -227,6 +227,14 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     toValue: Number,
   },
   {
+    kind: SETTING_KIND.TOGGLE,
+    key: "zoomWithModifierWheel",
+    section: SETTINGS_SECTION.APPEARANCE,
+    subsection: () => t.settings.subsections.layout,
+    label: () => t.settings.zoomWithModifierWheel,
+    hint: () => t.settings.zoomWithModifierWheelHint,
+  },
+  {
     kind: SETTING_KIND.CUSTOM,
     key: "dateFormat",
     section: SETTINGS_SECTION.APPEARANCE,

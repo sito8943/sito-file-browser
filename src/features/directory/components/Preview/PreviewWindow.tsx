@@ -10,7 +10,10 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { StateProvider, initialState } from "@/shared/providers/StateProvider";
 import { ModalProvider } from "@/shared/providers/ModalProvider";
-import { ConfirmProvider } from "@/shared/providers/ConfirmProvider";
+import {
+  ConfirmProvider,
+  useConfirm,
+} from "@/shared/providers/ConfirmProvider";
 import { KeymapProvider, HotkeyProvider } from "@/shared/keymap";
 import ToastStack from "@/shared/components/patterns/ToastStack";
 
@@ -28,8 +31,53 @@ import type { AppSettings } from "@/shared/services/api";
 
 import { ACCEPTED_PREVIEW_FORMATS } from "../../constants";
 import { usePreview } from "../../hooks/usePreview";
+import { entryLabel } from "../../hooks/useFileOperations/utils";
 
 import Preview from "./Preview";
+
+// The Preview plus the same opt-out trash confirmation the main window has (useFileOperations).
+// A separate component because useConfirm reads the ConfirmProvider that PreviewWindow itself
+// renders, so the hook must live one level below it.
+const ConfirmedPreview = ({
+  preview,
+  confirmDelete,
+  onDelete,
+}: {
+  preview: ReturnType<typeof usePreview>;
+  confirmDelete: boolean;
+  onDelete: () => Promise<void>;
+}) => {
+  const { confirm } = useConfirm();
+  const { filePath } = preview;
+
+  const handleDelete = useCallback(async () => {
+    if (!filePath) return;
+    if (confirmDelete) {
+      const confirmed = await confirm({
+        title: t.directory.deleteTitle,
+        message: t.directory.confirmDelete(entryLabel([filePath])),
+        destructive: true,
+      });
+      if (!confirmed) return;
+    }
+    await onDelete();
+  }, [confirm, confirmDelete, filePath, onDelete]);
+
+  return (
+    <Preview
+      fileType={preview.fileType}
+      filePath={preview.filePath}
+      previewVisible={preview.visible}
+      setPreviewVisible={preview.setVisible}
+      onPrev={preview.prev}
+      onNext={preview.next}
+      hasPrev={preview.hasPrev}
+      hasNext={preview.hasNext}
+      onDelete={handleDelete}
+      windowed
+    />
+  );
+};
 
 // Root of a detached preview window (see the openPreviewInWindow setting). The window IS the
 // preview: it lists the target file's folder for prev/next siblings, opens the target, and closes
@@ -124,8 +172,9 @@ const PreviewWindow = ({ target }: { target: string }) => {
   }, [filePath]);
 
   // Trash the shown file, then re-list so prev/next advances to the next sibling (usePreview clamps
-  // the index to the shrunk list; an emptied list drops `visible`, which closes the window). Moves
-  // to the Trash directly — the detached window has no confirm-delete flow.
+  // the index to the shrunk list; an emptied list drops `visible`, which closes the window).
+  // Confirmation happens in ConfirmedPreview, which gates this callback behind the same
+  // confirmDelete setting the main window honors.
   const handleDelete = useCallback(async () => {
     if (!filePath) return;
     try {
@@ -155,17 +204,10 @@ const PreviewWindow = ({ target }: { target: string }) => {
                   } as CSSProperties
                 }
               >
-                <Preview
-                  fileType={preview.fileType}
-                  filePath={preview.filePath}
-                  previewVisible={preview.visible}
-                  setPreviewVisible={preview.setVisible}
-                  onPrev={preview.prev}
-                  onNext={preview.next}
-                  hasPrev={preview.hasPrev}
-                  hasNext={preview.hasNext}
+                <ConfirmedPreview
+                  preview={preview}
+                  confirmDelete={settings.confirmDelete}
                   onDelete={handleDelete}
-                  windowed
                 />
               </div>
             </ConfirmProvider>

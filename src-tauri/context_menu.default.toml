@@ -7,6 +7,7 @@
 #   open_in_new_tab    open a folder in a fresh tab and focus it
 #   open_containing_folder  open a Recents/search result's parent in a fresh tab
 #   open_in_terminal   open a terminal at the folder (folders / a file's parent)
+#   create_file        submenu: create a new file inside a folder
 #   preview            in-app preview (images, markdown, pdf, video, audio)
 #   copy               copy to the internal clipboard
 #   copy_path          copy the entry's filesystem path(s) to the OS clipboard
@@ -29,6 +30,7 @@
 [directory]
 actions = [
   "new_folder",
+  "create_file",
   "paste",
   "separator",
   "sort_by",
@@ -46,14 +48,16 @@ actions = [
   "open_in_new_tab",
   "open_containing_folder",
   "open_in_terminal",
+  "create_file",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
@@ -63,14 +67,15 @@ actions = [
 actions = [
   "open",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
@@ -81,6 +86,7 @@ actions = [
 actions = [
   "open",
   "open_containing_folder",
+  "separator",
   "restore",
   "separator",
   "destroy",
@@ -98,14 +104,15 @@ actions = [
   "open",
   "preview",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
@@ -116,14 +123,15 @@ actions = [
   "open",
   "preview",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
@@ -134,14 +142,15 @@ actions = [
   "open",
   "preview",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
@@ -153,14 +162,15 @@ extensions = ["mp4", "webm", "mov", "m4v", "ogv"]
 actions = [
   "open",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
@@ -171,36 +181,38 @@ actions = [
   "open",
   "preview",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
+  "compress",
+  "separator",
   "trash",
   "destroy",
-  "separator",
-  "compress",
   "separator",
   "properties",
 ]
 
-# Archive files: offer Extract (into a new subfolder beside the archive) in place of a preview.
-# v1 extracts .zip; 7z/rar will be added here once the binary-backed path lands (the extra
-# extensions can be listed now, but extract only handles .zip today).
+# Archive files: offer extraction actions beside Compress, in place of a preview.
+# Non-zip formats (7z, rar) extract through the system 7-Zip binary; without one on PATH the
+# extract actions hide themselves (see archiveNeedsSevenzip in the frontend action registry).
 [file_type.archive]
-extensions = ["zip", "7z"]
+extensions = ["zip", "7z", "rar"]
 actions = [
   "open",
   "open_containing_folder",
+  "separator",
   "copy",
   "copy_path",
   "cut",
   "rename",
-  "trash",
-  "destroy",
-  "separator",
+  "compress",
   "extract",
   "extract_to_folder",
-  "compress",
+  "separator",
+  "trash",
+  "destroy",
   "separator",
   "properties",
 ]

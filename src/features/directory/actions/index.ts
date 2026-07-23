@@ -14,6 +14,7 @@ export { ENTRY_ACTIONS } from "./registry";
 export { resolveActionIds, isActionVisible, resolveActionIcon } from "./utils";
 
 export { newFolderAction } from "./newFolder";
+export { createFileAction } from "./createFile";
 export { openAction } from "./open";
 export { openInNewTabAction } from "./openInNewTab";
 export { openContainingFolderAction } from "./openContainingFolder";

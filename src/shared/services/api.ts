@@ -26,6 +26,8 @@ export type AppSettings = {
   // Accent hue driving selection/focus/links: "blue" | "navy" | "red" | "teal" | "gold" (see ACCENT).
   accentColor: string;
   defaultZoom: number;
+  // Zoom folders with Command/Ctrl + scroll wheel.
+  zoomWithModifierWheel: boolean;
   dateFormat: string;
   sidebarOpacity: number;
   // Context-menu background opacity (alpha of the popover surface), 0..1.
@@ -508,6 +510,9 @@ export const renameEntry = async (
 // Create a new folder in `parent`; returns the created folder's path.
 export const createFolder = async (parent: string): Promise<string> =>
   (await invoke("create_folder", { parent })) as string;
+// Create a uniquely named empty .txt file in `parent`; returns the created file's path.
+export const createTextFile = async (parent: string): Promise<string> =>
+  (await invoke("create_text_file", { parent })) as string;
 // Copy an image file to the system clipboard as a bitmap.
 export const copyImage = async (path: string): Promise<void> =>
   await invoke("copy_image", { path });
@@ -676,6 +681,75 @@ export const materializePath = async (path: string): Promise<string> => {
   const remote = slash === -1 ? "/" : rest.slice(slash);
   return sftpDownload(conn, remote);
 };
+
+// One resolved address probed on TCP 445 while diagnosing an SMB host. Mirrors SmbAttempt in
+// filesystem/smb.rs.
+export type SmbAttempt = {
+  address: string;
+  reachable: boolean;
+  error?: string;
+};
+
+// The result of resolving + probing an SMB host without authenticating. `reachable` is true when
+// any resolved address accepted a TCP 445 connection. Mirrors SmbDiagnostic in filesystem/smb.rs.
+export type SmbDiagnostic = {
+  host: string;
+  share?: string;
+  url: string;
+  port: number;
+  resolved: boolean;
+  reachable: boolean;
+  resolutionError?: string;
+  attempts: SmbAttempt[];
+};
+
+// A native SMB mount and its local /Volumes path. Mirrors SmbMount in filesystem/smb.rs.
+export type SmbMount = {
+  source: string;
+  mountPoint: string;
+  options: string[];
+};
+
+// Resolve an SMB host and probe TCP 445 without authenticating — used to tell the user why a saved
+// Windows share is unreachable (host down, firewall) before trying to mount it.
+export const smbDiagnose = async (
+  host: string,
+  share?: string,
+  timeoutMs?: number,
+): Promise<SmbDiagnostic> =>
+  (await invoke("smb_diagnose", { host, share, timeoutMs })) as SmbDiagnostic;
+
+// The SMB shares macOS currently has mounted, with their local /Volumes paths.
+export const smbMounts = async (): Promise<SmbMount[]> =>
+  (await invoke("smb_mounts")) as SmbMount[];
+
+// A disk share a host exposes. Mirrors SmbShare in filesystem/smb.rs.
+export type SmbShare = {
+  name: string;
+  // Windows admin share (C$, ADMIN$) — needs an administrator account.
+  admin: boolean;
+};
+
+// List the disk shares a host exposes, via macOS `smbutil view`. Works only after a prior sign-in
+// (macOS caches the credentials in the Keychain); rejects otherwise, so callers should treat a
+// failure as "not available yet" and fall back to manual share entry.
+export const smbShares = async (host: string): Promise<SmbShare[]> =>
+  (await invoke("smb_shares", { host })) as SmbShare[];
+
+// Ask macOS to connect to a share via its native credential UI (Finder owns auth + Keychain). No
+// password crosses this boundary. Returns the smb:// URL macOS was asked to open.
+export const smbConnect = async (
+  host: string,
+  share: string,
+): Promise<string> => (await invoke("smb_connect", { host, share })) as string;
+
+// The local /Volumes path a host/share is mounted at, or null when it isn't mounted yet. Poll this
+// after smbConnect until macOS finishes mounting, then navigate to the returned path.
+export const smbMountPoint = async (
+  host: string,
+  share: string,
+): Promise<string | null> =>
+  (await invoke("smb_mount_point", { host, share })) as string | null;
 
 // Mirror this window's live UI state (current path, view, tabs) to Rust so the headless control
 // socket (`sfb ui get-state`) can report it without a round-trip to the webview. Called on every

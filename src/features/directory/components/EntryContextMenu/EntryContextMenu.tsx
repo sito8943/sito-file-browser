@@ -34,6 +34,8 @@ const EntryContextMenu = ({
   contextMenuRef,
   visible,
   onClose,
+  actionIds: providedActionIds,
+  showTags = true,
   elementId,
   elementType,
   isCurrentDirectory,
@@ -58,7 +60,7 @@ const EntryContextMenu = ({
   const { onCompress, onExtract, onExtractToFolder } =
     useArchiveActions(fileOps);
   const sevenzipAvailable = useSevenzipAvailable();
-  const { sort, handleSort, searchActive } = useDirectory();
+  const { sort, handleSort, searchActive, focusCreatedEntry } = useDirectory();
   const { keymap } = useKeymap();
   const layout = useContextMenuLayout();
 
@@ -79,6 +81,7 @@ const EntryContextMenu = ({
     openInNewTab: newTab,
     onClose,
     onStartRename,
+    onEntryCreated: focusCreatedEntry,
     onPreview,
     onProperties,
     onCompress,
@@ -96,20 +99,23 @@ const EntryContextMenu = ({
     ),
   };
 
-  const actionIds = resolveActionIds(layout, {
-    isCurrentDirectory,
-    inTrash,
-    elementType,
-    extension: fileExtension,
-  });
+  const actionIds =
+    providedActionIds ??
+    resolveActionIds(layout, {
+      isCurrentDirectory,
+      inTrash,
+      elementType,
+      extension: fileExtension,
+    });
 
   // Finder tags: a colour-swatch row at the top, for a real entry (not the empty-directory menu
   // or the Trash). macOS only — tags are a native macOS feature.
-  const showTags = isMacPlatform() && !isCurrentDirectory && !inTrash;
+  const shouldShowTags =
+    showTags && isMacPlatform() && !isCurrentDirectory && !inTrash;
 
   return (
     <ContextMenu contextMenuVisible={visible} ref={contextMenuRef}>
-      {showTags && (
+      {shouldShowTags && (
         <>
           <TagPicker targets={targets} onClose={onClose} />
           <ContextMenuItem isSeparator />

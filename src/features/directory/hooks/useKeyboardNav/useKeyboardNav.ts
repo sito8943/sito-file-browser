@@ -136,17 +136,25 @@ export const useKeyboardNav = ({
     // Type-to-find: accumulate typed chars; a single-char buffer starts after the current entry so
     // repeated presses cycle through matches.
     const typeahead = (char: string) => {
-      searchBufferRef.current += char;
-      onTypeaheadChange(searchBufferRef.current);
+      const currentBuffer = searchBufferRef.current;
+      const repeatedSingleChar =
+        currentBuffer.length === 1 &&
+        currentBuffer.toLowerCase() === char.toLowerCase();
+      const nextBuffer = repeatedSingleChar
+        ? currentBuffer
+        : currentBuffer + char;
+
+      searchBufferRef.current = nextBuffer;
+      onTypeaheadChange(nextBuffer);
       scheduleTypeaheadReset();
 
-      const buf = searchBufferRef.current.toLowerCase();
+      const buf = nextBuffer.toLowerCase();
       setSelectedIDs((prev) => {
         if (!items.length) return prev;
         const current = prev.length
           ? items.findIndex((e) => e.path === prev[prev.length - 1])
           : -1;
-        const start = buf.length === 1 ? current + 1 : 0;
+        const start = nextBuffer.length === 1 ? current + 1 : 0;
         for (let i = 0; i < items.length; i++) {
           const entry = items[(start + i) % items.length];
           if (entry.name.toLowerCase().startsWith(buf)) return [entry.path];

@@ -23,7 +23,7 @@ path = "src/lib.rs"
 name = "sito-file-browser"
 path = "src/main.rs"
 
-# Headless, AI-friendly CLI over the same filesystem cores. JSON in/out, `sfb schema` self-describes.
+# Headless resource CLI over the same filesystem cores. JSON out; discovery via api-resources/schema.
 [[bin]]
 name = "sfb"
 path = "src/bin/sfb.rs"
