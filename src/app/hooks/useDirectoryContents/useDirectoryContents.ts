@@ -210,22 +210,23 @@ export const useDirectoryContents = ({
     };
   }, [fetchVolumes]);
 
-  // Keep the recursive size-index watcher (Phase B) pointed at the viewed folder so live
-  // filesystem changes bubble into the cached ancestor sizes in real time — this is what keeps
-  // folder sizes (Properties, the Size column) from going stale after deep changes. Local folders
-  // only; remote/virtual listings aren't size-indexed. Stops when leaving the folder.
+  // Keep the recursive size-index watcher (Phase B) pointed at the viewed folder so live changes
+  // keep both Properties and the optional Size column accurate. Sending an empty path stops the
+  // previous watcher for virtual/remote views. Each effect run replaces it directly, without a
+  // fire-and-forget cleanup racing the next folder's registration.
   useEffect(() => {
-    if (
-      path === "" ||
-      path === RECENTS ||
-      isTagsPath(path) ||
-      path.startsWith(SFTP_SCHEME)
-    )
-      return;
-    void fs.watchDirSizes(path);
-    return () => {
-      void fs.watchDirSizes("");
-    };
+    const watchPath =
+      path !== "" &&
+      path !== RECENTS &&
+      !isTagsPath(path) &&
+      !path.startsWith(SFTP_SCHEME)
+        ? path
+        : "";
+    void fs
+      .watchDirSizes(watchPath)
+      .catch((err) =>
+        console.error("Failed to watch directory sizes:\n" + err),
+      );
   }, [fs, path]);
 
   // Initial volumes load.
