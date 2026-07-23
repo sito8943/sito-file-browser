@@ -2,7 +2,6 @@ import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import Button from "@/shared/components/elements/Button";
 import Icon from "@/shared/components/elements/Icon";
-import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import { t } from "@/lang";
 
 import { faWindows } from "@fortawesome/free-brands-svg-icons";
@@ -22,14 +21,12 @@ const NetworkAddChooser = ({
   onChooseSmb,
   onClose,
 }: NetworkAddChooserProps) => {
-  useCloseOnEscape(visible, onClose);
-
   return (
     <Dialog
       visible={visible}
+      title={t.smb.chooseTitle}
       onClose={onClose}
       className="connection_modal NetworkAddChooser"
-      labelledBy={NETWORK_ADD_CHOOSER_TITLE_ID}
     >
       <DialogHeader
         title={t.smb.chooseTitle}

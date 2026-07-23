@@ -5,7 +5,6 @@ import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
 import Button from "@/shared/components/elements/Button";
 import PasswordInput from "@/shared/components/patterns/PasswordInput";
-import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import { t } from "@/lang";
 
 import "@/styles/components/CompressDialog.css";
@@ -21,8 +20,6 @@ const PasswordDialog = ({
   onSubmit,
   onClose,
 }: PasswordDialogProps) => {
-  useCloseOnEscape(visible, onClose);
-
   const [password, setPassword] = useState("");
 
   // Clear the field each time the dialog (re)opens.
@@ -40,9 +37,9 @@ const PasswordDialog = ({
   return (
     <Dialog
       visible={visible}
+      title={t.archive.passwordTitle}
       onClose={onClose}
       className="confirmation_modal"
-      labelledBy={TITLE_ID}
     >
       <DialogHeader
         title={t.archive.passwordTitle}

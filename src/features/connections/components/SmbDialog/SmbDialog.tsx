@@ -6,7 +6,6 @@ import DialogActions from "@/shared/components/patterns/DialogActions";
 import Button from "@/shared/components/elements/Button";
 import TextInput from "@/shared/components/elements/TextInput";
 import Icon from "@/shared/components/elements/Icon";
-import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import type { SmbShare } from "@/shared/services/api";
 import { classNames } from "@/shared/utils";
 import { t } from "@/lang";
@@ -31,7 +30,6 @@ import { useConnections } from "../../providers/ConnectionsProvider";
 // reachable before saving. With `initial` it doubles as the edit/reconnect dialog: prefilled and
 // framed as "update" (e.g. after a saved location's IP changed with the network).
 const SmbDialog = ({ visible, initial, onSubmit, onClose }: SmbDialogProps) => {
-  useCloseOnEscape(visible, onClose);
   const { smbManager } = useConnections();
 
   const editing = !!initial;
@@ -134,9 +132,9 @@ const SmbDialog = ({ visible, initial, onSubmit, onClose }: SmbDialogProps) => {
   return (
     <Dialog
       visible={visible}
+      title={editing ? t.smb.editTitle : t.smb.newTitle}
       onClose={onClose}
       className="connection_modal SmbDialog"
-      labelledBy={SMB_TITLE_ID}
     >
       <DialogHeader
         title={editing ? t.smb.editTitle : t.smb.newTitle}

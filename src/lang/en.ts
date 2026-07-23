@@ -22,6 +22,7 @@ export const en = {
     unknown: "?",
     play: "Play",
     pause: "Pause",
+    volume: "Volume",
     cancel: "Cancel",
     confirm: "Confirm",
     showPassword: "Show password",

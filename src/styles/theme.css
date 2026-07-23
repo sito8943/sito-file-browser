@@ -91,6 +91,8 @@
   --size-tab-height: 30px;
   --size-tab-min-width: 88px;
   --size-tab-max-width: 180px;
+  --z-index-dialog-backdrop: 1500;
+  --z-index-dialog: 1501;
   --font-size-tab: 12px;
   --font-size-icon-large: 20px;
   /* Type scale (T-shirt sizes). Every CSS font-size references one of these — no literals. */
@@ -259,6 +261,49 @@
   /* Gentle lift for chrome that sits on the content (path bar controls) — far lighter than the
      full elevation shadow, so the controls read as barely raised rather than floating. */
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 5px rgba(0, 0, 0, 0.03);
+
+  /* @sito/ui token bridge. The shared package owns primitive behavior; this app keeps ownership of
+     its Finder-like theme by mapping the package namespace onto the existing semantic tokens. */
+  --sito-ui-color-text: var(--color-text-primary);
+  --sito-ui-color-surface: var(--color-surface-modal);
+  --sito-ui-color-border: var(--color-border-default);
+  --sito-ui-color-default-text: var(--color-text-primary);
+  --sito-ui-color-default-light: var(--color-overlay-hover);
+  --sito-ui-color-default-default: var(--color-surface-interactive);
+  --sito-ui-color-default-hover: var(--color-overlay-active);
+  --sito-ui-color-primary-text: var(--color-text-on-solid);
+  --sito-ui-color-primary-light: var(--color-selection-hover);
+  --sito-ui-color-primary-default: var(--color-accent);
+  --sito-ui-color-primary-hover: var(--color-accent-hover);
+  --sito-ui-color-error-text: var(--color-text-on-solid);
+  --sito-ui-color-error-light: var(--color-danger-surface);
+  --sito-ui-color-error-default: var(--color-danger);
+  --sito-ui-color-error-hover: var(--color-danger-hover);
+  --sito-ui-space-0: var(--space-0);
+  --sito-ui-space-1: var(--space-1);
+  --sito-ui-space-2: var(--space-2);
+  --sito-ui-space-3: var(--space-3);
+  --sito-ui-space-4: var(--space-4);
+  --sito-ui-space-5: var(--space-5);
+  --sito-ui-size-button-sm: var(--size-control-medium);
+  --sito-ui-size-button-md: var(--size-control-large);
+  --sito-ui-size-button-lg: var(--space-10);
+  --sito-ui-size-icon-button-sm: var(--size-control-small);
+  --sito-ui-size-icon-button-md: var(--size-control-medium);
+  --sito-ui-size-icon-button-lg: var(--size-control-large);
+  --sito-ui-size-icon-button-icon-sm: var(--font-size-base);
+  --sito-ui-size-icon-button-icon-md: var(--font-size-base);
+  --sito-ui-size-icon-button-icon-lg: var(--font-size-base);
+  --sito-ui-radius-pill: var(--radius-sm);
+  --sito-ui-radius-round: var(--radius-sm);
+  --sito-ui-radius-dialog: var(--radius-md);
+  --sito-ui-border-width-thin: var(--border-width-default);
+  --sito-ui-font-size-button: var(--font-size-base);
+  --sito-ui-font-size-dialog-title: var(--font-size-xl);
+  --sito-ui-shadow-dialog: var(--shadow-elevation);
+  --sito-ui-z-index-dialog: var(--z-index-dialog-backdrop);
+  --sito-ui-dialog-backdrop-background: var(--color-surface-backdrop);
+  --sito-ui-dialog-backdrop-filter: blur(var(--blur-medium));
 }
 
 /* Light theme. The :root tokens above are the dark defaults; these override only the colour

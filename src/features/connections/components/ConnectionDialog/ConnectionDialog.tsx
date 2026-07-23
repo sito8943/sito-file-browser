@@ -7,7 +7,6 @@ import Button from "@/shared/components/elements/Button";
 import TextInput from "@/shared/components/elements/TextInput";
 import Select from "@/shared/components/elements/Select";
 import PasswordInput from "@/shared/components/patterns/PasswordInput";
-import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import type { NewConnection } from "@/shared/services/api";
 import { classNames } from "@/shared/utils";
 import { t } from "@/lang";
@@ -28,7 +27,6 @@ const ConnectionDialog = ({
   onSubmit,
   onClose,
 }: ConnectionDialogProps) => {
-  useCloseOnEscape(visible, onClose);
   const { manager } = useConnections();
 
   const editing = !!initial;
@@ -107,9 +105,9 @@ const ConnectionDialog = ({
   return (
     <Dialog
       visible={visible}
+      title={editing ? t.connections.editTitle : t.connections.newTitle}
       onClose={onClose}
       className="connection_modal"
-      labelledBy={CONNECTION_TITLE_ID}
     >
       <DialogHeader
         title={editing ? t.connections.editTitle : t.connections.newTitle}

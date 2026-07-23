@@ -106,6 +106,7 @@ const AudioPreview = ({ isVisible, filePath }: AudioPreviewProps) => {
         <IconButton
           icon={faVolumeHigh}
           size={ICON_BUTTON_SIZE.LG}
+          aria-label={t.common.volume}
           onClick={handleVolumeButtonClick}
         />
         <div
