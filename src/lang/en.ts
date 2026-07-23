@@ -655,6 +655,9 @@ export const en = {
         "macOS blocks apps from reading protected folders like the Trash until you grant Full Disk Access.",
       grant: "Open Full Disk Access settings",
       hint: "After enabling access, reopen the app.",
+      // Toast shown when a denied folder bounces the tab back. Clicking it opens the settings pane.
+      bounced:
+        "That folder needs Full Disk Access. Click here to open System Settings, then reopen the app.",
     },
     // Shown in place of the listing when a remote (SFTP) folder fails to load — the description is
     // the loader's error (connections.listError / hostKeyChanged).
