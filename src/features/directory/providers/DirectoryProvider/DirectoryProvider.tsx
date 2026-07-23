@@ -103,7 +103,6 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRevealID(present[0]);
       if (revealTarget.rename && present.length === 1) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setRenamingID(present[0]);
       }
       setRevealTarget(null);

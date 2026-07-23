@@ -77,13 +77,14 @@ const App = () => {
   // so Back/Forward semantics stay intact; a restored/direct path has no previous entry, so the
   // Volumes view is its safe fallback. The bounce must never be silent — the toast says why and
   // clicking it opens the Full Disk Access pane (always clickable: it's the fix, not a nicety).
+  const { canGoBack, goBack, setPath } = tabs;
   const leaveAccessDeniedPath = useCallback(() => {
-    if (tabs.canGoBack) tabs.goBack();
-    else tabs.setPath("");
+    if (canGoBack) goBack();
+    else setPath("");
     notify(t.directory.accessDenied.bounced, TOAST_TYPE.ERROR, () =>
       fs.openFullDiskAccessSettings(),
     );
-  }, [tabs.canGoBack, tabs.goBack, tabs.setPath, fs]);
+  }, [canGoBack, goBack, setPath, fs]);
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,
