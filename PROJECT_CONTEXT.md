@@ -189,7 +189,7 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 
 - `shared/components/elements`: small domain-agnostic primitives;
 - `shared/components/patterns`: reusable compositions such as dialogs, popups, menus, and toasts;
-- `shared/keymap`: keymap manager/providers/hotkey dispatch;
+- `shared/keymap`: app keymap/scopes backed by the shared `@sito/commands` hotkey dispatcher;
 - `shared/managers/FileSystemManager.ts`: filesystem domain boundary;
 - `shared/providers`: modal, confirm, picker, tags, archive, and app-state providers;
 - `shared/services/api.ts`: the frontend/Tauri boundary;
