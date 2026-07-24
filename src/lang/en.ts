@@ -45,6 +45,7 @@ export const en = {
     },
   },
   contextMenu: {
+    label: "Context menu",
     newFolder: "New Folder",
     createFile: "Create a File",
     textFile: "Text File",

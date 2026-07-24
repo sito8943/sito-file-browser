@@ -21,7 +21,7 @@
     "@fortawesome/free-solid-svg-icons": "7.2.0",
     "@fortawesome/react-fontawesome": "3.3.1",
     "@sito/commands": "file:../../lib/sito-commands",
-    "@sito/ui": "0.3.3",
+    "@sito/ui": "link:../../lib/ui",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",

@@ -30,14 +30,15 @@ export const useKeyboardNav = ({
   }, [selectedIDs]);
 
   useEffect(() => {
-    // Skip when typing in the path bar or any other text field.
-    const isTypingTarget = (el: EventTarget | null) => {
+    // Text fields and overlays own their keyboard events; directory navigation must stay behind.
+    const shouldIgnoreTarget = (el: EventTarget | null) => {
       const t = el as HTMLElement | null;
       return (
         !!t &&
         (t.tagName === "INPUT" ||
           t.tagName === "TEXTAREA" ||
-          t.isContentEditable)
+          t.isContentEditable ||
+          t.closest('[role="menu"]') !== null)
       );
     };
 
@@ -180,7 +181,7 @@ export const useKeyboardNav = ({
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target)) return;
+      if (shouldIgnoreTarget(e.target)) return;
       if (!enabled) return;
 
       // Printable single characters drive the type-to-find search.
