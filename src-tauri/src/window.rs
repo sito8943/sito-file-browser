@@ -155,6 +155,16 @@ pub fn target_window(app: &AppHandle) -> Option<WebviewWindow> {
         .cloned()
 }
 
+/// Bring an existing browser window back to the front, or create one when the process is still
+/// running without any windows. Used by macOS app reactivation and Dock actions.
+pub fn focus_or_create_window(app: &AppHandle) -> Option<WebviewWindow> {
+    let window = target_window(app).or_else(|| create_window(app, None).ok())?;
+    let _ = window.unminimize();
+    let _ = window.show();
+    let _ = window.set_focus();
+    Some(window)
+}
+
 #[tauri::command]
 pub fn open_new_window(app: AppHandle) -> Result<(), String> {
     create_window(&app, None)

@@ -199,6 +199,20 @@ fn main() {
                 filesystem::sftp::clear_cache(app_handle);
             }
 
+            // Clicking the Dock icon while the app is still running but has no visible window asks
+            // macOS to reopen it. Restore the hidden main window, or create a browser window if all
+            // windows were actually closed.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
+                has_visible_windows,
+                ..
+            } = &event
+            {
+                if !*has_visible_windows {
+                    let _ = window::focus_or_create_window(app_handle);
+                }
+            }
+
             // macOS routes URLs here in two cases:
             //  - our custom scheme: sito-file-browser://open?path=<dir> / reveal?path=<file>
             //    (registered in Info.plist) — open the folder, or reveal the file (parent +
