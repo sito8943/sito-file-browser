@@ -332,6 +332,8 @@ export const en = {
     added: "Connection created",
     // Downloading a remote file to open/preview it failed (read-only cache copy — phase 3a).
     openError: (error: string) => `Couldn't open remote file: ${error}`,
+    dragOutRequiresLocalCopy:
+      "Copy remote files to a local folder before dragging them to another app.",
     // Interactive auth dialog, shown when opening a connection fails authentication (phase 4).
     authTitle: (name: string) => `Authenticate ${name}`,
     authFailed: (target: string) => `Couldn't authenticate to ${target}.`,
@@ -740,6 +742,7 @@ export const en = {
     eject: (reason: string) => `Could not eject: ${reason}`,
     save: (reason: string) => `Could not save: ${reason}`,
     read: (reason: string) => `Could not read file: ${reason}`,
+    dragOut: (reason: string) => `Could not start dragging files: ${reason}`,
     openSystemMonitor: (reason: string) =>
       `Could not open the system monitor: ${reason}`,
   },

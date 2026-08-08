@@ -568,7 +568,17 @@ export const startNativeDrag = (
 ): void => {
   const image = icon || bundledDragIcon;
   if (!paths.length || !image) return;
-  void startDrag({ item: paths, icon: image, mode });
+  // The native plugin accepts real local filesystem paths only. A remote SFTP URL must be
+  // downloaded first, but doing that here would add an await before startDrag and lose the native
+  // drag gesture. Refuse the unsupported handoff instead of sending an invalid path into native
+  // code; remote entries can still be copied into a local folder from inside the app.
+  if (paths.some((path) => path.startsWith(SFTP_SCHEME))) {
+    notify(t.connections.dragOutRequiresLocalCopy, TOAST_TYPE.ERROR);
+    return;
+  }
+  void startDrag({ item: paths, icon: image, mode }).catch((error) =>
+    notify(t.errors.dragOut(String(error)), TOAST_TYPE.ERROR),
+  );
 };
 
 // Record a folder the user navigated to in the app's own recent-folders list (backs the macOS
