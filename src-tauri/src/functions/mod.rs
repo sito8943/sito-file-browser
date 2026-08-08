@@ -1,3 +1,4 @@
+pub mod cleanup;
 pub mod clipboard;
 pub mod context_menu;
 pub mod control;

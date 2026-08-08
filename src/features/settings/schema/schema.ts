@@ -14,6 +14,8 @@ import StartupControl from "../components/SettingsDialog/controls/StartupControl
 import StartupBelow from "../components/SettingsDialog/controls/StartupBelow";
 import StorageControl from "../components/SettingsDialog/controls/StorageControl";
 import StorageBelow from "../components/SettingsDialog/controls/StorageBelow";
+import CleanupControl from "../components/SettingsDialog/controls/CleanupControl";
+import CleanupBelow from "../components/SettingsDialog/controls/CleanupBelow";
 import SizeIgnoresControl from "../components/SettingsDialog/controls/SizeIgnoresControl";
 import SizeIgnoresBelow from "../components/SettingsDialog/controls/SizeIgnoresBelow";
 import AccentControl from "../components/SettingsDialog/controls/AccentControl";
@@ -169,24 +171,9 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     label: () => t.settings.showSystemStats,
     hint: () => t.settings.showSystemStatsHint,
   },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "confirmExportOverwrite",
-    section: SETTINGS_SECTION.FILES,
-    subsection: () => t.settings.subsections.importExport,
-    label: () => t.settings.confirmExportOverwrite,
-    hint: () => t.settings.confirmExportOverwriteHint,
-  },
-
-  // ── Appearance ── everything visual (theme, accent, zoom, dates, sidebar).
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "showVolumeSize",
-    section: SETTINGS_SECTION.APPEARANCE,
-    subsection: () => t.settings.subsections.layout,
-    label: () => t.settings.showVolumeSize,
-    hint: () => t.settings.showVolumeSizeHint,
-  },
+  // ── Appearance ── everything visual (theme, accent, zoom, dates, sidebar). Declared in
+  // subsection order — Theme & colour, Layout & format, Transparency — because the dialog renders
+  // subsections in first-seen order (see groupBySubsection).
   {
     kind: SETTING_KIND.SELECT,
     key: "theme",
@@ -246,6 +233,14 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     isModified: (settings, defaults) =>
       settings.dateFormat !== defaults.dateFormat,
     reset: (update, defaults) => update({ dateFormat: defaults.dateFormat }),
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "showVolumeSize",
+    section: SETTINGS_SECTION.APPEARANCE,
+    subsection: () => t.settings.subsections.layout,
+    label: () => t.settings.showVolumeSize,
+    hint: () => t.settings.showVolumeSizeHint,
   },
   {
     kind: SETTING_KIND.RANGE,
@@ -331,19 +326,29 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
   },
   {
     kind: SETTING_KIND.TOGGLE,
+    key: "dragToExternalApps",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.dragDrop,
+    label: () => t.settings.dragToExternalApps,
+    hint: () => t.settings.dragToExternalAppsHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
     key: "confirmDelete",
     section: SETTINGS_SECTION.FILES,
     subsection: () => t.settings.subsections.deletion,
     label: () => t.settings.confirmDelete,
     hint: () => t.settings.confirmDeleteHint,
   },
+  // Confirming before overwriting an exported settings.toml belongs with the other file-operation
+  // confirmations, even though the export itself is triggered from this dialog's toolbar.
   {
     kind: SETTING_KIND.TOGGLE,
-    key: "dragToExternalApps",
+    key: "confirmExportOverwrite",
     section: SETTINGS_SECTION.FILES,
-    subsection: () => t.settings.subsections.dragDrop,
-    label: () => t.settings.dragToExternalApps,
-    hint: () => t.settings.dragToExternalAppsHint,
+    subsection: () => t.settings.subsections.importExport,
+    label: () => t.settings.confirmExportOverwrite,
+    hint: () => t.settings.confirmExportOverwriteHint,
   },
 
   // ── Remote ── SSH/SFTP connection behaviour.
@@ -373,8 +378,10 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     hint: () => t.settings.clickableToastsHint,
   },
 
-  // ── Storage ── informational: the app's on-disk footprint and where it lives. Binds to no
-  // AppSettings field (synthetic key), so it's never "modified" and has no reset.
+  // ── Storage ── disk usage: the app's own footprint, then the user's cleanup watch list.
+
+  // Informational: the app's on-disk footprint and where it lives. Binds to no AppSettings field
+  // (synthetic key), so it's never "modified" and has no reset.
   {
     kind: SETTING_KIND.CUSTOM,
     key: "appStorage",
@@ -387,6 +394,23 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     reset: () => {},
     // Informational only — never resettable, so drop the reset gutter that would otherwise
     // left-indent this row out of line with the full-width storage panel below it.
+    noReset: true,
+  },
+
+  // The user's own watch list: folders whose size they want to keep an eye on and reclaim
+  // periodically (dependency caches, build output, launcher leftovers). Persisted in cleanup.toml,
+  // not settings.toml, so this binds to no AppSettings field (synthetic key) and has nothing to
+  // reset.
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "cleanupTargets",
+    section: SETTINGS_SECTION.STORAGE,
+    label: () => t.settings.cleanup,
+    hint: () => t.settings.cleanupHint,
+    Control: CleanupControl,
+    Below: CleanupBelow,
+    isModified: () => false,
+    reset: () => {},
     noReset: true,
   },
 ];

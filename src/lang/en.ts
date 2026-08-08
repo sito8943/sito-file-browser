@@ -427,7 +427,7 @@ export const en = {
       startup: "Startup",
       tabs: "Tabs",
       systemIntegration: "System integration",
-      previews: "Previews",
+      previews: "Previews & windows",
       statusBar: "Status bar",
       theme: "Theme & colour",
       layout: "Layout & format",
@@ -562,6 +562,41 @@ export const en = {
       "Delete cached thumbnails and other regenerable files? Your settings and data are kept. The cache rebuilds as you browse.",
     storageCleared: "Cache cleared",
     storageClearError: (error: string) => `Couldn't clear the cache: ${error}`,
+    cleanup: "Folders to clean up",
+    cleanupHint:
+      "Watch folders that grow over time — dependency caches, build output, app leftovers — and reclaim them when they get big.",
+    cleanupTotalShort: (size: string) => `Total: ${size}`,
+    cleanupEmpty:
+      "No folders watched yet. Type or paste a path above — for example a package or build cache.",
+    cleanupPlaceholder: "e.g. ~/.gradle/caches",
+    cleanupAdd: "Watch this folder",
+    cleanupRefresh: "Measure again",
+    cleanupRemove: "Stop watching this folder",
+    cleanupMissing: "Folder not found",
+    cleanupModeContents: "Empty contents",
+    cleanupModeFolder: "Delete folder",
+    cleanupModeToggle: (mode: string) =>
+      `Cleaning does: ${mode}. Click to switch.`,
+    cleanupClean: "Clean up",
+    cleanupCleanContentsConfirm: (path: string, size: string) =>
+      `Move everything inside ${path} to the Trash? That's ${size}. The folder itself is kept, and you can put the items back from the Trash until you empty it.`,
+    cleanupCleanFolderConfirm: (path: string, size: string) =>
+      `Move ${path} to the Trash? That's ${size}, the folder included. You can put it back from the Trash until you empty it.`,
+    cleanupTrashHint:
+      "Cleaning moves items to the Trash, so nothing is lost by accident — empty the Trash to actually free the space.",
+    cleanupFreed: (size: string) => `${size} moved to the Trash`,
+    cleanupAlreadyEmpty: "Nothing to clean — the folder is already empty.",
+    cleanupPartial: (size: string, failed: number, error: string) =>
+      `${size} moved to the Trash, but ${failed} item(s) couldn't be moved: ${error}`,
+    cleanupError: (error: string) => `Cleanup failed: ${error}`,
+    cleanupErrorNotAbsolute:
+      "Type a full path to a folder (or start it with ~).",
+    cleanupErrorNotADir: "That folder doesn't exist any more.",
+    cleanupErrorProtected:
+      "That folder is protected — system directories, disk roots, your home folder and this app's own settings can't be cleaned.",
+    cleanupErrorDuplicate: "That folder is already on the list.",
+    cleanupErrorUnknownTarget: "That folder isn't on the list any more.",
+    cleanupErrorInvalidMode: "Unknown cleanup mode.",
     folderHandler: "Default file manager",
     folderHandlerHint:
       "Open folders from Terminal, other apps and links in this app instead of Finder. Does not change double-clicking folders inside Finder.",

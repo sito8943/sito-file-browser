@@ -12,6 +12,7 @@ import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
+  type CleanupMode,
   type DragDropAction,
   type StorageKind,
 } from "@/shared/constants";
@@ -618,6 +619,58 @@ export const getAppStorage = async (): Promise<AppStorageLocation[]> =>
 // Backs the "clear" button in the Storage settings panel.
 export const clearAppCache = async (): Promise<void> =>
   await invoke("clear_app_cache");
+
+// A folder the user registered to watch and periodically reclaim (dependency caches, build output,
+// launcher leftovers), with its live recursive size. `mode` decides what a cleanup removes (see
+// CLEANUP_MODE); `exists` is false when the folder is no longer on disk, and the row stays listed so
+// unregistering it is deliberate. Mirrors CleanupTargetInfo in functions/cleanup.rs.
+export type CleanupTarget = {
+  path: string;
+  mode: CleanupMode;
+  size: number;
+  exists: boolean;
+};
+
+// What one cleanup actually did. A contents cleanup can partially fail (a locked or in-use child)
+// while the rest is reclaimed, so the panel reports freed bytes and failures instead of a bare
+// success. Mirrors CleanupResult in functions/cleanup.rs.
+export type CleanupResult = {
+  freed: number;
+  removed: number;
+  failed: number;
+  firstError: string | null;
+};
+
+// Every registered cleanup target with its recursively-summed size. The walk runs off the UI thread
+// in Rust because these folders routinely hold hundreds of thousands of files.
+export const getCleanupTargets = async (): Promise<CleanupTarget[]> =>
+  (await invoke("get_cleanup_targets")) as CleanupTarget[];
+
+// Register a folder to watch. The backend canonicalizes the path, refuses unsafe targets (OS trees,
+// volume roots, the home dir, the app's own config dir) and rejects duplicates, throwing a
+// CLEANUP_ERROR code the caller maps to localized copy.
+export const addCleanupTarget = async (
+  path: string,
+  mode: CleanupMode,
+): Promise<void> => await invoke("add_cleanup_target", { path, mode });
+
+// Forget a registered folder. Nothing on disk is touched.
+export const removeCleanupTarget = async (path: string): Promise<void> =>
+  await invoke("remove_cleanup_target", { path });
+
+// Switch what a cleanup removes for one target (empty its contents vs trash the folder itself).
+export const setCleanupTargetMode = async (
+  path: string,
+  mode: CleanupMode,
+): Promise<void> => await invoke("set_cleanup_target_mode", { path, mode });
+
+// Reclaim one registered target by moving it (or its children) to the system Trash — reversible by
+// design, nothing is deleted permanently. The mode comes from the persisted config, not from here,
+// and the backend re-runs its safety checks before touching anything.
+export const cleanCleanupTarget = async (
+  path: string,
+): Promise<CleanupResult> =>
+  (await invoke("clean_cleanup_target", { path })) as CleanupResult;
 
 // A saved SSH/SFTP connection. Secrets (password/passphrase) are never sent to the frontend — the
 // backend strips them; the key path is not a secret and rehydrates the edit dialog's auth fields.

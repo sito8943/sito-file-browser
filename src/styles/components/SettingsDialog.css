@@ -332,8 +332,67 @@
   text-decoration: underline;
 }
 
+/* Cleanup panel: the folders the user watches for reclaimable space, full-width below the Cleanup
+   row. A path input (shares .settings_ignores_input with the size-ignore editor), then one chip per
+   watched folder, then a footer with the Trash reminder and the watched total. */
+.settings_modal .settings_cleanup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+/* Footer under the chips: the Trash reminder on the left, watched total + re-measure on the right. */
+.settings_modal .settings_cleanup_footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.settings_modal .settings_cleanup_footer_meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* Layout row for the watched-folder chips — same wrapping look as the size-ignore pattern chips. */
+.settings_modal .settings_cleanup_chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* The folder's basename, clickable to open it in a new window. Inherits the deletable chip's mono
+   label look; the hover matches the storage-path link. */
+.settings_modal .settings_cleanup_chip_name {
+  padding: var(--space-0);
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.settings_modal .settings_cleanup_chip_name:hover {
+  color: var(--color-selection-indicator);
+  text-decoration: underline;
+}
+
+.settings_modal .settings_cleanup_chip_size {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+/* A watched folder that no longer exists on disk: dim the whole chip (same treatment as hidden
+   entries); only its × still acts. */
+.settings_modal .settings_cleanup_chip--missing {
+  opacity: var(--opacity-hidden-entry);
+}
+
 /* Size-ignore editor: an input + Add button, then a wrapping list of pattern chips. Full-width
-   below the "Exclude from folder sizes" row. */
+   below the "Exclude from folder sizes" row. The input row (.settings_ignores_input) is shared by
+   the cleanup panel's path input, so both editors stay visually identical. */
 .settings_modal .settings_ignores {
   display: flex;
   flex-direction: column;

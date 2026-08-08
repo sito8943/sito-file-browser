@@ -245,6 +245,31 @@ export const STORAGE_KIND = {
 
 export type StorageKind = (typeof STORAGE_KIND)[keyof typeof STORAGE_KIND];
 
+// What a cleanup removes from a registered folder (see CleanupTarget / functions/cleanup.rs).
+// CONTENTS empties the folder but keeps it — required for caches whose parent directory must
+// survive (e.g. ~/.gradle/caches). FOLDER trashes the registered folder itself, for whole obsolete
+// directories. Every cleanup goes to the system Trash, so both modes stay reversible.
+export const CLEANUP_MODE = {
+  CONTENTS: "contents",
+  FOLDER: "folder",
+} as const;
+
+export type CleanupMode = (typeof CLEANUP_MODE)[keyof typeof CLEANUP_MODE];
+
+// Stable error codes the cleanup commands return instead of prose, so the message shown to the user
+// comes from the translation dictionary. Mirrors the ERROR_* constants in functions/cleanup.rs; any
+// other value is a raw backend error and is surfaced as-is.
+export const CLEANUP_ERROR = {
+  NOT_ABSOLUTE: "CLEANUP_NOT_ABSOLUTE",
+  NOT_A_DIR: "CLEANUP_NOT_A_DIR",
+  PROTECTED_PATH: "CLEANUP_PROTECTED_PATH",
+  DUPLICATE: "CLEANUP_DUPLICATE",
+  UNKNOWN_TARGET: "CLEANUP_UNKNOWN_TARGET",
+  INVALID_MODE: "CLEANUP_INVALID_MODE",
+} as const;
+
+export type CleanupError = (typeof CLEANUP_ERROR)[keyof typeof CLEANUP_ERROR];
+
 // Path scheme marking a remote (SSH/SFTP) location: `sftp://<connId>/absolute/remote/path`. The
 // backend routes these to the SFTP backend; every other path is local. Mirrors SFTP_SCHEME in
 // src-tauri/src/filesystem/sftp.rs. See SSH_PLAN.md.
