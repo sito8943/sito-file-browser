@@ -3,7 +3,9 @@ import { useState } from "react";
 import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
-import Button from "@/shared/components/elements/Button";
+import Button, {
+  BUTTON_VARIANT,
+} from "@/shared/components/elements/Button";
 import TextInput from "@/shared/components/elements/TextInput";
 import Icon from "@/shared/components/elements/Icon";
 import type { SmbShare } from "@/shared/services/api";
@@ -267,7 +269,7 @@ const SmbDialog = ({ visible, initial, onSubmit, onClose }: SmbDialogProps) => {
           </Button>
           <Button
             type="submit"
-            className={classNames("primary", !canSubmit && "disabled")}
+            variant={BUTTON_VARIANT.PRIMARY}
             disabled={!canSubmit}
           >
             {editing ? t.smb.save : t.smb.add}
