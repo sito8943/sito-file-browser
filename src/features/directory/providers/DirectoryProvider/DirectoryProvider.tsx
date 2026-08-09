@@ -197,6 +197,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
         properties: propertiesApi,
         revealID,
         clearRevealID,
+        revealEntries,
         focusCreatedEntry,
         openFile,
       }}

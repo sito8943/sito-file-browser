@@ -79,18 +79,17 @@ const PathBar = () => {
     setSearchClosing(false);
   }
 
-  const { openFile } = useDirectory();
+  const { revealEntries } = useDirectory();
 
-  // Committing a FILE path in the path field navigates to its folder and opens the file (like
-  // double-clicking it there). Anything else — a folder, or a path that can't be stat'ed —
-  // navigates as before (a bad path surfaces through the normal load-error handling).
+  // Committing a FILE path in the path field navigates to its folder, then reveals the file once
+  // that directory's listing has loaded. Anything else — a folder, or a path that can't be
+  // stat'ed — navigates as before (a bad path surfaces through the normal load-error handling).
   const commitPath = useCallback(
     async (next: string) => {
       try {
         const entry = await fs.getEntry(next);
         if (entry.metadata.isFile) {
-          setPath(dirname(next));
-          void openFile(entry);
+          revealEntries(dirname(entry.path), [entry.path]);
           return;
         }
       } catch {
@@ -98,7 +97,7 @@ const PathBar = () => {
       }
       setPath(next);
     },
-    [fs, setPath, openFile],
+    [fs, setPath, revealEntries],
   );
 
   const goHome = () => setPath("");
