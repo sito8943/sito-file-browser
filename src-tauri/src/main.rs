@@ -132,6 +132,8 @@ fn main() {
             watcher::watch_directory,
             functions::keymap::get_keymap,
             functions::context_menu::get_context_menu,
+            functions::context_menu::set_context_menu,
+            functions::context_menu::run_context_action,
             functions::clipboard::copy_files_to_clipboard,
             functions::settings::get_settings,
             functions::settings::set_settings,

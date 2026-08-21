@@ -6,6 +6,7 @@ import type {
   CleanupTarget,
   ExportResult,
 } from "@/shared/services/api";
+import type { ContextMenuLayout } from "@/shared/models";
 import type { CleanupMode } from "@/shared/constants";
 
 // Encapsulates the settings dialog's domain operations: inspecting the app's on-disk storage,
@@ -13,6 +14,14 @@ import type { CleanupMode } from "@/shared/constants";
 // settings.toml. Controls consume this through SettingsProvider instead of calling the Tauri
 // service (`api`) directly, keeping IPC + orchestration out of the leaf controls.
 export class SettingsManager {
+  getContextMenu(): Promise<ContextMenuLayout> {
+    return api.getContextMenu();
+  }
+
+  setContextMenu(menu: ContextMenuLayout): Promise<ContextMenuLayout> {
+    return api.setContextMenu(menu);
+  }
+
   // The app's on-disk data locations with their recursively-summed sizes (Storage panel).
   getStorage(): Promise<AppStorageLocation[]> {
     return api.getAppStorage();

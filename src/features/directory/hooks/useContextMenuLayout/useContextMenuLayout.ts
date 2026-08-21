@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-import { getContextMenu } from "@/shared/services/api";
+import {
+  getContextMenu,
+  onContextMenuChanged,
+} from "@/shared/services/api";
 import type { ContextMenuLayout } from "@/shared/models";
 
 import { EMPTY_LAYOUT } from "./constants";
@@ -12,6 +15,7 @@ export const useContextMenuLayout = (): ContextMenuLayout => {
 
   useEffect(() => {
     let cancelled = false;
+    let unlisten: (() => void) | undefined;
     getContextMenu()
       .then((next) => {
         if (!cancelled) setLayout(next);
@@ -19,8 +23,20 @@ export const useContextMenuLayout = (): ContextMenuLayout => {
       .catch((err) =>
         console.error("Failed to load context menu layout:\n" + err),
       );
+
+    onContextMenuChanged((next) => {
+      if (!cancelled) setLayout(next);
+    })
+      .then((fn) => {
+        if (cancelled) fn();
+        else unlisten = fn;
+      })
+      .catch((err) =>
+        console.error("Failed to watch context menu layout:\n" + err),
+      );
     return () => {
       cancelled = true;
+      unlisten?.();
     };
   }, []);
 

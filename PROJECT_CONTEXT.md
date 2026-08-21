@@ -1,6 +1,6 @@
 # Sito File Browser - Project Context
 
-Last reviewed: 2026-07-23
+Last reviewed: 2026-08-09
 
 This is the navigation map for agents working in this repository. It exists to avoid a full-repo
 study at the start of every task. Read this file, then inspect only the owning files named for the
@@ -195,6 +195,13 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 - `shared/services/api.ts`: the frontend/Tauri boundary;
 - `shared/models`, `shared/search`, `shared/utils`, and `shared/constants.ts`.
 
+Context-menu layout and user-defined process actions are persisted separately from app settings in
+`context_menu.toml`. The editor lives under the Settings custom controls and routes through
+`SettingsManager`; loading/rendering remains owned by the directory action registry and
+`useContextMenuLayout`, while `src-tauri/src/functions/context_menu.rs` validates, saves, broadcasts,
+and executes configured actions. Custom commands run directly with an argv list (never through a
+shell) and support path placeholders; virtual/remote/Trash entries do not expose them.
+
 ## Settings contract
 
 Settings are persisted by Rust in `settings.toml`. A settings change normally crosses all of:
@@ -304,6 +311,7 @@ Do not execute `sfb` from an agent session unless the developer explicitly autho
 | Folder load, spinner, stalls, access denied, refresh | `src/app/hooks/useDirectoryContents`                                                    |
 | Entry list/render/selection                          | `src/features/directory/Directory.tsx`, `DirectoryProvider`, `EntriesView`              |
 | File operations                                      | directory actions/hooks -> `FileSystemManager` -> `api.ts` -> Rust filesystem core      |
+| Context-menu layout/custom process actions            | directory action registry, Settings custom-action editor, `functions/context_menu.rs`    |
 | Preview or Properties                                | `src/features/directory/components/Preview` or `Properties` and their hooks             |
 | Folder sizes/watchers                                | `useDirSizes.ts`, `src-tauri/src/index.rs`, `src-tauri/src/watcher.rs`                  |
 | Thumbnails                                           | `DirEntry` thumbnail hooks and `src-tauri/src/filesystem/fs.rs`                         |

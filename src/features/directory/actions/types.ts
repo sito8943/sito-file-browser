@@ -6,6 +6,7 @@ import type { FileSystemManager } from "@/shared/managers/FileSystemManager";
 import type { KeymapAction } from "@/shared/keymap";
 import type { Sort } from "@/features/directory/sort";
 import type { ArchiveFormat } from "@/shared/providers/CompressProvider";
+import type { CustomContextAction } from "@/shared/models";
 
 import type { EntryActionId } from "./constants";
 
@@ -122,3 +123,9 @@ export type ResolveArgs = {
   // Lowercased file extension (no dot); ignored for folders.
   extension: string;
 };
+
+export type ResolveCustomActionsArgs = ResolveArgs & {
+  elementId: string;
+};
+
+export type ResolvedCustomAction = CustomContextAction;

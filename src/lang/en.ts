@@ -437,6 +437,7 @@ export const en = {
       dragDrop: "Drag & drop",
       deletion: "Deletion",
       importExport: "Import & export",
+      contextMenu: "Context menu",
       toasts: "Toasts",
     },
     showHidden: "Show hidden files",
@@ -469,6 +470,52 @@ export const en = {
     sizeIgnoresAdd: "Add pattern",
     sizeIgnoresRemove: "Remove pattern",
     sizeIgnoresEmpty: "No patterns — every file counts toward folder sizes.",
+    contextActions: "Custom actions",
+    contextActionsHint:
+      "Add local commands or executable scripts to file and folder context menus. Commands run directly without a shell.",
+    contextActionsPlaceholders:
+      "Arguments support {path}, {paths}, {directory}, {name}, and {extension}. Put each argument on its own line; {paths} expands to the full selection.",
+    contextActionsAdd: "Add action",
+    contextActionsLoading: "Loading custom actions…",
+    contextActionsEmpty: "No custom context-menu actions.",
+    contextActionsEnabled: "Action enabled",
+    contextActionsMoveUp: "Move action up",
+    contextActionsMoveDown: "Move action down",
+    contextActionsEdit: "Edit action",
+    contextActionsDelete: "Delete action",
+    contextActionsDeleteTitle: "Delete custom action?",
+    contextActionsDeleteMessage: (label: string) =>
+      `Remove “${label}” from the context menu?`,
+    contextActionsName: "Name",
+    contextActionsNamePlaceholder: "Open with Code",
+    contextActionsIcon: "Icon",
+    contextActionsIconBolt: "Bolt",
+    contextActionsIconCode: "Code",
+    contextActionsIconTerminal: "Terminal",
+    contextActionsIconApp: "Application",
+    contextActionsIconPlay: "Run",
+    contextActionsIconGear: "Tool",
+    contextActionsIconFile: "File",
+    contextActionsIconFolder: "Folder",
+    contextActionsTargets: "Show for",
+    contextActionsTargetDirectory: "Current directory",
+    contextActionsTargetFolder: "Folder entries",
+    contextActionsTargetFile: "Files",
+    contextActionsSummary: (targets: string, extensions: string) =>
+      extensions ? `${targets} · ${extensions}` : targets,
+    contextActionsExtensions: "File extensions",
+    contextActionsExtensionsPlaceholder: "e.g. ts, tsx, js — empty means all",
+    contextActionsCommand: "Executable or script",
+    contextActionsCommandPlaceholder: "/usr/bin/open or ~/Scripts/action.command",
+    contextActionsArguments: "Arguments — one per line",
+    contextActionsArgumentsPlaceholder:
+      "-a\nVisual Studio Code\n{path}",
+    contextActionsSave: "Save action",
+    contextActionsCancel: "Cancel",
+    contextActionsLoadError: (reason: string) =>
+      `Could not load custom actions: ${reason}`,
+    contextActionsSaveError: (reason: string) =>
+      `Could not save custom actions: ${reason}`,
     showToasts: "Show notifications",
     showToastsHint: "Show transient pop-up messages (e.g. “Copied”, errors).",
     theme: "Appearance",
@@ -725,6 +772,8 @@ export const en = {
   errors: {
     open: (reason: string) => `Could not open file: ${reason}`,
     openInTerminal: (reason: string) => `Could not open terminal: ${reason}`,
+    customAction: (reason: string) =>
+      `Could not run custom action: ${reason}`,
     delete: (name: string, reason: string) =>
       `Could not delete ${name}: ${reason}`,
     restore: (name: string, reason: string) =>

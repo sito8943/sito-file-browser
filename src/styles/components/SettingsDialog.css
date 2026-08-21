@@ -419,4 +419,128 @@
   gap: var(--space-2);
 }
 
+/* User-defined context-menu commands. Cards preserve saved order; the editor uses direct argv
+   fields (one argument per line) so paths with spaces need no quoting. */
+.settings_modal .settings_context_actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.settings_modal .settings_context_actions_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.settings_modal .settings_context_actions_header .Button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  flex-shrink: 0;
+}
+
+.settings_modal .settings_context_action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2-5);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-input);
+}
+
+.settings_modal .settings_context_action_text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.settings_modal .settings_context_action_command {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+}
+
+.settings_modal .settings_context_action_buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  flex-shrink: 0;
+}
+
+.settings_modal .settings_context_action_form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+}
+
+.settings_modal .settings_context_action_form > label,
+.settings_modal .settings_context_action_form fieldset {
+  min-width: 0;
+  margin: var(--space-0);
+  padding: var(--space-0);
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+}
+
+.settings_modal .settings_context_action_form input,
+.settings_modal .settings_context_action_form select,
+.settings_modal .settings_context_action_form textarea {
+  width: 100%;
+  min-width: 0;
+}
+
+.settings_modal .settings_context_action_form legend {
+  margin-bottom: var(--space-1);
+}
+
+.settings_modal .settings_context_action_targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2-5);
+}
+
+.settings_modal .settings_context_action_targets label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-primary);
+}
+
+.settings_modal .settings_context_action_icon_select {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.settings_modal .settings_context_action_icon_select .Select {
+  flex: 1;
+}
+
+.settings_modal .settings_context_action_args,
+.settings_modal .settings_context_action_form_actions {
+  grid-column: 1 / -1;
+}
+
+.settings_modal .settings_context_action_form_actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 /* The pill toggles are the shared <Switcher> element (see styles/components/Switcher.css). */

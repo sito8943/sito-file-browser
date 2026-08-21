@@ -171,6 +171,34 @@ export type DragDropAction =
 // Default: move (matches most file managers).
 export const DEFAULT_DRAG_DROP_ACTION: DragDropAction = DRAG_DROP_ACTION.MOVE;
 
+// Where a user-defined context-menu process action is eligible to appear. DIRECTORY is the empty
+// floor/current folder, FOLDER is a child folder entry, and FILE can additionally be filtered by
+// extension. These values persist in context_menu.toml and mirror context_menu.rs.
+export const CUSTOM_ACTION_TARGET = {
+  DIRECTORY: "directory",
+  FOLDER: "folder",
+  FILE: "file",
+} as const;
+
+export type CustomActionTarget =
+  (typeof CUSTOM_ACTION_TARGET)[keyof typeof CUSTOM_ACTION_TARGET];
+
+// Curated Font Awesome keys available to user-defined actions. Font Awesome icons are compile-time
+// objects, so persisted config stores one of these stable names rather than arbitrary icon data.
+export const CUSTOM_ACTION_ICON = {
+  BOLT: "bolt",
+  CODE: "code",
+  TERMINAL: "terminal",
+  APP: "app",
+  PLAY: "play",
+  GEAR: "gear",
+  FILE: "file",
+  FOLDER: "folder",
+} as const;
+
+export type CustomActionIcon =
+  (typeof CUSTOM_ACTION_ICON)[keyof typeof CUSTOM_ACTION_ICON];
+
 // Seed settings used before settings.toml is hydrated and as the reset-to-default baseline in the
 // settings dialog. Must match the Rust defaults (functions/settings.rs).
 export const DEFAULT_SETTINGS: AppSettings = {

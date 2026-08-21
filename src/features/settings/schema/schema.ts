@@ -20,6 +20,8 @@ import SizeIgnoresControl from "../components/SettingsDialog/controls/SizeIgnore
 import SizeIgnoresBelow from "../components/SettingsDialog/controls/SizeIgnoresBelow";
 import AccentControl from "../components/SettingsDialog/controls/AccentControl";
 import FolderHandlerControl from "../components/SettingsDialog/controls/FolderHandlerControl";
+import ContextActionsControl from "../components/SettingsDialog/controls/ContextActionsControl";
+import ContextActionsBelow from "../components/SettingsDialog/controls/ContextActionsBelow";
 
 import { SETTINGS_SECTION } from "./sections";
 import { SETTING_KIND, type SettingDescriptor } from "./types";
@@ -304,6 +306,19 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
   },
 
   // ── Files & Transfers ── what dragging entries onto folders / out of the window does.
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "contextActions",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.contextMenu,
+    label: () => t.settings.contextActions,
+    hint: () => t.settings.contextActionsHint,
+    Control: ContextActionsControl,
+    Below: ContextActionsBelow,
+    noReset: true,
+    isModified: () => false,
+    reset: () => {},
+  },
   {
     kind: SETTING_KIND.SELECT,
     key: "dragDropAction",

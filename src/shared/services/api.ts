@@ -8,7 +8,12 @@ import { startDrag } from "@crabnebula/tauri-plugin-drag";
 
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
-import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
+import {
+  Volume,
+  DirEntry,
+  ContextMenuLayout,
+  Tag,
+} from "@/shared/models";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
@@ -230,6 +235,36 @@ export const listAllTags = async (): Promise<Tag[]> =>
 // Load the context-menu layout (reads context_menu.toml, falling back to bundled defaults).
 export const getContextMenu = async (): Promise<ContextMenuLayout> =>
   (await invoke("get_context_menu")) as ContextMenuLayout;
+
+const CONTEXT_MENU_CHANGED_EVENT = "context-menu-changed";
+
+// Persist the complete context-menu layout, including user-defined process actions. The backend
+// validates and normalizes it, then broadcasts context-menu-changed to every open window.
+export const setContextMenu = async (
+  menu: ContextMenuLayout,
+): Promise<ContextMenuLayout> =>
+  (await invoke("set_context_menu", { menu })) as ContextMenuLayout;
+
+export const onContextMenuChanged = async (
+  onChange: (menu: ContextMenuLayout) => void,
+): Promise<() => void> =>
+  await listen<ContextMenuLayout>(CONTEXT_MENU_CHANGED_EVENT, (event) =>
+    onChange(event.payload),
+  );
+
+// Run a saved custom action by id. The backend reloads its command from context_menu.toml and
+// expands placeholders into direct argv items; the WebView never supplies an executable.
+export const runContextAction = async (
+  actionId: string,
+  clickedPath: string,
+  paths: string[],
+): Promise<void> => {
+  try {
+    await invoke("run_context_action", { actionId, clickedPath, paths });
+  } catch (error) {
+    notify(t.errors.customAction(String(error)), TOAST_TYPE.ERROR);
+  }
+};
 
 // Mirror a Copy to the OS clipboard with Finder-style multi-flavor data: the entries paste as
 // real files into file-aware apps (Finder, Mail) and as their name (+ ext) into text fields.

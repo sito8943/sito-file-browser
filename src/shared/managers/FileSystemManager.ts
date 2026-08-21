@@ -143,6 +143,14 @@ export class FileSystemManager {
     return api.openInTerminal(path);
   }
 
+  runContextAction(
+    actionId: string,
+    clickedPath: string,
+    paths: string[],
+  ): Promise<void> {
+    return api.runContextAction(actionId, clickedPath, paths);
+  }
+
   // Render a markdown source string to HTML (renders the live editor draft, so unsaved edits show).
   renderMarkdown(content: string): Promise<string> {
     return api.renderMarkdown(content);
