@@ -32,6 +32,8 @@ export type AppSettings = {
   // Accent hue driving selection/focus/links: "blue" | "navy" | "red" | "teal" | "gold" (see ACCENT).
   accentColor: string;
   defaultZoom: number;
+  // Grid tile/icon size multiplier (1 = default tile), independent of the per-folder zoom.
+  gridIconSize: number;
   // Zoom folders with Command/Ctrl + scroll wheel.
   zoomWithModifierWheel: boolean;
   dateFormat: string;

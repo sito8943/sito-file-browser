@@ -75,6 +75,13 @@ export const ZOOM_MAX = 5;
 export const ZOOM_STEP = 0.25;
 export const ZOOM_DEFAULT = 1;
 
+// Grid icon size: a multiplier on the grid tile (and its icon), independent of the per-folder
+// zoom — the Finder "Icon size" slider (View Options). 1 = the default 76px tile.
+export const GRID_ICON_SIZE_MIN = 0.5;
+export const GRID_ICON_SIZE_MAX = 4;
+export const GRID_ICON_SIZE_STEP = 0.05;
+export const DEFAULT_GRID_ICON_SIZE = 1;
+
 // User-adjustable sidebar background opacity (alpha of --color-background-sidebar). 0 = fully
 // transparent (the window/material shows through), 1 = opaque.
 export const SIDEBAR_OPACITY_MIN = 0;
@@ -206,6 +213,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   theme: DEFAULT_THEME,
   accentColor: DEFAULT_ACCENT,
   defaultZoom: ZOOM_DEFAULT,
+  gridIconSize: DEFAULT_GRID_ICON_SIZE,
   zoomWithModifierWheel: true,
   dateFormat: DEFAULT_DATE_FORMAT,
   sidebarOpacity: DEFAULT_SIDEBAR_OPACITY,

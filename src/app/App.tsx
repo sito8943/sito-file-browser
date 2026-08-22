@@ -273,6 +273,7 @@ const App = () => {
         setZoomTo: zoom.setZoomTo,
         defaultZoom: settings.defaultZoom,
         setDefaultZoom: (defaultZoom) => update({ defaultZoom }),
+        gridIconSize: settings.gridIconSize,
         dateFormat: settings.dateFormat,
         setDateFormat: (dateFormat) => update({ dateFormat }),
         sidebarOpacity: settings.sidebarOpacity,

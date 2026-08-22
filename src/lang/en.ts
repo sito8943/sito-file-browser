@@ -534,6 +534,9 @@ export const en = {
     },
     defaultZoom: "Default zoom",
     defaultZoomHint: "Zoom level for folders you haven't zoomed yet.",
+    gridIconSize: "Icon size",
+    gridIconSizeHint:
+      "Size of icons in grid and list views, independent of the folder zoom.",
     zoomWithModifierWheel: "Zoom with Command/Ctrl + scroll wheel",
     zoomWithModifierWheelHint:
       "Change the current folder's zoom while holding Command on macOS or Ctrl on other platforms.",

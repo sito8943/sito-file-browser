@@ -2,6 +2,9 @@ import {
   SIDEBAR_OPACITY_MIN,
   SIDEBAR_OPACITY_MAX,
   SIDEBAR_OPACITY_STEP,
+  GRID_ICON_SIZE_MIN,
+  GRID_ICON_SIZE_MAX,
+  GRID_ICON_SIZE_STEP,
   DRAG_DROP_ACTION,
   THEME,
 } from "@/shared/constants";
@@ -214,6 +217,20 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
         label: percent(zoom),
       })),
     toValue: Number,
+  },
+  // Finder-style "Icon size" (View Options): scales the grid tile and its icon without being a
+  // conceptual zoom of the whole view — the per-folder zoom stays separate and multiplies on top.
+  {
+    kind: SETTING_KIND.RANGE,
+    key: "gridIconSize",
+    section: SETTINGS_SECTION.APPEARANCE,
+    subsection: () => t.settings.subsections.layout,
+    label: () => t.settings.gridIconSize,
+    hint: () => t.settings.gridIconSizeHint,
+    min: GRID_ICON_SIZE_MIN,
+    max: GRID_ICON_SIZE_MAX,
+    step: GRID_ICON_SIZE_STEP,
+    format: (size) => percent(size),
   },
   {
     kind: SETTING_KIND.TOGGLE,

@@ -230,9 +230,10 @@ body.is-entry-dragging .drag_ghost {
 }
 
 .directory_page .grid .dir_entry_item {
-  /* Zoom scales the tile (and thus the icon), but not the label/badge fonts. */
-  width: calc(var(--size-directory-tile) * var(--zoom, 1));
-  height: calc(var(--size-directory-tile) * var(--zoom, 1));
+  /* Zoom scales the tile (and thus the icon), but not the label/badge fonts. --tile-scale is the
+     Finder-style "Icon size" setting — a second multiplier independent of the per-folder zoom. */
+  width: calc(var(--size-directory-tile) * var(--zoom, 1) * var(--tile-scale, 1));
+  height: calc(var(--size-directory-tile) * var(--zoom, 1) * var(--tile-scale, 1));
   cursor: pointer;
   background-color: transparent;
   border-radius: var(--radius-sm);
@@ -277,7 +278,7 @@ body.is-entry-dragging .drag_ghost {
 }
 
 .directory_page .grid .dir_entry_item .icon svg {
-  font-size: calc(var(--font-size-3xl) * var(--zoom, 1));
+  font-size: calc(var(--font-size-3xl) * var(--zoom, 1) * var(--tile-scale, 1));
   color: var(--color-text-muted);
 }
 
@@ -459,6 +460,10 @@ body.is-entry-dragging .drag_ghost {
   /* Top gutter below the sticky header so the rubber-band can start there. */
   padding-top: var(--space-2-5);
   padding-bottom: var(--space-2-5);
+  /* Finder-style: in list view the Icon size slider only nudges the icon (Finder's list icons are
+     small/large, not free-scaling). Capped at 2× so the icon always fits beside the name instead
+     of swallowing the column and blowing up the row; grid view gets the slider's full range. */
+  --list-tile-scale: min(var(--tile-scale, 1), 2);
 }
 
 /* Sticky column-header row above the entries. */
@@ -577,8 +582,11 @@ body.is-entry-dragging .drag_ghost {
 
 .directory_page .list .dir_entry_item {
   width: 100%;
-  /* Row grows with the icon zoom so the larger icon fits; column text stays the same size. */
-  height: calc(var(--size-directory-row) * var(--zoom, 1));
+  /* Row grows with the icon zoom (and the capped Icon size setting) so the larger icon fits;
+     column text stays the same size. */
+  height: calc(
+    var(--size-directory-row) * var(--zoom, 1) * var(--list-tile-scale, 1)
+  );
   display: grid;
   grid-template-columns: var(--list-grid);
   align-items: center;
@@ -597,8 +605,12 @@ body.is-entry-dragging .drag_ghost {
 }
 
 .directory_page .list .dir_entry_item .icon {
-  width: calc(var(--size-control-large) * var(--zoom, 1));
-  height: calc(var(--size-control-large) * var(--zoom, 1));
+  width: calc(
+    var(--size-control-large) * var(--zoom, 1) * var(--list-tile-scale, 1)
+  );
+  height: calc(
+    var(--size-control-large) * var(--zoom, 1) * var(--list-tile-scale, 1)
+  );
   flex-shrink: 0;
   display: flex;
   justify-content: center;
@@ -606,7 +618,9 @@ body.is-entry-dragging .drag_ghost {
 }
 
 .directory_page .list .dir_entry_item .icon svg {
-  font-size: calc(var(--font-size-lg) * var(--zoom, 1));
+  font-size: calc(
+    var(--font-size-lg) * var(--zoom, 1) * var(--list-tile-scale, 1)
+  );
   color: var(--color-text-muted);
 }
 

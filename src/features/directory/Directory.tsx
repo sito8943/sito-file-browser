@@ -69,6 +69,7 @@ const Directory = () => {
     loadingDir,
     stalled,
     zoom,
+    gridIconSize,
     savingSettings,
     dragDropAction,
     confirmDragDrop,
@@ -381,6 +382,7 @@ const Directory = () => {
           {
             "--list-grid": buildListGrid(visibleColumns, columnWidths),
             "--zoom": zoom,
+            "--tile-scale": gridIconSize,
           } as CSSProperties
         }
         onScroll={(event) => {

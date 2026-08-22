@@ -21,6 +21,8 @@ pub struct AppSettings {
     accent_color: String,
     // Default folder zoom multiplier (1.0 = 100%) for folders without their own saved zoom.
     default_zoom: f64,
+    // Grid tile/icon size multiplier (1.0 = default tile), independent of the per-folder zoom.
+    grid_icon_size: f64,
     // Zoom folders with Command/Ctrl + scroll wheel.
     zoom_with_modifier_wheel: bool,
     // Date format: a token pattern (YYYY-MM-DD HH:mm, …) or the "locale" sentinel.
@@ -115,6 +117,7 @@ impl Default for AppSettings {
             theme: "system".to_string(),
             accent_color: "blue".to_string(),
             default_zoom: 1.0,
+            grid_icon_size: 1.0,
             zoom_with_modifier_wheel: true,
             date_format: "locale".to_string(),
             sidebar_opacity: 0.85,
