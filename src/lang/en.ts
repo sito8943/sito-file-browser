@@ -665,7 +665,6 @@ export const en = {
   },
   onboarding: {
     title: "Welcome",
-    stepOf: (current: number, total: number) => `Step ${current} of ${total}`,
     back: "Back",
     next: "Next",
     skip: "Skip",

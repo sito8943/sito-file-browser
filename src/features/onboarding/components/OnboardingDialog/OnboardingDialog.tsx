@@ -65,21 +65,6 @@ const OnboardingDialog = ({ settingsReady }: OnboardingDialogProps) => {
         onClose={dismiss}
       />
       <div className="onboarding_body">
-        <ol className="onboarding_progress" aria-hidden="true">
-          {steps.map((s, i) => (
-            <li
-              key={s.id}
-              className={classNames(
-                "onboarding_dot",
-                i === index && "active",
-                i < index && "done",
-              )}
-            />
-          ))}
-        </ol>
-        <p className="onboarding_step_count">
-          {t.onboarding.stepOf(index + 1, steps.length)}
-        </p>
         <h3 className="onboarding_step_title">{step.title()}</h3>
         <p className="onboarding_step_description">{step.description()}</p>
         {Body && (
@@ -87,6 +72,20 @@ const OnboardingDialog = ({ settingsReady }: OnboardingDialogProps) => {
             <Body settings={settings} update={update} />
           </div>
         )}
+        <div className="onboarding_steps">
+          <ol className="onboarding_progress" aria-hidden="true">
+            {steps.map((s, i) => (
+              <li
+                key={s.id}
+                className={classNames(
+                  "onboarding_dot",
+                  i === index && "active",
+                  i < index && "done",
+                )}
+              />
+            ))}
+          </ol>
+        </div>
         <DialogActions>
           {!last && (
             <Button className="onboarding_skip" onClick={dismiss}>

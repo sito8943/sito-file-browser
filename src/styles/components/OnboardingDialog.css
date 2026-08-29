@@ -10,6 +10,15 @@
   gap: var(--space-3);
 }
 
+/* Progress block under the content: dots + "Step n of m", centred. */
+.onboarding_modal .onboarding_steps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin-top: var(--space-2);
+}
+
 /* Progress dots: one per page; the current one is accent, earlier ones dim accent. */
 .onboarding_modal .onboarding_progress {
   display: flex;
@@ -34,13 +43,6 @@
 
 .onboarding_modal .onboarding_dot.active {
   background-color: var(--color-accent);
-}
-
-.onboarding_modal .onboarding_step_count {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .onboarding_modal .onboarding_step_title {
@@ -163,6 +165,13 @@
   background-color: var(--color-accent-hover, var(--color-accent));
   border-color: var(--color-accent-hover, var(--color-accent));
   color: var(--color-text-on-solid);
+}
+
+/* Footer breathes: the actions sit clear of the step content, above a hairline. */
+.onboarding_modal .dialog_actions {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--border-width-default) solid var(--color-border-default);
 }
 
 /* Skip sits apart from Back/Next on the left. */
