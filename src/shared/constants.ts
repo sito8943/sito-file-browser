@@ -243,6 +243,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showFolderSizes: false,
   showVolumeSize: false,
   sizeIgnores: isMacPlatform() ? [...MACOS_SIZE_IGNORES] : [],
+  showOnboarding: true,
+  onboardingSeen: false,
 };
 
 // DOM KeyboardEvent.key names used in non-configurable key handling (navigation, input

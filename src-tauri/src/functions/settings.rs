@@ -95,6 +95,11 @@ pub struct AppSettings {
     // calculation, e.g. ".DS_Store", "*.tmp", "node_modules". Empty by default. Applied live: on
     // save these replace the size-index name-globs and the size cache is cleared so it recomputes.
     size_ignores: Vec<String>,
+    // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
+    // Settings so the user can stop it from reappearing (or bring it back).
+    show_onboarding: bool,
+    // Whether the welcome guide has been completed or dismissed at least once (internal marker).
+    onboarding_seen: bool,
 }
 
 impl AppSettings {
@@ -147,6 +152,8 @@ impl Default for AppSettings {
             show_folder_sizes: false,
             show_volume_size: false,
             size_ignores: default_size_ignores(),
+            show_onboarding: true,
+            onboarding_seen: false,
         }
     }
 }

@@ -23,6 +23,7 @@ import {
 } from "@/shared/keymap";
 
 import SideBar, { SidebarResizeHandle } from "@/features/sidebar";
+import { OnboardingProvider, OnboardingDialog } from "@/features/onboarding";
 import ShortcutsDialog from "@/features/shortcuts";
 import { SettingsProvider } from "@/features/settings";
 import { useTabs, saveStartupConfig } from "@/features/tabs";
@@ -327,35 +328,40 @@ const App = () => {
                       useCustom={settings.useCustomFolderPicker}
                     >
                       <ShortcutHelpProvider>
-                        <SettingsProvider settings={settings} update={update}>
-                          <div
-                            className={classNames(
-                              "App",
-                              sidebar.collapsed && "collapsed",
-                            )}
-                            // Expanded-column width; the collapsed rule overrides it (see index.css).
-                            style={
-                              {
-                                "--sidebar-width": `${settings.sidebarWidth}px`,
-                                // Alpha of the context-menu background (see ContextMenu.css); menus are
-                                // descendants of .App, so they inherit this override.
-                                "--context-menu-opacity":
-                                  settings.contextMenuOpacity,
-                                // Alpha of the preview controls pill (see Preview.css); the pill is a
-                                // descendant of .App, so it inherits this override.
-                                "--preview-controls-opacity":
-                                  settings.previewControlsOpacity,
-                              } as CSSProperties
-                            }
-                          >
-                            <SideBar
-                              collapsed={sidebar.collapsed}
-                              onToggle={sidebar.toggle}
-                            />
-                            {!sidebar.collapsed && <SidebarResizeHandle />}
-                            <AppContent />
-                          </div>
-                        </SettingsProvider>
+                        <OnboardingProvider>
+                          <SettingsProvider settings={settings} update={update}>
+                            <div
+                              className={classNames(
+                                "App",
+                                sidebar.collapsed && "collapsed",
+                              )}
+                              // Expanded-column width; the collapsed rule overrides it (see index.css).
+                              style={
+                                {
+                                  "--sidebar-width": `${settings.sidebarWidth}px`,
+                                  // Alpha of the context-menu background (see ContextMenu.css); menus are
+                                  // descendants of .App, so they inherit this override.
+                                  "--context-menu-opacity":
+                                    settings.contextMenuOpacity,
+                                  // Alpha of the preview controls pill (see Preview.css); the pill is a
+                                  // descendant of .App, so it inherits this override.
+                                  "--preview-controls-opacity":
+                                    settings.previewControlsOpacity,
+                                } as CSSProperties
+                              }
+                            >
+                              <SideBar
+                                collapsed={sidebar.collapsed}
+                                onToggle={sidebar.toggle}
+                              />
+                              {!sidebar.collapsed && <SidebarResizeHandle />}
+                              <AppContent />
+                            </div>
+                            {/* Welcome guide; inside SettingsProvider because its steps reuse the
+                              settings controls, and it auto-opens once settings are hydrated. */}
+                            <OnboardingDialog settingsReady={settingsReady} />
+                          </SettingsProvider>
+                        </OnboardingProvider>
                         <ShortcutsDialog />
                         <ToastStack toasts={toasts} onDismiss={dismissToast} />
                       </ShortcutHelpProvider>

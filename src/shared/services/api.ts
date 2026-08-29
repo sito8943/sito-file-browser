@@ -97,6 +97,12 @@ export type AppSettings = {
   // Glob patterns (matched against an entry's file name) excluded from recursive folder-size
   // calculation, e.g. ".DS_Store", "*.tmp", "node_modules". Applied live on save.
   sizeIgnores: string[];
+  // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
+  // Settings so the user can stop it from ever reappearing (or bring it back).
+  showOnboarding: boolean;
+  // Whether the welcome guide has been completed or dismissed at least once. Internal marker, not
+  // shown in Settings; "Open the welcome guide" clears it and reopens the wizard.
+  onboardingSeen: boolean;
 };
 
 // Load the persisted app settings (falls back to defaults when settings.toml is absent).

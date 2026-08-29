@@ -506,10 +506,10 @@ export const en = {
     contextActionsExtensions: "File extensions",
     contextActionsExtensionsPlaceholder: "e.g. ts, tsx, js — empty means all",
     contextActionsCommand: "Executable or script",
-    contextActionsCommandPlaceholder: "/usr/bin/open or ~/Scripts/action.command",
+    contextActionsCommandPlaceholder:
+      "/usr/bin/open or ~/Scripts/action.command",
     contextActionsArguments: "Arguments — one per line",
-    contextActionsArgumentsPlaceholder:
-      "-a\nVisual Studio Code\n{path}",
+    contextActionsArgumentsPlaceholder: "-a\nVisual Studio Code\n{path}",
     contextActionsSave: "Save action",
     contextActionsCancel: "Cancel",
     contextActionsLoadError: (reason: string) =>
@@ -655,6 +655,67 @@ export const en = {
     folderHandlerOn: "This app is now the default folder handler.",
     folderHandlerOff: "Finder restored as the default folder handler.",
     folderHandlerError: "Couldn't change the default folder handler.",
+    showOnboarding: "Show welcome guide on launch",
+    showOnboardingHint:
+      "Open the welcome guide when the app starts, until you finish or dismiss it.",
+    onboardingReplay: "Welcome guide",
+    onboardingReplayHint:
+      "Walk through the app's basics again: appearance, shortcuts, sidebar and system integration.",
+    onboardingReplayButton: "Open guide",
+  },
+  onboarding: {
+    title: "Welcome",
+    stepOf: (current: number, total: number) => `Step ${current} of ${total}`,
+    back: "Back",
+    next: "Next",
+    skip: "Skip",
+    finish: "Get started",
+    showAgain: "Show this guide next time the app starts",
+    steps: {
+      welcome: {
+        title: "Welcome to Sito File Browser",
+        description:
+          "A quick tour of the basics. Everything here can be changed later in Settings.",
+      },
+      appearance: {
+        title: "Make it yours",
+        description:
+          "Pick a theme and an accent colour. The app recolours live as you choose.",
+        theme: "Theme",
+        accent: "Accent",
+      },
+      shortcuts: {
+        title: "Keyboard shortcuts",
+        description:
+          "The essentials. Every binding can be changed, and the full list is one keystroke away.",
+        openSettings: "Open Settings",
+        toggleSidebar: "Toggle the sidebar",
+        newTab: "New tab",
+        search: "Search the current folder",
+        toggleHidden: "Show / hide hidden files",
+        helpShortcuts: "Show all shortcuts",
+      },
+      sidebar: {
+        title: "Your sidebar",
+        description:
+          "Quick Access holds your favourite folders. Use the pencil to add groups, reorder them, pin folders and hide the presets you don't need. The first pinned folders get their own shortcut.",
+      },
+      integration: {
+        title: "System integration",
+        description:
+          "Optional extras. Both can be toggled at any time in Settings › General.",
+        folderHandler:
+          "Open folders from other apps here (default file manager)",
+        folderSizes: "Show folder sizes in list view",
+        folderSizesHint:
+          "Walks each folder once and caches the result; can spike CPU on big trees.",
+      },
+      finish: {
+        title: "You're all set",
+        description:
+          "Press ⌘/Ctrl + , anytime to open Settings, or ⌘/Ctrl + / to see every shortcut.",
+      },
+    },
   },
   infoPanel: {
     title: "Info",
@@ -775,8 +836,7 @@ export const en = {
   errors: {
     open: (reason: string) => `Could not open file: ${reason}`,
     openInTerminal: (reason: string) => `Could not open terminal: ${reason}`,
-    customAction: (reason: string) =>
-      `Could not run custom action: ${reason}`,
+    customAction: (reason: string) => `Could not run custom action: ${reason}`,
     delete: (name: string, reason: string) =>
       `Could not delete ${name}: ${reason}`,
     restore: (name: string, reason: string) =>

@@ -25,6 +25,7 @@ import AccentControl from "../components/SettingsDialog/controls/AccentControl";
 import FolderHandlerControl from "../components/SettingsDialog/controls/FolderHandlerControl";
 import ContextActionsControl from "../components/SettingsDialog/controls/ContextActionsControl";
 import ContextActionsBelow from "../components/SettingsDialog/controls/ContextActionsBelow";
+import OnboardingReplayControl from "../components/SettingsDialog/controls/OnboardingReplayControl";
 
 import { SETTINGS_SECTION } from "./sections";
 import { SETTING_KIND, type SettingDescriptor } from "./types";
@@ -106,6 +107,26 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
         startupMode: defaults.startupMode,
         homePath: defaults.homePath,
       }),
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "showOnboarding",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.startup,
+    label: () => t.settings.showOnboarding,
+    hint: () => t.settings.showOnboardingHint,
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "onboardingReplay",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.startup,
+    label: () => t.settings.onboardingReplay,
+    hint: () => t.settings.onboardingReplayHint,
+    Control: OnboardingReplayControl,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
   },
   {
     kind: SETTING_KIND.TOGGLE,
