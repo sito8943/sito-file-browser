@@ -58,7 +58,8 @@ const FolderItem = ({
       {hotkey && !onRemove && !onToggleHidden && (
         <span className="folder_hotkey">{hotkey}</span>
       )}
-      {onOpenInNewTab && (
+      {/* Not in the collapsed rail: the row is icon-only there (the context menu still offers it). */}
+      {onOpenInNewTab && !collapsed && (
         <IconButton
           icon={faUpRightFromSquare}
           size={ICON_BUTTON_SIZE.SM}
