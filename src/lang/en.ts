@@ -427,6 +427,7 @@ export const en = {
       filesFolders: "Files & folders",
       folderSizes: "Folder sizes",
       startup: "Startup",
+      updates: "Updates",
       tabs: "Tabs",
       systemIntegration: "System integration",
       previews: "Previews & windows",
@@ -662,6 +663,24 @@ export const en = {
     onboardingReplayHint:
       "Walk through the app's basics again: appearance, shortcuts, sidebar and system integration.",
     onboardingReplayButton: "Open guide",
+    checkForUpdates: "Check for updates on launch",
+    checkForUpdatesHint:
+      "Look up the latest GitHub release when the app starts and show a notification if it's newer. Nothing is downloaded.",
+    updates: "Updates",
+    updatesHint: "Compare the installed version with the latest release.",
+  },
+  updates: {
+    checkNow: "Check now",
+    checking: "Checking…",
+    upToDate: "You're on the latest version.",
+    available: (version: string) => `Version ${version} is available.`,
+    availableToast: (version: string) =>
+      `Update available: v${version}. Click to view the release.`,
+    error: "Couldn't reach GitHub to check for updates.",
+    installedVersion: (version: string) => `Installed: v${version}`,
+    installedVersionUnknown: "Installed version unknown",
+    viewRelease: "View release",
+    copyBrewCommand: "Copy brew command",
   },
   onboarding: {
     title: "Welcome",

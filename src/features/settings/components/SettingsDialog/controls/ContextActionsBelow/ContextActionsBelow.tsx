@@ -7,9 +7,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
-import Button, {
-  BUTTON_VARIANT,
-} from "@/shared/components/elements/Button";
+import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
 import Checkbox from "@/shared/components/elements/Checkbox";
 import Icon from "@/shared/components/elements/Icon";
 import IconButton, {
@@ -158,7 +156,9 @@ const ContextActionsBelow = () => {
             <span className="settings_row_hint">
               {t.settings.contextActionsSummary(
                 action.targets.map(targetLabel).join(", "),
-                action.extensions.map((extension) => `.${extension}`).join(", "),
+                action.extensions
+                  .map((extension) => `.${extension}`)
+                  .join(", "),
               )}
             </span>
             <span className="settings_context_action_command">

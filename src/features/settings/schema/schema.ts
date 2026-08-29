@@ -26,6 +26,8 @@ import FolderHandlerControl from "../components/SettingsDialog/controls/FolderHa
 import ContextActionsControl from "../components/SettingsDialog/controls/ContextActionsControl";
 import ContextActionsBelow from "../components/SettingsDialog/controls/ContextActionsBelow";
 import OnboardingReplayControl from "../components/SettingsDialog/controls/OnboardingReplayControl";
+import UpdatesControl from "../components/SettingsDialog/controls/UpdatesControl";
+import UpdatesBelow from "../components/SettingsDialog/controls/UpdatesBelow";
 
 import { SETTINGS_SECTION } from "./sections";
 import { SETTING_KIND, type SettingDescriptor } from "./types";
@@ -124,6 +126,27 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     label: () => t.settings.onboardingReplay,
     hint: () => t.settings.onboardingReplayHint,
     Control: OnboardingReplayControl,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "checkForUpdates",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.updates,
+    label: () => t.settings.checkForUpdates,
+    hint: () => t.settings.checkForUpdatesHint,
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "updatesCheck",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.updates,
+    label: () => t.settings.updates,
+    hint: () => t.settings.updatesHint,
+    Control: UpdatesControl,
+    Below: UpdatesBelow,
     isModified: () => false,
     reset: () => {},
     noReset: true,

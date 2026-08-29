@@ -35,6 +35,7 @@ import { useZoom } from "./hooks/useZoom";
 import { useDirectoryContents } from "./hooks/useDirectoryContents";
 import { useStaleMountRedirect } from "./hooks/useStaleMountRedirect";
 import { useSidebarCollapsed } from "./hooks/useSidebarCollapsed";
+import { useUpdateCheck } from "./hooks/useUpdateCheck";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useDockMenu } from "./hooks/useDockMenu";
 import { useTheme } from "./hooks/useTheme";
@@ -102,6 +103,8 @@ const App = () => {
   const zoom = useZoom(fs, tabs.path, settings.defaultZoom);
   const { toasts, dismissToast } = useToasts();
   const sidebar = useSidebarCollapsed();
+  // Launch-time check for a newer GitHub release (toast on hit); off via Settings › Updates.
+  useUpdateCheck(settings.checkForUpdates, settingsReady);
 
   // Feed the macOS Dock right-click menu (recent folders + quick actions) and handle its clicks.
   useDockMenu({

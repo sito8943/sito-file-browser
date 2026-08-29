@@ -103,6 +103,9 @@ export type AppSettings = {
   // Whether the welcome guide has been completed or dismissed at least once. Internal marker, not
   // shown in Settings; "Open the welcome guide" clears it and reopens the wizard.
   onboardingSeen: boolean;
+  // Check GitHub Releases for a newer version on launch and surface a notification. Only a read of
+  // the public releases API — nothing is downloaded or installed.
+  checkForUpdates: boolean;
 };
 
 // Load the persisted app settings (falls back to defaults when settings.toml is absent).

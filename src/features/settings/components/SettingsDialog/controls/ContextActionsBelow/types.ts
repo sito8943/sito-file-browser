@@ -1,7 +1,4 @@
-import type {
-  CustomActionIcon,
-  CustomActionTarget,
-} from "@/shared/constants";
+import type { CustomActionIcon, CustomActionTarget } from "@/shared/constants";
 
 export type ContextActionDraft = {
   id: string;

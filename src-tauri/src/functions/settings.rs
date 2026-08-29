@@ -100,6 +100,9 @@ pub struct AppSettings {
     show_onboarding: bool,
     // Whether the welcome guide has been completed or dismissed at least once (internal marker).
     onboarding_seen: bool,
+    // Check GitHub Releases for a newer version on launch and surface a notification (read-only:
+    // nothing is downloaded or installed).
+    check_for_updates: bool,
 }
 
 impl AppSettings {
@@ -154,6 +157,7 @@ impl Default for AppSettings {
             size_ignores: default_size_ignores(),
             show_onboarding: true,
             onboarding_seen: false,
+            check_for_updates: true,
         }
     }
 }
