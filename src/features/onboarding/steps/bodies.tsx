@@ -11,9 +11,11 @@ import {
   KEYMAP_ACTION,
   type KeymapAction,
 } from "@/shared/keymap";
-import type { CustomControlProps } from "@/features/settings/schema";
-import AccentControl from "@/features/settings/components/SettingsDialog/controls/AccentControl";
-import FolderHandlerControl from "@/features/settings/components/SettingsDialog/controls/FolderHandlerControl";
+import {
+  AccentControl,
+  FolderHandlerControl,
+  type CustomControlProps,
+} from "@/features/settings";
 import { t } from "@/lang";
 
 // Theme dropdown + accent swatches. Both write settings immediately, so the running app is the
