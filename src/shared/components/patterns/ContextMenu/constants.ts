@@ -1,6 +1,8 @@
 // ARIA roles retained by the local item/submenu adapter.
 export const MENU_ROLE = "menu";
 export const MENU_ITEM_ROLE = "menuitem";
+// aria-haspopup value announcing that an item opens a nested menu.
+export const SUBMENU_POPUP_ROLE = "menu";
 export const MENU_ITEM_SELECTOR = `[role="${MENU_ITEM_ROLE}"]:not([disabled])`;
 
 export const CONTEXT_MENU_INITIAL_POSITION = { x: 0, y: 0 };

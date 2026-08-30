@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 
-import {
-  getContextMenu,
-  onContextMenuChanged,
-} from "@/shared/services/api";
+import { getContextMenu, onContextMenuChanged } from "@/shared/services/api";
 import type { ContextMenuLayout } from "@/shared/models";
 
 import { EMPTY_LAYOUT } from "./constants";

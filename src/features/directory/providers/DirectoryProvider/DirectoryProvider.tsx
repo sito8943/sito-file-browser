@@ -6,8 +6,8 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import { extension } from "@/shared/utils";
 import type { DirEntry } from "@/shared/models";
 import { t } from "@/lang";
-import { revealTargetFromUrl } from "@/features/tabs/utils";
-import { opensInAppPreview } from "@/features/directory/constants";
+import { revealTargetFromUrl } from "@/features/tabs";
+import { opensInAppPreview } from "../../constants";
 import { DEFAULT_FILTERS } from "@/shared/search/filters";
 
 import { useDirectoryEntries } from "../../hooks/useDirectoryEntries";

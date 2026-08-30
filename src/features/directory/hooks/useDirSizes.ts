@@ -72,8 +72,7 @@ export const useDirSizes = (
 
     const queue = entries.filter(
       (entry) =>
-        isWalkable(entry) &&
-        getFreshCachedDirSize(entry, ignoresKey) == null,
+        isWalkable(entry) && getFreshCachedDirSize(entry, ignoresKey) == null,
     );
     if (!queue.length) return;
 

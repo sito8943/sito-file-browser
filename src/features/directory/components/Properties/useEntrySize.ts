@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { DirEntry } from "@/shared/models";
 
-import {
-  getCachedDirSize,
-  setCachedDirSize,
-} from "../../hooks/dirSizeCache";
+import { getCachedDirSize, setCachedDirSize } from "../../hooks/dirSizeCache";
 
 // Size to display for an entry. Files report it directly; folders have no stored size (the OS
 // reports 0), so we compute the recursive total on demand — returning null while it's being
@@ -28,13 +25,20 @@ export const useEntrySize = (entry: DirEntry): number | null => {
     size: number;
   } | null>(null);
 
+  // The cache write needs the full entry (mtime etc.), but the walk should only re-run when the
+  // target folder changes — not on every parent re-render that hands down a new entry object.
+  const latestEntry = useRef(entry);
+  useEffect(() => {
+    latestEntry.current = entry;
+  }, [entry]);
+
   useEffect(() => {
     // Skip the recursive walk for non-folders and for volume roots (handled via disk stats below).
     if (!entry.metadata.isDir || volume) return;
     let cancelled = false;
     fs.getDirSize(entry.path)
       .then((size) => {
-        setCachedDirSize(entry, size);
+        setCachedDirSize(latestEntry.current, size);
         if (!cancelled) setComputed({ path: entry.path, size });
       })
       .catch(() => !cancelled && setComputed({ path: entry.path, size: 0 }));

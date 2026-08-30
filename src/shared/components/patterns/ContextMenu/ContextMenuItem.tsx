@@ -20,6 +20,7 @@ import {
   MENU_ROLE,
   SUBMENU_CLOSE_DELAY,
   SUBMENU_VIEWPORT_PADDING,
+  SUBMENU_POPUP_ROLE,
 } from "./constants";
 import type { ContextMenuItemProps } from "./types";
 
@@ -131,9 +132,7 @@ export const ContextMenuItem = ({
     setOpen(true);
   };
 
-  const handleSubmenuKeyDown = (
-    event: ReactKeyboardEvent<HTMLDivElement>,
-  ) => {
+  const handleSubmenuKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === KEY.ARROW_LEFT) {
       event.preventDefault();
       event.stopPropagation();
@@ -144,15 +143,12 @@ export const ContextMenuItem = ({
     }
 
     const items = Array.from(
-      flyoutRef.current?.querySelectorAll<HTMLElement>(
-        MENU_ITEM_SELECTOR,
-      ) ?? [],
+      flyoutRef.current?.querySelectorAll<HTMLElement>(MENU_ITEM_SELECTOR) ??
+        [],
     );
     if (!items.length) return;
 
-    const currentIndex = items.indexOf(
-      document.activeElement as HTMLElement,
-    );
+    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
     let nextIndex: number | null = null;
 
     if (event.key === KEY.ARROW_DOWN) {
@@ -185,7 +181,7 @@ export const ContextMenuItem = ({
       onClick={onClick}
       onKeyDown={handleParentKeyDown}
       disabled={isDisabled}
-      aria-haspopup={submenu ? "menu" : undefined}
+      aria-haspopup={submenu ? SUBMENU_POPUP_ROLE : undefined}
       aria-expanded={submenu ? open : undefined}
     >
       <span className="ctx_icon">{icon}</span>

@@ -14,10 +14,7 @@ import {
 import { t } from "@/lang";
 import "@/styles/components/ContextMenu.css";
 
-import {
-  CONTEXT_MENU_INITIAL_POSITION,
-  MENU_ITEM_SELECTOR,
-} from "./constants";
+import { CONTEXT_MENU_INITIAL_POSITION, MENU_ITEM_SELECTOR } from "./constants";
 import type { ContextMenuProps } from "./types";
 
 const ignoreDismissal = () => undefined;
@@ -59,8 +56,7 @@ export const ContextMenu = forwardRef<HTMLDivElement, ContextMenuProps>(
       // Selecting an entry from its context-menu gesture focuses that row in a passive effect.
       // Reclaim focus after those selection effects so arrow keys stay inside the open menu.
       const menu = menuRef.current;
-      const firstItem =
-        menu?.querySelector<HTMLElement>(MENU_ITEM_SELECTOR);
+      const firstItem = menu?.querySelector<HTMLElement>(MENU_ITEM_SELECTOR);
       (firstItem ?? menu)?.focus();
     }, [contextMenuVisible]);
 
