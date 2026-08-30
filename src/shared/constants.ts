@@ -246,6 +246,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showOnboarding: true,
   onboardingSeen: false,
   checkForUpdates: true,
+  lastSeenVersion: "",
+  showChangelogAfterUpdate: true,
 };
 
 // DOM KeyboardEvent.key names used in non-configurable key handling (navigation, input

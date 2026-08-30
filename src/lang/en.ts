@@ -668,6 +668,20 @@ export const en = {
       "Look up the latest GitHub release when the app starts and show a notification if it's newer. Nothing is downloaded.",
     updates: "Updates",
     updatesHint: "Compare the installed version with the latest release.",
+    showChangelogAfterUpdate: "Show what's new after an update",
+    showChangelogAfterUpdateHint:
+      "After the app updates, show a notification that opens the release notes.",
+    changelog: "Release notes",
+    changelogHint: "Read what changed in this and earlier versions.",
+    changelogButton: "Show changelog",
+  },
+  changelog: {
+    title: "What's new",
+    version: (version: string) => `Version ${version}`,
+    pickVersion: "Version",
+    viewOnGitHub: "View on GitHub",
+    updatedToast: (version: string) =>
+      `Updated to v${version}. Click to see what's new.`,
   },
   updates: {
     checkNow: "Check now",

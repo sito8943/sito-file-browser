@@ -106,6 +106,11 @@ export type AppSettings = {
   // Check GitHub Releases for a newer version on launch and surface a notification. Only a read of
   // the public releases API — nothing is downloaded or installed.
   checkForUpdates: boolean;
+  // The app version that last ran. Empty on a fresh install (→ welcome guide); when the running
+  // version is newer (→ "what's new" toast). Always rewritten to the current version on launch.
+  lastSeenVersion: string;
+  // After an update, show a clickable toast that opens the changelog for the new version.
+  showChangelogAfterUpdate: boolean;
 };
 
 // Load the persisted app settings (falls back to defaults when settings.toml is absent).

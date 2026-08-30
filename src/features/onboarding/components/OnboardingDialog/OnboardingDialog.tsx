@@ -35,8 +35,21 @@ const OnboardingDialog = ({ settingsReady }: OnboardingDialogProps) => {
   useEffect(() => {
     if (!settingsReady || autoOpened.current) return;
     autoOpened.current = true;
-    if (settings.showOnboarding && !settings.onboardingSeen) open();
-  }, [settingsReady, settings.showOnboarding, settings.onboardingSeen, open]);
+    // Fresh installs only (no version recorded yet): after an update the what's-new toast takes
+    // over, so the guide doesn't pile on top of it.
+    if (
+      settings.showOnboarding &&
+      !settings.onboardingSeen &&
+      settings.lastSeenVersion === ""
+    )
+      open();
+  }, [
+    settingsReady,
+    settings.showOnboarding,
+    settings.onboardingSeen,
+    settings.lastSeenVersion,
+    open,
+  ]);
 
   // Start from the first page each time the guide opens.
   const [wasVisible, setWasVisible] = useState(visible);

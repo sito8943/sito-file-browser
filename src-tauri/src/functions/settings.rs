@@ -103,6 +103,11 @@ pub struct AppSettings {
     // Check GitHub Releases for a newer version on launch and surface a notification (read-only:
     // nothing is downloaded or installed).
     check_for_updates: bool,
+    // The app version that last ran: empty on a fresh install, otherwise compared against the
+    // running version on launch to detect an update. Always rewritten to the current version.
+    last_seen_version: String,
+    // After an update, show a clickable toast that opens the changelog for the new version.
+    show_changelog_after_update: bool,
 }
 
 impl AppSettings {
@@ -158,6 +163,8 @@ impl Default for AppSettings {
             show_onboarding: true,
             onboarding_seen: false,
             check_for_updates: true,
+            last_seen_version: String::new(),
+            show_changelog_after_update: true,
         }
     }
 }

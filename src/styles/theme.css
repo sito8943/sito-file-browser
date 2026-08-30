@@ -40,6 +40,8 @@
   --size-path-search: 260px;
   --size-connection-dialog-width: 420px;
   --size-onboarding-width: 460px;
+  --size-changelog-width: 520px;
+  --size-changelog-max-height: 50vh;
   --size-connection-port-width: 96px;
   --size-smb-shares-max-height: 192px;
   --size-progress-track: var(--space-1);

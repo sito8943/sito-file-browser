@@ -28,6 +28,7 @@ import ContextActionsBelow from "../components/SettingsDialog/controls/ContextAc
 import OnboardingReplayControl from "../components/SettingsDialog/controls/OnboardingReplayControl";
 import UpdatesControl from "../components/SettingsDialog/controls/UpdatesControl";
 import UpdatesBelow from "../components/SettingsDialog/controls/UpdatesBelow";
+import ChangelogControl from "../components/SettingsDialog/controls/ChangelogControl";
 
 import { SETTINGS_SECTION } from "./sections";
 import { SETTING_KIND, type SettingDescriptor } from "./types";
@@ -147,6 +148,26 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     hint: () => t.settings.updatesHint,
     Control: UpdatesControl,
     Below: UpdatesBelow,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "showChangelogAfterUpdate",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.updates,
+    label: () => t.settings.showChangelogAfterUpdate,
+    hint: () => t.settings.showChangelogAfterUpdateHint,
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "changelog",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.updates,
+    label: () => t.settings.changelog,
+    hint: () => t.settings.changelogHint,
+    Control: ChangelogControl,
     isModified: () => false,
     reset: () => {},
     noReset: true,
