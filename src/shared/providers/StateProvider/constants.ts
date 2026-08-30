@@ -2,6 +2,7 @@ import { FileSystemManager } from "@/shared/managers/FileSystemManager";
 import {
   VIEW_MODE,
   ZOOM_DEFAULT,
+  DEFAULT_GRID_ICON_SIZE,
   DEFAULT_DATE_FORMAT,
   DEFAULT_SIDEBAR_OPACITY,
   DEFAULT_SIDEBAR_WIDTH,
@@ -53,6 +54,7 @@ export const initialState: State = {
   setZoomTo: () => {},
   defaultZoom: ZOOM_DEFAULT,
   setDefaultZoom: () => {},
+  gridIconSize: DEFAULT_GRID_ICON_SIZE,
   dateFormat: DEFAULT_DATE_FORMAT,
   setDateFormat: () => {},
   sidebarOpacity: DEFAULT_SIDEBAR_OPACITY,

@@ -25,6 +25,10 @@
 #   toggle_hidden      toggle showing hidden entries / dotfiles (global)
 #
 # Use the literal "separator" to draw a divider between groups. Order here is display order.
+#
+# Settings can also append [[custom_action]] entries with a label, curated icon key, targets
+# ("directory", "folder", "file"), optional file extensions, command and argv list. Commands run
+# directly without a shell. Argument placeholders: {path}, {paths}, {directory}, {name}, {extension}.
 
 # Right-click on the empty floor of the current directory.
 [directory]

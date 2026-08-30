@@ -48,5 +48,4 @@
   margin: 0;
 }
 
-/* Submit uses the shared .Button.primary variant (accent fill + darkening hover); the disabled
-   look comes from the base .Button:disabled. */
+/* Submit actions use the shared Button PRIMARY variant; disabled state comes from Button itself. */

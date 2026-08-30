@@ -1,12 +1,11 @@
 import "@sito/ui/styles.css";
 
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import App from "./App";
-import PreviewWindow from "@/features/directory/components/Preview/PreviewWindow";
-import PropertiesWindow from "@/features/directory/components/Properties/PropertiesWindow";
+import { PreviewWindow, PropertiesWindow } from "./panelWindows";
 import { ConnectionsProvider } from "@/features/connections";
 
 // FontAwesome injects its sizing CSS at runtime by default. The production CSP
@@ -33,9 +32,13 @@ const panelTarget = params.get("path") ?? "";
 
 const panelApp =
   panel === "preview" ? (
-    <PreviewWindow target={panelTarget} />
+    <Suspense fallback={null}>
+      <PreviewWindow target={panelTarget} />
+    </Suspense>
   ) : panel === "properties" ? (
-    <PropertiesWindow target={panelTarget} />
+    <Suspense fallback={null}>
+      <PropertiesWindow target={panelTarget} />
+    </Suspense>
   ) : null;
 
 const root = ReactDOM.createRoot(

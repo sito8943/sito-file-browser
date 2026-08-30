@@ -1,6 +1,6 @@
 # Sito File Browser - Project Context
 
-Last reviewed: 2026-07-23
+Last reviewed: 2026-08-09
 
 This is the navigation map for agents working in this repository. It exists to avoid a full-repo
 study at the start of every task. Read this file, then inspect only the owning files named for the
@@ -189,11 +189,18 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 
 - `shared/components/elements`: small domain-agnostic primitives;
 - `shared/components/patterns`: reusable compositions such as dialogs, popups, menus, and toasts;
-- `shared/keymap`: keymap manager/providers/hotkey dispatch;
+- `shared/keymap`: app keymap/scopes backed by the shared `@sito/commands` hotkey dispatcher;
 - `shared/managers/FileSystemManager.ts`: filesystem domain boundary;
 - `shared/providers`: modal, confirm, picker, tags, archive, and app-state providers;
 - `shared/services/api.ts`: the frontend/Tauri boundary;
 - `shared/models`, `shared/search`, `shared/utils`, and `shared/constants.ts`.
+
+Context-menu layout and user-defined process actions are persisted separately from app settings in
+`context_menu.toml`. The editor lives under the Settings custom controls and routes through
+`SettingsManager`; loading/rendering remains owned by the directory action registry and
+`useContextMenuLayout`, while `src-tauri/src/functions/context_menu.rs` validates, saves, broadcasts,
+and executes configured actions. Custom commands run directly with an argv list (never through a
+shell) and support path placeholders; virtual/remote/Trash entries do not expose them.
 
 ## Settings contract
 
@@ -211,6 +218,14 @@ Do not change only the visible control or only the Rust default.
 
 Per-folder columns, view, sort, and zoom are stored separately through
 `src-tauri/src/functions/folder_columns.rs`.
+
+The Storage section also hosts the cleanup watch list, which is **not** part of that contract: the
+folders the user registered to watch and reclaim live in `cleanup.toml` through
+`src-tauri/src/functions/cleanup.rs`, reached from the UI via `SettingsManager`. Adding or cleaning a
+folder is not a settings write, so it skips the seven-step alignment above. Cleanups always move
+items to the system Trash (never a permanent delete), and `cleanup.rs` re-validates the target
+immediately before deleting — refusing OS-owned trees, volume roots, the home dir, and any ancestor
+of the app config dir.
 
 Editable keybindings route through `src/shared/keymap`, Settings schema, and
 `src-tauri/src/functions/keymap.rs`; preserve platform overrides when writing one binding.
@@ -254,7 +269,7 @@ Use explicit `cfg`/platform branches and return errors instead of panicking.
 - `src-tauri/src/index.rs`: persistent recursive directory-size index.
 - `src-tauri/src/watcher.rs`: live recursive size-index watcher.
 - `src-tauri/src/functions`: settings, sidebar, keymap, context menu, terminal, control socket,
-  storage, clipboard, system integration, and folder preferences.
+  storage, cleanup watch list, clipboard, system integration, and folder preferences.
 - `src-tauri/src/window.rs`: normal and detached Tauri windows.
 
 The GUI and `sfb` CLI intentionally reuse plain Rust core functions. Put reusable filesystem
@@ -296,10 +311,12 @@ Do not execute `sfb` from an agent session unless the developer explicitly autho
 | Folder load, spinner, stalls, access denied, refresh | `src/app/hooks/useDirectoryContents`                                                    |
 | Entry list/render/selection                          | `src/features/directory/Directory.tsx`, `DirectoryProvider`, `EntriesView`              |
 | File operations                                      | directory actions/hooks -> `FileSystemManager` -> `api.ts` -> Rust filesystem core      |
+| Context-menu layout/custom process actions           | directory action registry, Settings custom-action editor, `functions/context_menu.rs`   |
 | Preview or Properties                                | `src/features/directory/components/Preview` or `Properties` and their hooks             |
 | Folder sizes/watchers                                | `useDirSizes.ts`, `src-tauri/src/index.rs`, `src-tauri/src/watcher.rs`                  |
 | Thumbnails                                           | `DirEntry` thumbnail hooks and `src-tauri/src/filesystem/fs.rs`                         |
 | Settings                                             | Settings schema/provider, `api.ts`, `src-tauri/src/functions/settings.rs`, translations |
+| Disk usage / cleanup watch list                      | `controls/StorageBelow`, `controls/CleanupBelow`, `functions/storage.rs`, `cleanup.rs`  |
 | Keyboard shortcuts                                   | `src/shared/keymap`, `src/features/shortcuts`, keymap Settings schema                   |
 | Sidebar                                              | `src/features/sidebar`; network orchestration remains in `ConnectionsProvider`          |
 | SFTP                                                 | `src/features/connections`, `api.ts`, `src-tauri/src/filesystem/sftp.rs`, `SSH_PLAN.md` |

@@ -7,6 +7,7 @@ import { useStateContext } from "@/shared/providers/StateProvider";
 import { extension } from "@/shared/utils";
 import { RECENTS } from "@/shared/constants";
 import { useKeymap, formatBinding, isMacPlatform } from "@/shared/keymap";
+import { customActionIcon } from "@/shared/contextActions";
 
 import { TagPicker } from "./TagPicker";
 
@@ -14,6 +15,7 @@ import {
   ENTRY_ACTIONS,
   ACTION_SEPARATOR,
   resolveActionIds,
+  resolveCustomActions,
   isActionVisible,
   resolveActionIcon,
   type EntryActionContext,
@@ -107,6 +109,19 @@ const EntryContextMenu = ({
       elementType,
       extension: fileExtension,
     });
+  const customActions = providedActionIds
+    ? []
+    : resolveCustomActions(layout, {
+        isCurrentDirectory,
+        inTrash,
+        elementType,
+        extension: fileExtension,
+        elementId,
+      });
+  const hasVisiblePredefinedActions = actionIds.some((id) => {
+    const action = ENTRY_ACTIONS[id as EntryActionId];
+    return !!action && isActionVisible(action, ctx);
+  });
 
   // Finder tags: a colour-swatch row at the top, for a real entry (not the empty-directory menu
   // or the Trash). macOS only — tags are a native macOS feature.
@@ -169,6 +184,20 @@ const EntryContextMenu = ({
           />
         );
       })}
+      {customActions.length > 0 && hasVisiblePredefinedActions && (
+        <ContextMenuItem isSeparator />
+      )}
+      {customActions.map((action) => (
+        <ContextMenuItem
+          key={`custom-${action.id}`}
+          text={action.label}
+          icon={<Icon icon={customActionIcon(action.icon)} />}
+          onClick={() => {
+            onClose();
+            void fs.runContextAction(action.id, elementId, targets);
+          }}
+        />
+      ))}
     </ContextMenu>
   );
 };

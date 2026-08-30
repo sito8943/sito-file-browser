@@ -12,6 +12,7 @@ import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
+  type CleanupMode,
   type DragDropAction,
   type StorageKind,
 } from "@/shared/constants";
@@ -26,6 +27,8 @@ export type AppSettings = {
   // Accent hue driving selection/focus/links: "blue" | "navy" | "red" | "teal" | "gold" (see ACCENT).
   accentColor: string;
   defaultZoom: number;
+  // Grid tile/icon size multiplier (1 = default tile), independent of the per-folder zoom.
+  gridIconSize: number;
   // Zoom folders with Command/Ctrl + scroll wheel.
   zoomWithModifierWheel: boolean;
   dateFormat: string;
@@ -89,6 +92,20 @@ export type AppSettings = {
   // Glob patterns (matched against an entry's file name) excluded from recursive folder-size
   // calculation, e.g. ".DS_Store", "*.tmp", "node_modules". Applied live on save.
   sizeIgnores: string[];
+  // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
+  // Settings so the user can stop it from ever reappearing (or bring it back).
+  showOnboarding: boolean;
+  // Whether the welcome guide has been completed or dismissed at least once. Internal marker, not
+  // shown in Settings; "Open the welcome guide" clears it and reopens the wizard.
+  onboardingSeen: boolean;
+  // Check GitHub Releases for a newer version on launch and surface a notification. Only a read of
+  // the public releases API — nothing is downloaded or installed.
+  checkForUpdates: boolean;
+  // The app version that last ran. Empty on a fresh install (→ welcome guide); when the running
+  // version is newer (→ "what's new" toast). Always rewritten to the current version on launch.
+  lastSeenVersion: string;
+  // After an update, show a clickable toast that opens the changelog for the new version.
+  showChangelogAfterUpdate: boolean;
 };
 
 // Load the persisted app settings (falls back to defaults when settings.toml is absent).
@@ -229,6 +246,36 @@ export const listAllTags = async (): Promise<Tag[]> =>
 // Load the context-menu layout (reads context_menu.toml, falling back to bundled defaults).
 export const getContextMenu = async (): Promise<ContextMenuLayout> =>
   (await invoke("get_context_menu")) as ContextMenuLayout;
+
+const CONTEXT_MENU_CHANGED_EVENT = "context-menu-changed";
+
+// Persist the complete context-menu layout, including user-defined process actions. The backend
+// validates and normalizes it, then broadcasts context-menu-changed to every open window.
+export const setContextMenu = async (
+  menu: ContextMenuLayout,
+): Promise<ContextMenuLayout> =>
+  (await invoke("set_context_menu", { menu })) as ContextMenuLayout;
+
+export const onContextMenuChanged = async (
+  onChange: (menu: ContextMenuLayout) => void,
+): Promise<() => void> =>
+  await listen<ContextMenuLayout>(CONTEXT_MENU_CHANGED_EVENT, (event) =>
+    onChange(event.payload),
+  );
+
+// Run a saved custom action by id. The backend reloads its command from context_menu.toml and
+// expands placeholders into direct argv items; the WebView never supplies an executable.
+export const runContextAction = async (
+  actionId: string,
+  clickedPath: string,
+  paths: string[],
+): Promise<void> => {
+  try {
+    await invoke("run_context_action", { actionId, clickedPath, paths });
+  } catch (error) {
+    notify(t.errors.customAction(String(error)), TOAST_TYPE.ERROR);
+  }
+};
 
 // Mirror a Copy to the OS clipboard with Finder-style multi-flavor data: the entries paste as
 // real files into file-aware apps (Finder, Mail) and as their name (+ ext) into text fields.
@@ -567,7 +614,17 @@ export const startNativeDrag = (
 ): void => {
   const image = icon || bundledDragIcon;
   if (!paths.length || !image) return;
-  void startDrag({ item: paths, icon: image, mode });
+  // The native plugin accepts real local filesystem paths only. A remote SFTP URL must be
+  // downloaded first, but doing that here would add an await before startDrag and lose the native
+  // drag gesture. Refuse the unsupported handoff instead of sending an invalid path into native
+  // code; remote entries can still be copied into a local folder from inside the app.
+  if (paths.some((path) => path.startsWith(SFTP_SCHEME))) {
+    notify(t.connections.dragOutRequiresLocalCopy, TOAST_TYPE.ERROR);
+    return;
+  }
+  void startDrag({ item: paths, icon: image, mode }).catch((error) =>
+    notify(t.errors.dragOut(String(error)), TOAST_TYPE.ERROR),
+  );
 };
 
 // Record a folder the user navigated to in the app's own recent-folders list (backs the macOS
@@ -618,6 +675,58 @@ export const getAppStorage = async (): Promise<AppStorageLocation[]> =>
 // Backs the "clear" button in the Storage settings panel.
 export const clearAppCache = async (): Promise<void> =>
   await invoke("clear_app_cache");
+
+// A folder the user registered to watch and periodically reclaim (dependency caches, build output,
+// launcher leftovers), with its live recursive size. `mode` decides what a cleanup removes (see
+// CLEANUP_MODE); `exists` is false when the folder is no longer on disk, and the row stays listed so
+// unregistering it is deliberate. Mirrors CleanupTargetInfo in functions/cleanup.rs.
+export type CleanupTarget = {
+  path: string;
+  mode: CleanupMode;
+  size: number;
+  exists: boolean;
+};
+
+// What one cleanup actually did. A contents cleanup can partially fail (a locked or in-use child)
+// while the rest is reclaimed, so the panel reports freed bytes and failures instead of a bare
+// success. Mirrors CleanupResult in functions/cleanup.rs.
+export type CleanupResult = {
+  freed: number;
+  removed: number;
+  failed: number;
+  firstError: string | null;
+};
+
+// Every registered cleanup target with its recursively-summed size. The walk runs off the UI thread
+// in Rust because these folders routinely hold hundreds of thousands of files.
+export const getCleanupTargets = async (): Promise<CleanupTarget[]> =>
+  (await invoke("get_cleanup_targets")) as CleanupTarget[];
+
+// Register a folder to watch. The backend canonicalizes the path, refuses unsafe targets (OS trees,
+// volume roots, the home dir, the app's own config dir) and rejects duplicates, throwing a
+// CLEANUP_ERROR code the caller maps to localized copy.
+export const addCleanupTarget = async (
+  path: string,
+  mode: CleanupMode,
+): Promise<void> => await invoke("add_cleanup_target", { path, mode });
+
+// Forget a registered folder. Nothing on disk is touched.
+export const removeCleanupTarget = async (path: string): Promise<void> =>
+  await invoke("remove_cleanup_target", { path });
+
+// Switch what a cleanup removes for one target (empty its contents vs trash the folder itself).
+export const setCleanupTargetMode = async (
+  path: string,
+  mode: CleanupMode,
+): Promise<void> => await invoke("set_cleanup_target_mode", { path, mode });
+
+// Reclaim one registered target by moving it (or its children) to the system Trash — reversible by
+// design, nothing is deleted permanently. The mode comes from the persisted config, not from here,
+// and the backend re-runs its safety checks before touching anything.
+export const cleanCleanupTarget = async (
+  path: string,
+): Promise<CleanupResult> =>
+  (await invoke("clean_cleanup_target", { path })) as CleanupResult;
 
 // A saved SSH/SFTP connection. Secrets (password/passphrase) are never sent to the frontend — the
 // backend strips them; the key path is not a secret and rehydrates the edit dialog's auth fields.

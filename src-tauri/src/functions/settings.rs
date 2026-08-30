@@ -21,6 +21,8 @@ pub struct AppSettings {
     accent_color: String,
     // Default folder zoom multiplier (1.0 = 100%) for folders without their own saved zoom.
     default_zoom: f64,
+    // Grid tile/icon size multiplier (1.0 = default tile), independent of the per-folder zoom.
+    grid_icon_size: f64,
     // Zoom folders with Command/Ctrl + scroll wheel.
     zoom_with_modifier_wheel: bool,
     // Date format: a token pattern (YYYY-MM-DD HH:mm, …) or the "locale" sentinel.
@@ -93,6 +95,19 @@ pub struct AppSettings {
     // calculation, e.g. ".DS_Store", "*.tmp", "node_modules". Empty by default. Applied live: on
     // save these replace the size-index name-globs and the size cache is cleared so it recomputes.
     size_ignores: Vec<String>,
+    // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
+    // Settings so the user can stop it from reappearing (or bring it back).
+    show_onboarding: bool,
+    // Whether the welcome guide has been completed or dismissed at least once (internal marker).
+    onboarding_seen: bool,
+    // Check GitHub Releases for a newer version on launch and surface a notification (read-only:
+    // nothing is downloaded or installed).
+    check_for_updates: bool,
+    // The app version that last ran: empty on a fresh install, otherwise compared against the
+    // running version on launch to detect an update. Always rewritten to the current version.
+    last_seen_version: String,
+    // After an update, show a clickable toast that opens the changelog for the new version.
+    show_changelog_after_update: bool,
 }
 
 impl AppSettings {
@@ -115,6 +130,7 @@ impl Default for AppSettings {
             theme: "system".to_string(),
             accent_color: "blue".to_string(),
             default_zoom: 1.0,
+            grid_icon_size: 1.0,
             zoom_with_modifier_wheel: true,
             date_format: "locale".to_string(),
             sidebar_opacity: 0.85,
@@ -144,6 +160,11 @@ impl Default for AppSettings {
             show_folder_sizes: false,
             show_volume_size: false,
             size_ignores: default_size_ignores(),
+            show_onboarding: true,
+            onboarding_seen: false,
+            check_for_updates: true,
+            last_seen_version: String::new(),
+            show_changelog_after_update: true,
         }
     }
 }

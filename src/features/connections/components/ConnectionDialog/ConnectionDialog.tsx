@@ -3,12 +3,11 @@ import { useState } from "react";
 import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
-import Button from "@/shared/components/elements/Button";
+import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
 import TextInput from "@/shared/components/elements/TextInput";
 import Select from "@/shared/components/elements/Select";
 import PasswordInput from "@/shared/components/patterns/PasswordInput";
 import type { NewConnection } from "@/shared/services/api";
-import { classNames } from "@/shared/utils";
 import { t } from "@/lang";
 
 import "@/styles/components/ConnectionDialog.css";
@@ -216,7 +215,7 @@ const ConnectionDialog = ({
           </Button>
           <Button
             type="submit"
-            className={classNames("primary", !canSubmit && "disabled")}
+            variant={BUTTON_VARIANT.PRIMARY}
             disabled={!canSubmit}
           >
             {editing ? t.connections.save : t.connections.create}

@@ -6,7 +6,7 @@ import {
   useRef,
   type CSSProperties,
 } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { StateProvider } from "@/shared/providers/StateProvider";
@@ -23,6 +23,8 @@ import {
 } from "@/shared/keymap";
 
 import SideBar, { SidebarResizeHandle } from "@/features/sidebar";
+import { OnboardingProvider, OnboardingDialog } from "@/features/onboarding";
+import { ChangelogProvider, ChangelogDialog } from "@/features/changelog";
 import ShortcutsDialog from "@/features/shortcuts";
 import { SettingsProvider } from "@/features/settings";
 import { useTabs, saveStartupConfig } from "@/features/tabs";
@@ -34,6 +36,7 @@ import { useZoom } from "./hooks/useZoom";
 import { useDirectoryContents } from "./hooks/useDirectoryContents";
 import { useStaleMountRedirect } from "./hooks/useStaleMountRedirect";
 import { useSidebarCollapsed } from "./hooks/useSidebarCollapsed";
+import { useUpdateCheck } from "./hooks/useUpdateCheck";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useDockMenu } from "./hooks/useDockMenu";
 import { useTheme } from "./hooks/useTheme";
@@ -101,6 +104,8 @@ const App = () => {
   const zoom = useZoom(fs, tabs.path, settings.defaultZoom);
   const { toasts, dismissToast } = useToasts();
   const sidebar = useSidebarCollapsed();
+  // Launch-time check for a newer GitHub release (toast on hit); off via Settings › Updates.
+  useUpdateCheck(settings.checkForUpdates, settingsReady);
 
   // Feed the macOS Dock right-click menu (recent folders + quick actions) and handle its clicks.
   useDockMenu({
@@ -273,6 +278,7 @@ const App = () => {
         setZoomTo: zoom.setZoomTo,
         defaultZoom: settings.defaultZoom,
         setDefaultZoom: (defaultZoom) => update({ defaultZoom }),
+        gridIconSize: settings.gridIconSize,
         dateFormat: settings.dateFormat,
         setDateFormat: (dateFormat) => update({ dateFormat }),
         sidebarOpacity: settings.sidebarOpacity,
@@ -326,35 +332,47 @@ const App = () => {
                       useCustom={settings.useCustomFolderPicker}
                     >
                       <ShortcutHelpProvider>
-                        <SettingsProvider settings={settings} update={update}>
-                          <div
-                            className={classNames(
-                              "App",
-                              sidebar.collapsed && "collapsed",
-                            )}
-                            // Expanded-column width; the collapsed rule overrides it (see index.css).
-                            style={
-                              {
-                                "--sidebar-width": `${settings.sidebarWidth}px`,
-                                // Alpha of the context-menu background (see ContextMenu.css); menus are
-                                // descendants of .App, so they inherit this override.
-                                "--context-menu-opacity":
-                                  settings.contextMenuOpacity,
-                                // Alpha of the preview controls pill (see Preview.css); the pill is a
-                                // descendant of .App, so it inherits this override.
-                                "--preview-controls-opacity":
-                                  settings.previewControlsOpacity,
-                              } as CSSProperties
-                            }
-                          >
-                            <SideBar
-                              collapsed={sidebar.collapsed}
-                              onToggle={sidebar.toggle}
-                            />
-                            {!sidebar.collapsed && <SidebarResizeHandle />}
-                            <AppContent />
-                          </div>
-                        </SettingsProvider>
+                        <OnboardingProvider>
+                          <ChangelogProvider>
+                            <SettingsProvider
+                              settings={settings}
+                              update={update}
+                            >
+                              <div
+                                className={classNames(
+                                  "App",
+                                  sidebar.collapsed && "collapsed",
+                                )}
+                                // Expanded-column width; the collapsed rule overrides it (see index.css).
+                                style={
+                                  {
+                                    "--sidebar-width": `${settings.sidebarWidth}px`,
+                                    // Alpha of the context-menu background (see ContextMenu.css); menus are
+                                    // descendants of .App, so they inherit this override.
+                                    "--context-menu-opacity":
+                                      settings.contextMenuOpacity,
+                                    // Alpha of the preview controls pill (see Preview.css); the pill is a
+                                    // descendant of .App, so it inherits this override.
+                                    "--preview-controls-opacity":
+                                      settings.previewControlsOpacity,
+                                  } as CSSProperties
+                                }
+                              >
+                                <SideBar
+                                  collapsed={sidebar.collapsed}
+                                  onToggle={sidebar.toggle}
+                                />
+                                {!sidebar.collapsed && <SidebarResizeHandle />}
+                                <AppContent />
+                              </div>
+                              {/* Welcome guide; inside SettingsProvider because its steps reuse the
+                              settings controls, and it auto-opens once settings are hydrated. */}
+                              <OnboardingDialog settingsReady={settingsReady} />
+                              {/* Post-update "what's new" toast + changelog dialog. */}
+                              <ChangelogDialog settingsReady={settingsReady} />
+                            </SettingsProvider>
+                          </ChangelogProvider>
+                        </OnboardingProvider>
                         <ShortcutsDialog />
                         <ToastStack toasts={toasts} onDismiss={dismissToast} />
                       </ShortcutHelpProvider>

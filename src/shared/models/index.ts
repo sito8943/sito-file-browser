@@ -1,4 +1,5 @@
 import type { SearchFilters } from "@/shared/search/filters";
+import type { CustomActionIcon, CustomActionTarget } from "@/shared/constants";
 
 type TimeSince = {
   nanos_since_epoch: number;
@@ -75,6 +76,16 @@ type Tab = {
 // Context-menu layout loaded from context_menu.toml: which actions appear per entry kind.
 type ActionList = { actions: string[] };
 type FileTypeRule = { extensions: string[]; actions: string[] };
+type CustomContextAction = {
+  id: string;
+  label: string;
+  icon: CustomActionIcon;
+  targets: CustomActionTarget[];
+  extensions: string[];
+  command: string;
+  args: string[];
+  enabled: boolean;
+};
 type ContextMenuLayout = {
   directory: ActionList;
   folder: ActionList;
@@ -82,6 +93,7 @@ type ContextMenuLayout = {
   // Entries shown while browsing the Trash (Restore / permanent delete instead of Move-to-Trash).
   trash: ActionList;
   file_type: Record<string, FileTypeRule>;
+  custom_action: CustomContextAction[];
 };
 
 export type {
@@ -95,5 +107,6 @@ export type {
   Tab,
   ActionList,
   FileTypeRule,
+  CustomContextAction,
   ContextMenuLayout,
 };

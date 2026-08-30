@@ -45,6 +45,7 @@ export const en = {
     },
   },
   contextMenu: {
+    label: "Context menu",
     newFolder: "New Folder",
     createFile: "Create a File",
     textFile: "Text File",
@@ -331,6 +332,8 @@ export const en = {
     added: "Connection created",
     // Downloading a remote file to open/preview it failed (read-only cache copy — phase 3a).
     openError: (error: string) => `Couldn't open remote file: ${error}`,
+    dragOutRequiresLocalCopy:
+      "Copy remote files to a local folder before dragging them to another app.",
     // Interactive auth dialog, shown when opening a connection fails authentication (phase 4).
     authTitle: (name: string) => `Authenticate ${name}`,
     authFailed: (target: string) => `Couldn't authenticate to ${target}.`,
@@ -424,9 +427,10 @@ export const en = {
       filesFolders: "Files & folders",
       folderSizes: "Folder sizes",
       startup: "Startup",
+      updates: "Updates",
       tabs: "Tabs",
       systemIntegration: "System integration",
-      previews: "Previews",
+      previews: "Previews & windows",
       statusBar: "Status bar",
       theme: "Theme & colour",
       layout: "Layout & format",
@@ -434,6 +438,7 @@ export const en = {
       dragDrop: "Drag & drop",
       deletion: "Deletion",
       importExport: "Import & export",
+      contextMenu: "Context menu",
       toasts: "Toasts",
     },
     showHidden: "Show hidden files",
@@ -466,6 +471,52 @@ export const en = {
     sizeIgnoresAdd: "Add pattern",
     sizeIgnoresRemove: "Remove pattern",
     sizeIgnoresEmpty: "No patterns — every file counts toward folder sizes.",
+    contextActions: "Custom actions",
+    contextActionsHint:
+      "Add local commands or executable scripts to file and folder context menus. Commands run directly without a shell.",
+    contextActionsPlaceholders:
+      "Arguments support {path}, {paths}, {directory}, {name}, and {extension}. Put each argument on its own line; {paths} expands to the full selection.",
+    contextActionsAdd: "Add action",
+    contextActionsLoading: "Loading custom actions…",
+    contextActionsEmpty: "No custom context-menu actions.",
+    contextActionsEnabled: "Action enabled",
+    contextActionsMoveUp: "Move action up",
+    contextActionsMoveDown: "Move action down",
+    contextActionsEdit: "Edit action",
+    contextActionsDelete: "Delete action",
+    contextActionsDeleteTitle: "Delete custom action?",
+    contextActionsDeleteMessage: (label: string) =>
+      `Remove “${label}” from the context menu?`,
+    contextActionsName: "Name",
+    contextActionsNamePlaceholder: "Open with Code",
+    contextActionsIcon: "Icon",
+    contextActionsIconBolt: "Bolt",
+    contextActionsIconCode: "Code",
+    contextActionsIconTerminal: "Terminal",
+    contextActionsIconApp: "Application",
+    contextActionsIconPlay: "Run",
+    contextActionsIconGear: "Tool",
+    contextActionsIconFile: "File",
+    contextActionsIconFolder: "Folder",
+    contextActionsTargets: "Show for",
+    contextActionsTargetDirectory: "Current directory",
+    contextActionsTargetFolder: "Folder entries",
+    contextActionsTargetFile: "Files",
+    contextActionsSummary: (targets: string, extensions: string) =>
+      extensions ? `${targets} · ${extensions}` : targets,
+    contextActionsExtensions: "File extensions",
+    contextActionsExtensionsPlaceholder: "e.g. ts, tsx, js — empty means all",
+    contextActionsCommand: "Executable or script",
+    contextActionsCommandPlaceholder:
+      "/usr/bin/open or ~/Scripts/action.command",
+    contextActionsArguments: "Arguments — one per line",
+    contextActionsArgumentsPlaceholder: "-a\nVisual Studio Code\n{path}",
+    contextActionsSave: "Save action",
+    contextActionsCancel: "Cancel",
+    contextActionsLoadError: (reason: string) =>
+      `Could not load custom actions: ${reason}`,
+    contextActionsSaveError: (reason: string) =>
+      `Could not save custom actions: ${reason}`,
     showToasts: "Show notifications",
     showToastsHint: "Show transient pop-up messages (e.g. “Copied”, errors).",
     theme: "Appearance",
@@ -484,6 +535,9 @@ export const en = {
     },
     defaultZoom: "Default zoom",
     defaultZoomHint: "Zoom level for folders you haven't zoomed yet.",
+    gridIconSize: "Icon size",
+    gridIconSizeHint:
+      "Size of icons in grid and list views, independent of the folder zoom.",
     zoomWithModifierWheel: "Zoom with Command/Ctrl + scroll wheel",
     zoomWithModifierWheelHint:
       "Change the current folder's zoom while holding Command on macOS or Ctrl on other platforms.",
@@ -561,12 +615,139 @@ export const en = {
       "Delete cached thumbnails and other regenerable files? Your settings and data are kept. The cache rebuilds as you browse.",
     storageCleared: "Cache cleared",
     storageClearError: (error: string) => `Couldn't clear the cache: ${error}`,
+    cleanup: "Folders to clean up",
+    cleanupHint:
+      "Watch folders that grow over time — dependency caches, build output, app leftovers — and reclaim them when they get big.",
+    cleanupTotalShort: (size: string) => `Total: ${size}`,
+    cleanupEmpty:
+      "No folders watched yet. Type or paste a path above — for example a package or build cache.",
+    cleanupPlaceholder: "e.g. ~/.gradle/caches",
+    cleanupAdd: "Watch this folder",
+    cleanupRefresh: "Measure again",
+    cleanupRemove: "Stop watching this folder",
+    cleanupMissing: "Folder not found",
+    cleanupModeContents: "Empty contents",
+    cleanupModeFolder: "Delete folder",
+    cleanupModeToggle: (mode: string) =>
+      `Cleaning does: ${mode}. Click to switch.`,
+    cleanupClean: "Clean up",
+    cleanupCleanContentsConfirm: (path: string, size: string) =>
+      `Move everything inside ${path} to the Trash? That's ${size}. The folder itself is kept, and you can put the items back from the Trash until you empty it.`,
+    cleanupCleanFolderConfirm: (path: string, size: string) =>
+      `Move ${path} to the Trash? That's ${size}, the folder included. You can put it back from the Trash until you empty it.`,
+    cleanupTrashHint:
+      "Cleaning moves items to the Trash, so nothing is lost by accident — empty the Trash to actually free the space.",
+    cleanupFreed: (size: string) => `${size} moved to the Trash`,
+    cleanupAlreadyEmpty: "Nothing to clean — the folder is already empty.",
+    cleanupPartial: (size: string, failed: number, error: string) =>
+      `${size} moved to the Trash, but ${failed} item(s) couldn't be moved: ${error}`,
+    cleanupError: (error: string) => `Cleanup failed: ${error}`,
+    cleanupErrorNotAbsolute:
+      "Type a full path to a folder (or start it with ~).",
+    cleanupErrorNotADir: "That folder doesn't exist any more.",
+    cleanupErrorProtected:
+      "That folder is protected — system directories, disk roots, your home folder and this app's own settings can't be cleaned.",
+    cleanupErrorDuplicate: "That folder is already on the list.",
+    cleanupErrorUnknownTarget: "That folder isn't on the list any more.",
+    cleanupErrorInvalidMode: "Unknown cleanup mode.",
     folderHandler: "Default file manager",
     folderHandlerHint:
       "Open folders from Terminal, other apps and links in this app instead of Finder. Does not change double-clicking folders inside Finder.",
     folderHandlerOn: "This app is now the default folder handler.",
     folderHandlerOff: "Finder restored as the default folder handler.",
     folderHandlerError: "Couldn't change the default folder handler.",
+    showOnboarding: "Show welcome guide on launch",
+    showOnboardingHint:
+      "Open the welcome guide when the app starts, until you finish or dismiss it.",
+    onboardingReplay: "Welcome guide",
+    onboardingReplayHint:
+      "Walk through the app's basics again: appearance, shortcuts, sidebar and system integration.",
+    onboardingReplayButton: "Open guide",
+    checkForUpdates: "Check for updates on launch",
+    checkForUpdatesHint:
+      "Look up the latest GitHub release when the app starts and show a notification if it's newer. Nothing is downloaded.",
+    updates: "Updates",
+    updatesHint: "Compare the installed version with the latest release.",
+    showChangelogAfterUpdate: "Show what's new after an update",
+    showChangelogAfterUpdateHint:
+      "After the app updates, show a notification that opens the release notes.",
+    changelog: "Release notes",
+    changelogHint: "Read what changed in this and earlier versions.",
+    changelogButton: "Show changelog",
+  },
+  changelog: {
+    title: "What's new",
+    version: (version: string) => `Version ${version}`,
+    pickVersion: "Version",
+    viewOnGitHub: "View on GitHub",
+    updatedToast: (version: string) =>
+      `Updated to v${version}. Click to see what's new.`,
+  },
+  updates: {
+    checkNow: "Check now",
+    checking: "Checking…",
+    upToDate: "You're on the latest version.",
+    available: (version: string) => `Version ${version} is available.`,
+    availableToast: (version: string) =>
+      `Update available: v${version}. Click to view the release.`,
+    error: "Couldn't reach GitHub to check for updates.",
+    installedVersion: (version: string) => `Installed: v${version}`,
+    installedVersionUnknown: "Installed version unknown",
+    viewRelease: "View release",
+    copyBrewCommand: "Copy brew command",
+  },
+  onboarding: {
+    title: "Welcome",
+    back: "Back",
+    next: "Next",
+    skip: "Skip",
+    finish: "Get started",
+    showAgain: "Show this guide next time the app starts",
+    steps: {
+      welcome: {
+        title: "Welcome to Sito File Browser",
+        description:
+          "A quick tour of the basics. Everything here can be changed later in Settings.",
+      },
+      appearance: {
+        title: "Make it yours",
+        description:
+          "Pick a theme and an accent colour. The app recolours live as you choose.",
+        theme: "Theme",
+        accent: "Accent",
+      },
+      shortcuts: {
+        title: "Keyboard shortcuts",
+        description:
+          "The essentials. Every binding can be changed, and the full list is one keystroke away.",
+        openSettings: "Open Settings",
+        toggleSidebar: "Toggle the sidebar",
+        newTab: "New tab",
+        search: "Search the current folder",
+        toggleHidden: "Show / hide hidden files",
+        helpShortcuts: "Show all shortcuts",
+      },
+      sidebar: {
+        title: "Your sidebar",
+        description:
+          "Quick Access holds your favourite folders. Use the pencil to add groups, reorder them, pin folders and hide the presets you don't need. The first pinned folders get their own shortcut.",
+      },
+      integration: {
+        title: "System integration",
+        description:
+          "Optional extras. Both can be toggled at any time in Settings › General.",
+        folderHandler:
+          "Open folders from other apps here (default file manager)",
+        folderSizes: "Show folder sizes in list view",
+        folderSizesHint:
+          "Walks each folder once and caches the result; can spike CPU on big trees.",
+      },
+      finish: {
+        title: "You're all set",
+        description:
+          "Press ⌘/Ctrl + , anytime to open Settings, or ⌘/Ctrl + / to see every shortcut.",
+      },
+    },
   },
   infoPanel: {
     title: "Info",
@@ -687,6 +868,7 @@ export const en = {
   errors: {
     open: (reason: string) => `Could not open file: ${reason}`,
     openInTerminal: (reason: string) => `Could not open terminal: ${reason}`,
+    customAction: (reason: string) => `Could not run custom action: ${reason}`,
     delete: (name: string, reason: string) =>
       `Could not delete ${name}: ${reason}`,
     restore: (name: string, reason: string) =>
@@ -704,6 +886,7 @@ export const en = {
     eject: (reason: string) => `Could not eject: ${reason}`,
     save: (reason: string) => `Could not save: ${reason}`,
     read: (reason: string) => `Could not read file: ${reason}`,
+    dragOut: (reason: string) => `Could not start dragging files: ${reason}`,
     openSystemMonitor: (reason: string) =>
       `Could not open the system monitor: ${reason}`,
   },

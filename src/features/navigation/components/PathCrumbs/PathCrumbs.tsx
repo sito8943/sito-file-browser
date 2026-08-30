@@ -4,11 +4,14 @@ import Button from "@/shared/components/elements/Button";
 import Icon from "@/shared/components/elements/Icon";
 import { classNames } from "@/shared/utils";
 import { TRASH_DIR_NAME } from "@/shared/constants";
-import { ENTRY_KIND } from "@/features/directory/constants";
-import { ACTION_SEPARATOR, ENTRY_ACTION } from "@/features/directory/actions";
-import EntryContextMenu from "@/features/directory/components/EntryContextMenu";
-import { useContextMenu } from "@/features/directory/hooks/useContextMenu";
-import { useDirectory } from "@/features/directory/providers/DirectoryProvider";
+import {
+  ENTRY_KIND,
+  ACTION_SEPARATOR,
+  ENTRY_ACTION,
+  EntryContextMenu,
+  useContextMenu,
+  useDirectory,
+} from "@/features/directory";
 
 import "@/styles/components/PathCrumbs.css";
 

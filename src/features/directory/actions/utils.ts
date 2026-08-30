@@ -1,9 +1,21 @@
 import { ENTRY_KIND } from "@/features/directory/constants";
+import {
+  CUSTOM_ACTION_TARGET,
+  RECENTS,
+  SFTP_SCHEME,
+  TAGS_PREFIX,
+} from "@/shared/constants";
 import { extension } from "@/shared/utils";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import type { ContextMenuLayout } from "@/shared/models";
 
-import type { EntryAction, EntryActionContext, ResolveArgs } from "./types";
+import type {
+  EntryAction,
+  EntryActionContext,
+  ResolveArgs,
+  ResolveCustomActionsArgs,
+  ResolvedCustomAction,
+} from "./types";
 
 // True when extracting this archive requires the system 7-Zip binary: only .zip has a pure-Rust
 // path; everything else (7z, rar) shells out. Gates the extract actions' visibility so formats
@@ -28,6 +40,47 @@ export const resolveActionIds = (
       return rule.actions;
   }
   return layout.file.actions;
+};
+
+// User-defined process actions are appended as their own group in the entry context menu. They do
+// not enter the predefined registry or Quick Bar: applicability comes from their saved target and
+// optional extension list, and virtual/remote/Trash paths are excluded because the backend only
+// executes against existing local paths.
+export const resolveCustomActions = (
+  layout: ContextMenuLayout,
+  {
+    isCurrentDirectory,
+    inTrash,
+    elementType,
+    extension,
+    elementId,
+  }: ResolveCustomActionsArgs,
+): ResolvedCustomAction[] => {
+  if (
+    inTrash ||
+    elementId === RECENTS ||
+    elementId.startsWith(SFTP_SCHEME) ||
+    elementId.startsWith(TAGS_PREFIX)
+  )
+    return [];
+
+  const target = isCurrentDirectory
+    ? CUSTOM_ACTION_TARGET.DIRECTORY
+    : elementType === ENTRY_KIND.DIRECTORY
+      ? CUSTOM_ACTION_TARGET.FOLDER
+      : CUSTOM_ACTION_TARGET.FILE;
+  const normalizedExtension = extension.toLowerCase();
+
+  return (layout.custom_action ?? []).filter(
+    (action) =>
+      action.enabled &&
+      action.targets.includes(target) &&
+      (target !== CUSTOM_ACTION_TARGET.FILE ||
+        action.extensions.length === 0 ||
+        action.extensions.some(
+          (candidate) => candidate.toLowerCase() === normalizedExtension,
+        )),
+  );
 };
 
 // Whether an action should be shown in the current context. Single-target actions (multiple

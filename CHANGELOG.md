@@ -2,6 +2,41 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.9.0]
+
+### Added
+
+- Welcome guide — a first-launch onboarding wizard (appearance, essential shortcuts, sidebar, system integration) driven by a declarative step registry; a Settings toggle decides whether it shows on launch, and an "Open guide" button replays it anytime (`759c793`, `bb84140`)
+- Update notifications — on launch the app compares the installed version with the latest GitHub release and shows a clickable toast when a newer one exists; Settings › General › Updates adds a "Check now" row with the release link and the Homebrew upgrade command. Read-only: nothing is downloaded or installed (`435d9f0`)
+- What's new after an update — the first launch on a newer version shows a clickable toast that opens the bundled release notes (this `CHANGELOG.md`, rendered in-app, with a version picker); Settings › General › Updates adds a "Show changelog" row and a toggle for the post-update toast. Fresh installs get the welcome guide instead, never both (`a93ac91`, `972d487`)
+- Cleanup watch list — register folders (dependency caches, build artifacts) in Settings › Storage and reclaim them on demand, either emptying their contents or trashing the folder itself; OS-owned paths are refused (`1d181a1`)
+- Custom context-menu actions — user-defined process commands appended to the entry context menu, saved in `context_menu.toml` and executed with argv (never through a shell), with `{paths}` and scalar placeholders (`7106d48`)
+- Grid icon size — a Finder-style "Icon size" setting that scales grid tiles and their icons independently of the per-folder zoom; list view only nudges the icon (`266b840`)
+- Full keyboard navigation in context menus (arrow keys, submenus) through the shared `@sito/ui` menu primitive (`4d09119`)
+- Committing a file path in the path bar navigates to its folder and reveals the file once the listing loads (`15c42ed`)
+
+### Changed
+
+- Hotkey registration and dispatch now run on `@sito/commands`, replacing the in-house keymap dispatcher (`5510d0e`)
+- Clicking the Dock icon while the app has no visible window restores the hidden main window, or opens a new browser window if all were closed (`9fd7a35`)
+- Network group with no saved connections exposes the SSH/SMB chooser directly; sidebar add actions and dialog submit buttons use the shared Button variants (`1282918`)
+- Folder-size cache keeps the directory mtime and ignore-rules key with each size so an unchanged folder skips the backend lookup within a session (`f707afe`)
+- Settings loaded from disk are merged over the defaults, so a file written by an older build never leaves newer keys undefined (`bb84140`)
+- Routing moved from `react-router-dom` 6 to `react-router` 7.18 (same declarative API), clearing the open-redirect / SSR advisories against v6; `postcss` and `brace-expansion` bumped past their advisories, and `russh` 0.62.5 / `serde_with` 3.21 merged from Dependabot (`e200c76`)
+- Rarely-opened surfaces are now code-split and loaded on first open — Settings, Preview, Properties, the connection/SMB/auth dialogs, compress/password dialogs, the welcome guide, release notes and the shortcuts sheet — plus the detached preview/properties panel windows; startup JS drops from 697 kB to 616 kB (`shared/components/patterns/Deferred`, `540e5e3`)
+- `@sito/commands` is consumed from its public git tag (`v0.1.0-alpha.1`) instead of a local path, so CI can install it (`9adc3b7`)
+- Architecture rules rewritten to match the codebase (registries, settings contract, dialogs/hotkeys, launch lifecycle) and the remaining cross-feature deep imports routed through public `index.ts` files (`188ab49`, `140e479`)
+
+### Fixed
+
+- List view: hidden columns (e.g. Kind in Pictures, whose default hides it) no longer leak a stray "File"/"Directory" label under each row — the hide rules lost a CSS specificity tie against the cell's `display: flex` (`4af28e4`)
+- Sidebar section titles no longer overlap the group chevron while the sidebar animates open (`7dee05c`)
+- The "open in new tab" button on connection rows no longer shows in the collapsed icon rail (`8e64f64`)
+- Remote (SFTP) breadcrumbs keep their `sftp://<connection>` prefix, so clicking an ancestor crumb no longer produces a broken local path (`2c0d9b6`)
+- Late background refreshes (e.g. a slow Recents query on window focus) can no longer replace the entries of the folder you have since navigated to (`47c7a46`)
+- Dragging a remote (SFTP) entry out of the window is refused with a message instead of handing an invalid path to the native drag (`c21bacf`)
+- Tooltips dismiss when their trigger row moves (e.g. while sorting by folder size) instead of floating detached (`540f5a2`)
+
 ## [0.8.0]
 
 ### Added

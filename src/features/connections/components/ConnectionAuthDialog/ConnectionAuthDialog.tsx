@@ -3,7 +3,7 @@ import { useState } from "react";
 import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
-import Button from "@/shared/components/elements/Button";
+import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
 import PasswordInput from "@/shared/components/patterns/PasswordInput";
 import { t } from "@/lang";
 
@@ -96,7 +96,11 @@ const ConnectionAuthDialog = ({
           <Button type="button" onClick={onClose}>
             {t.common.cancel}
           </Button>
-          <Button type="submit" className="primary" disabled={busy}>
+          <Button
+            type="submit"
+            variant={BUTTON_VARIANT.PRIMARY}
+            disabled={busy}
+          >
             {t.connections.retry}
           </Button>
         </DialogActions>

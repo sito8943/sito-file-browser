@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { Volume, DirEntry } from "@/shared/models";
@@ -58,6 +64,15 @@ export const useDirectoryContents = ({
   // Which view the app launched on: at the root the Volumes list *is* the content, so readiness
   // waits on the volume load; on a folder it waits on that folder's listing. Captured once.
   const startedOnVolumes = useRef(path === "");
+  // Background refreshes can outlive the folder that started them (notably a slow Recents query
+  // triggered on window focus). Keep their target and revision tied to the committed navigation so
+  // a late result cannot replace the active folder's entries or stalled state.
+  const activePathRef = useRef(path);
+  const refreshRevisionRef = useRef(0);
+  useLayoutEffect(() => {
+    activePathRef.current = path;
+    refreshRevisionRef.current += 1;
+  }, [path]);
 
   const fetchVolumes = useCallback(
     async () => setVolumes(await fs.listVolumes()),
@@ -106,12 +121,22 @@ export const useDirectoryContents = ({
   // even when the user is already sitting in the folder (not navigating).
   const refreshDir = useCallback(() => {
     if (path === "") return fetchVolumes();
-    const stallTimer = window.setTimeout(
-      () => setStalled(true),
-      DIRECTORY_STALL_DELAY_MS,
-    );
-    loadDirectory(path).then(({ files, denied, error }) => {
+    const target = path;
+    const revision = ++refreshRevisionRef.current;
+    const stallTimer = window.setTimeout(() => {
+      if (
+        activePathRef.current === target &&
+        refreshRevisionRef.current === revision
+      )
+        setStalled(true);
+    }, DIRECTORY_STALL_DELAY_MS);
+    loadDirectory(target).then(({ files, denied, error }) => {
       window.clearTimeout(stallTimer);
+      if (
+        activePathRef.current !== target ||
+        refreshRevisionRef.current !== revision
+      )
+        return;
       setStalled(false);
       if (denied) {
         setDirContent([]);

@@ -77,16 +77,3 @@ export const TAB_ACTIONS = [
   KEYMAP_ACTION.TAB_8,
   KEYMAP_ACTION.TAB_9,
 ] as const;
-
-// Pretty glyphs for common keys when rendering a binding (keyed by lowercased KeyboardEvent.key).
-export const KEY_GLYPH: Record<string, string> = {
-  arrowleft: "←",
-  arrowright: "→",
-  arrowup: "↑",
-  arrowdown: "↓",
-  escape: "Esc",
-  enter: "↵",
-  backspace: "⌫",
-  delete: "Del",
-  " ": "Space",
-};

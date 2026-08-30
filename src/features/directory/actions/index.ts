@@ -11,7 +11,12 @@ export type {
 } from "./types";
 
 export { ENTRY_ACTIONS } from "./registry";
-export { resolveActionIds, isActionVisible, resolveActionIcon } from "./utils";
+export {
+  resolveActionIds,
+  resolveCustomActions,
+  isActionVisible,
+  resolveActionIcon,
+} from "./utils";
 
 export { newFolderAction } from "./newFolder";
 export { createFileAction } from "./createFile";

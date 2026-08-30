@@ -2,8 +2,18 @@ import { useCallback, useRef, useState, type ReactNode } from "react";
 
 import { basename, dirname } from "@/shared/utils";
 
-import CompressDialog from "./CompressDialog";
-import PasswordDialog from "./PasswordDialog";
+import { lazyWhen } from "@/shared/components/patterns/Deferred";
+import type { CompressDialogProps, PasswordDialogProps } from "./types";
+
+// Both dialogs load on their first open (compress/extract are occasional actions).
+const CompressDialog = lazyWhen<CompressDialogProps>(
+  () => import("./CompressDialog"),
+  (props) => props.visible,
+);
+const PasswordDialog = lazyWhen<PasswordDialogProps>(
+  () => import("./PasswordDialog"),
+  (props) => props.visible,
+);
 import { CompressContext } from "./CompressContext";
 import type { ArchiveFormat, CompressValues } from "./types";
 

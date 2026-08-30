@@ -132,6 +132,8 @@ fn main() {
             watcher::watch_directory,
             functions::keymap::get_keymap,
             functions::context_menu::get_context_menu,
+            functions::context_menu::set_context_menu,
+            functions::context_menu::run_context_action,
             functions::clipboard::copy_files_to_clipboard,
             functions::settings::get_settings,
             functions::settings::set_settings,
@@ -139,6 +141,11 @@ fn main() {
             functions::settings::export_settings,
             functions::storage::get_app_storage,
             functions::storage::clear_app_cache,
+            functions::cleanup::get_cleanup_targets,
+            functions::cleanup::add_cleanup_target,
+            functions::cleanup::remove_cleanup_target,
+            functions::cleanup::set_cleanup_target_mode,
+            functions::cleanup::clean_cleanup_target,
             filesystem::sftp::sftp_list_connections,
             filesystem::sftp::sftp_add_connection,
             filesystem::sftp::sftp_remove_connection,
@@ -192,6 +199,20 @@ fn main() {
             // doesn't linger across sessions. Other caches (thumbnails) are kept.
             if let tauri::RunEvent::Exit = &event {
                 filesystem::sftp::clear_cache(app_handle);
+            }
+
+            // Clicking the Dock icon while the app is still running but has no visible window asks
+            // macOS to reopen it. Restore the hidden main window, or create a browser window if all
+            // windows were actually closed.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
+                has_visible_windows,
+                ..
+            } = &event
+            {
+                if !*has_visible_windows {
+                    let _ = window::focus_or_create_window(app_handle);
+                }
             }
 
             // macOS routes URLs here in two cases:

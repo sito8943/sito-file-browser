@@ -65,6 +65,8 @@ export type State = {
   // Configurable default zoom for folders without their own saved zoom.
   defaultZoom: number;
   setDefaultZoom: (zoom: number) => void;
+  // Grid tile/icon size multiplier (1 = default tile), independent of the per-folder zoom.
+  gridIconSize: number;
   // The date format used wherever dates are shown (a token pattern or the locale sentinel).
   dateFormat: string;
   setDateFormat: (format: string) => void;

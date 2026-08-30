@@ -64,12 +64,11 @@ import SidebarContextMenu from "./components/SidebarContextMenu";
 import VolumeItem from "./components/VolumeItem";
 import { ejectVolume } from "@/shared/services/ejectVolume";
 import FolderItem from "./components/FolderItem";
-import Button from "@/shared/components/elements/Button";
-import Icon from "@/shared/components/elements/Icon";
+import SidebarActionButton from "./components/SidebarActionButton";
 
 import {
   faBars,
-  faPlus,
+  faAdd,
   faGear,
   faPenToSquare,
   faFolder,
@@ -407,13 +406,18 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
         }
       />
     )),
-    // Saved connections (built-in) then user-added network locations. Placeholder only when both
-    // are empty. An array so SidebarSection can interleave add-item inserts between rows.
+    // Saved connections (built-in) then user-added network locations. When both are empty, expose
+    // the existing chooser directly so the first SSH/SFTP or SMB location can be created without
+    // having to discover an invisible edit-mode insertion strip.
     [SIDEBAR_GROUP.NETWORK]:
       connectionRows.length || smbRows.length ? (
         [...connectionRows, ...smbRows]
       ) : (
-        <p className="section_todo">{t.sidebar.todo}</p>
+        <SidebarActionButton
+          icon={faAdd}
+          label={t.smb.chooseTitle}
+          onClick={() => setNetworkChooserOpen(true)}
+        />
       ),
     // Finder tags — the tags actually in use (their real names + colours), discovered at runtime.
     // Clicking one opens its Spotlight tag view. macOS-only (the group is hidden otherwise below).
@@ -541,14 +545,11 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
       })}
 
       {editingSidebar && (
-        <Button
-          className="add_group_button"
+        <SidebarActionButton
+          icon={faAdd}
+          label={t.sidebar.addGroup}
           onClick={() => groups.addGroup(t.sidebar.newGroupName)}
-          aria-label={t.sidebar.addGroup}
-        >
-          <Icon icon={faPlus} />
-          <span>{t.sidebar.addGroup}</span>
-        </Button>
+        />
       )}
 
       <SidebarContextMenu
