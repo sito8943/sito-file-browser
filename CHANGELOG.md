@@ -23,6 +23,8 @@ All notable changes to this project are documented in this file.
 - Folder-size cache keeps the directory mtime and ignore-rules key with each size so an unchanged folder skips the backend lookup within a session (`f707afe`)
 - Settings loaded from disk are merged over the defaults, so a file written by an older build never leaves newer keys undefined (`bb84140`)
 - Routing moved from `react-router-dom` 6 to `react-router` 7.18 (same declarative API), clearing the open-redirect / SSR advisories against v6; `postcss` and `brace-expansion` bumped past their advisories, and `russh` 0.62.5 / `serde_with` 3.21 merged from Dependabot (`e200c76`)
+- Rarely-opened surfaces are now code-split and loaded on first open — Settings, Preview, Properties, the connection/SMB/auth dialogs, compress/password dialogs, the welcome guide, release notes and the shortcuts sheet — plus the detached preview/properties panel windows; startup JS drops from 697 kB to 616 kB (`shared/components/patterns/Deferred`, `540e5e3`)
+- `@sito/commands` is consumed from its public git tag (`v0.1.0-alpha.1`) instead of a local path, so CI can install it (`9adc3b7`)
 - Architecture rules rewritten to match the codebase (registries, settings contract, dialogs/hotkeys, launch lifecycle) and the remaining cross-feature deep imports routed through public `index.ts` files (`188ab49`, `140e479`)
 
 ### Fixed
