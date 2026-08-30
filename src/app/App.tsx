@@ -6,7 +6,7 @@ import {
   useRef,
   type CSSProperties,
 } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 import { StateProvider } from "@/shared/providers/StateProvider";
