@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
@@ -13,43 +13,19 @@ import "@/styles/components/OnboardingDialog.css";
 import { useOnboarding } from "../../providers/OnboardingProvider";
 import { visibleSteps } from "../../steps";
 import { ONBOARDING_TITLE_ID } from "./constants";
-import type { OnboardingDialogProps } from "./types";
 
-// The welcome guide: a paged modal driven by the ONBOARDING_STEPS registry. Opens itself on launch
-// (once settings are hydrated) while `showOnboarding` is on and the guide hasn't been seen; any
-// exit — Finish, Skip, Escape, backdrop — marks it seen so it doesn't nag on the next launch.
+// The welcome guide: a paged modal driven by the ONBOARDING_STEPS registry. Any exit — Finish,
+// Skip, Escape, backdrop — marks it seen so it doesn't nag on the next launch. Launch auto-open
+// lives in the eager host (OnboardingDialogHost); this view is a lazy chunk loaded on first open.
 // Mounted inside SettingsProvider because its step bodies reuse the settings controls.
-const OnboardingDialog = ({ settingsReady }: OnboardingDialogProps) => {
-  const { visible, open, close } = useOnboarding();
+const OnboardingDialog = () => {
+  const { visible, close } = useOnboarding();
   const { settings, update } = useSettings();
   const [index, setIndex] = useState(0);
 
   const steps = visibleSteps();
   const step = steps[Math.min(index, steps.length - 1)];
   const last = index >= steps.length - 1;
-
-  // Auto-open on launch, once per session. Gated on hydration so the defaults (showOnboarding:
-  // true) don't fire the guide before settings.toml has been read; the ref keeps a later toggle of
-  // showOnboarding in Settings from popping the guide over the settings dialog.
-  const autoOpened = useRef(false);
-  useEffect(() => {
-    if (!settingsReady || autoOpened.current) return;
-    autoOpened.current = true;
-    // Fresh installs only (no version recorded yet): after an update the what's-new toast takes
-    // over, so the guide doesn't pile on top of it.
-    if (
-      settings.showOnboarding &&
-      !settings.onboardingSeen &&
-      settings.lastSeenVersion === ""
-    )
-      open();
-  }, [
-    settingsReady,
-    settings.showOnboarding,
-    settings.onboardingSeen,
-    settings.lastSeenVersion,
-    open,
-  ]);
 
   // Start from the first page each time the guide opens.
   const [wasVisible, setWasVisible] = useState(visible);

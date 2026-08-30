@@ -308,6 +308,11 @@ export type ViewMode = (typeof VIEW_MODE)[keyof typeof VIEW_MODE];
 - One `styles/components/<Name>Dialog.css` scoped by `.<name>_modal`, with a
   `--size-<name>-width` token. Footer spacing: `margin-top`/`padding-top` + hairline `border-top`
   on `.dialog_actions` when the body has interactive content.
+- Rarely-opened dialogs are code-split with `shared/components/patterns/Deferred`: export
+  `lazyWhen(() => import("./X"), p => p.visible)` as the folder's default (call sites unchanged),
+  or wrap a context-driven dialog in `<MountOnce when={visible}>` from an always-mounted host that
+  keeps its launch hooks eager (see `OnboardingDialogHost`, `ChangelogDialogHost`). Plain
+  `React.lazy` alone doesn't help — dialogs mount closed, so the chunk would load at startup.
 - Stacked modals fight for the MODAL scope: a control that opens another dialog from Settings
   closes Settings first (see `OnboardingReplayControl`, `ChangelogControl`).
 - Dialogs that retain content while fading out keep the last shown props in state

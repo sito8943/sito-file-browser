@@ -12,17 +12,15 @@ import { t } from "@/lang";
 import "@/styles/components/ChangelogDialog.css";
 
 import { useChangelog } from "../../providers/ChangelogProvider";
-import { useWhatsNew } from "../../hooks/useWhatsNew";
 import { changelogSource, CHANGELOG_TITLE_ID } from "../../constants";
 import { parseChangelog } from "../../utils";
-import type { ChangelogDialogProps } from "./types";
 
 // "What's new": the bundled CHANGELOG.md, one release at a time, rendered through the same
-// markdown renderer as the file preview. Opens on the version the provider was asked for (the one
+// markdown renderer as the file preview. Lazy chunk (it carries the whole changelog text); the
+// post-update detection runs eagerly in ChangelogDialogHost. Opens on the version the provider was asked for (the one
 // just installed, from the post-update toast) or the newest entry; a dropdown browses older ones.
-const ChangelogDialog = ({ settingsReady }: ChangelogDialogProps) => {
+const ChangelogDialog = () => {
   const { visible, version, close } = useChangelog();
-  useWhatsNew(settingsReady);
 
   const entries = useMemo(() => parseChangelog(changelogSource), []);
   const [selected, setSelected] = useState<string>(entries[0]?.version ?? "");

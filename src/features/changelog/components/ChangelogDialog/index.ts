@@ -1,2 +1,2 @@
-export { default } from "./ChangelogDialog";
+export { default } from "./ChangelogDialogHost";
 export type { ChangelogDialogProps } from "./types";
