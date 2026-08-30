@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.9.1]
+
+### Fixed
+
+- Dialogs (Settings, Shortcuts, confirmations, …) no longer open shifted down and to the right in the packaged app. The code-split build loads the shared `Button`/`DialogHeader` CSS chunks before the main stylesheet, so `@sito/ui`'s same-specificity base rules (`.sito-ui-dialog { position: relative }`, `.sito-ui-button` height/padding/weight) beat the app's `.dialog` / `.Button` overrides. The package styles now live in a `@layer sito-ui` cascade layer, so every unlayered app rule wins regardless of stylesheet order or specificity; dialog centring is delegated to the flex backdrop instead of `position: fixed` + `top/left: 50%`
+- Buttons in the packaged app return to their intended height, padding and font weight (same root cause as above)
+
 ## [0.9.0]
 
 ### Added
