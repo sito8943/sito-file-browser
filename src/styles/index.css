@@ -1,3 +1,8 @@
+/* @sito/ui base styles live in a named cascade layer: every unlayered app rule beats them no matter
+   the specificity or the order stylesheets end up loaded in. Vite's code-split build emits chunk CSS
+   (Button, DialogHeader, …) before index.css, which otherwise let the package's same-specificity
+   rules (.sito-ui-dialog, .sito-ui-button) win over the app's (.dialog, .Button). */
+@import url("@sito/ui/styles.css") layer(sito-ui);
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 * {
