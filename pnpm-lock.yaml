@@ -24,11 +24,11 @@ importers:
         specifier: 3.3.1
         version: 3.3.1(@fortawesome/fontawesome-svg-core@7.2.0)(react@19.2.7)
       '@sito/commands':
-        specifier: file:../../lib/sito-commands
-        version: file:../../lib/sito-commands(react@19.2.7)
+        specifier: github:sito8943/sito-commands#v0.1.0-alpha.1
+        version: https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)
       '@sito/ui':
-        specifier: link:../../lib/ui
-        version: link:../../lib/ui
+        specifier: 0.4.0
+        version: 0.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.1
@@ -386,10 +386,18 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@sito/commands@file:../../lib/sito-commands':
-    resolution: {directory: ../../lib/sito-commands, type: directory}
+  '@sito/commands@https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0':
+    resolution: {tarball: https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0}
+    version: 0.1.0-alpha.1
     peerDependencies:
       react: ^19.0.0
+
+  '@sito/ui@0.4.0':
+    resolution: {integrity: sha512-0GDP0M3VnFL8af1ZgfLMWlQBMEZGCd3IqXDAD4BIFwQRi30S14owPzsYVgg+8hiQn0MCM4q0Yh5B+b14VdI9IQ==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+    peerDependencies:
+      react: ^19.0.0
+      react-dom: ^19.0.0
 
   '@tauri-apps/api@2.11.1':
     resolution: {integrity: sha512-M2FPuYND2m+wh5hfW9ZpSdxMPdEJovPBWwoHJmwUpysTYNHaOkVFN419m/K0LIgjb/7KU2vBgsUepJWugQCvAA==}
@@ -1400,9 +1408,14 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@sito/commands@file:../../lib/sito-commands(react@19.2.7)':
+  '@sito/commands@https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)':
     dependencies:
       react: 19.2.7
+
+  '@sito/ui@0.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
 
   '@tauri-apps/api@2.11.1': {}
 

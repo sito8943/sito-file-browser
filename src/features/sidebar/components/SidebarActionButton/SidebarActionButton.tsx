@@ -1,6 +1,4 @@
-import Button, {
-  BUTTON_VARIANT,
-} from "@/shared/components/elements/Button";
+import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
 import Icon from "@/shared/components/elements/Icon";
 import { classNames } from "@/shared/utils";
 

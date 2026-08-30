@@ -79,7 +79,7 @@ const Tooltip = ({
     if (disabled) return;
     const trigger = triggerRef.current;
     initialTriggerRectRef.current = trigger
-      ? getTooltipTriggerRect(trigger) ?? null
+      ? (getTooltipTriggerRect(trigger) ?? null)
       : null;
     if (delay <= 0) return setOpen(true);
     clearShowTimer();

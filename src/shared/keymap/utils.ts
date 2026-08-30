@@ -1,5 +1,1 @@
-export {
-  formatBinding,
-  isMacPlatform,
-  matchesBinding,
-} from "@sito/commands";
+export { formatBinding, isMacPlatform, matchesBinding } from "@sito/commands";

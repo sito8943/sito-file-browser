@@ -10,10 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-import {
-  CUSTOM_ACTION_ICON,
-  type CustomActionIcon,
-} from "@/shared/constants";
+import { CUSTOM_ACTION_ICON, type CustomActionIcon } from "@/shared/constants";
 
 export const CUSTOM_ACTION_ICONS: Record<CustomActionIcon, IconDefinition> = {
   [CUSTOM_ACTION_ICON.BOLT]: faBolt,

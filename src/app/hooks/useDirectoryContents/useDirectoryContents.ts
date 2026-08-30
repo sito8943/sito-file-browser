@@ -123,16 +123,13 @@ export const useDirectoryContents = ({
     if (path === "") return fetchVolumes();
     const target = path;
     const revision = ++refreshRevisionRef.current;
-    const stallTimer = window.setTimeout(
-      () => {
-        if (
-          activePathRef.current === target &&
-          refreshRevisionRef.current === revision
-        )
-          setStalled(true);
-      },
-      DIRECTORY_STALL_DELAY_MS,
-    );
+    const stallTimer = window.setTimeout(() => {
+      if (
+        activePathRef.current === target &&
+        refreshRevisionRef.current === revision
+      )
+        setStalled(true);
+    }, DIRECTORY_STALL_DELAY_MS);
     loadDirectory(target).then(({ files, denied, error }) => {
       window.clearTimeout(stallTimer);
       if (

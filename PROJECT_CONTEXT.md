@@ -311,7 +311,7 @@ Do not execute `sfb` from an agent session unless the developer explicitly autho
 | Folder load, spinner, stalls, access denied, refresh | `src/app/hooks/useDirectoryContents`                                                    |
 | Entry list/render/selection                          | `src/features/directory/Directory.tsx`, `DirectoryProvider`, `EntriesView`              |
 | File operations                                      | directory actions/hooks -> `FileSystemManager` -> `api.ts` -> Rust filesystem core      |
-| Context-menu layout/custom process actions            | directory action registry, Settings custom-action editor, `functions/context_menu.rs`    |
+| Context-menu layout/custom process actions           | directory action registry, Settings custom-action editor, `functions/context_menu.rs`   |
 | Preview or Properties                                | `src/features/directory/components/Preview` or `Properties` and their hooks             |
 | Folder sizes/watchers                                | `useDirSizes.ts`, `src-tauri/src/index.rs`, `src-tauri/src/watcher.rs`                  |
 | Thumbnails                                           | `DirEntry` thumbnail hooks and `src-tauri/src/filesystem/fs.rs`                         |

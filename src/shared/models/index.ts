@@ -1,8 +1,5 @@
 import type { SearchFilters } from "@/shared/search/filters";
-import type {
-  CustomActionIcon,
-  CustomActionTarget,
-} from "@/shared/constants";
+import type { CustomActionIcon, CustomActionTarget } from "@/shared/constants";
 
 type TimeSince = {
   nanos_since_epoch: number;

@@ -126,9 +126,7 @@
 
 .context_menu .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled),
 .context_menu .context_menu_item.ctx_button.ctx_danger:focus:not(:disabled),
-.context_menu
-  .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled)
-  svg,
+.context_menu .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled) svg,
 .context_menu
   .context_menu_item.ctx_button.ctx_danger:focus:not(:disabled)
   svg {

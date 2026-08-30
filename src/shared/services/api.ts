@@ -8,12 +8,7 @@ import { startDrag } from "@crabnebula/tauri-plugin-drag";
 
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
-import {
-  Volume,
-  DirEntry,
-  ContextMenuLayout,
-  Tag,
-} from "@/shared/models";
+import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
