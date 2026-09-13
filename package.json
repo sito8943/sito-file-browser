@@ -1,7 +1,7 @@
 {
   "name": "sito-file-browser",
   "private": true,
-  "version": "0.9.1",
+  "version": "0.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "7.2.0",
     "@fortawesome/react-fontawesome": "3.3.1",
     "@sito/commands": "github:sito8943/sito-commands#v0.1.0-alpha.1",
-    "@sito/ui": "0.4.0",
+    "@sito/ui": "0.4.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",

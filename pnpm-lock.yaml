@@ -27,8 +27,8 @@ importers:
         specifier: github:sito8943/sito-commands#v0.1.0-alpha.1
         version: https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)
       '@sito/ui':
-        specifier: 0.4.0
-        version: 0.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 0.4.1
+        version: 0.4.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.1
@@ -392,8 +392,8 @@ packages:
     peerDependencies:
       react: ^19.0.0
 
-  '@sito/ui@0.4.0':
-    resolution: {integrity: sha512-0GDP0M3VnFL8af1ZgfLMWlQBMEZGCd3IqXDAD4BIFwQRi30S14owPzsYVgg+8hiQn0MCM4q0Yh5B+b14VdI9IQ==}
+  '@sito/ui@0.4.1':
+    resolution: {integrity: sha512-X2vJv/s29NkTdj2I8JCTM5f4BXKY9YJqW4U3zV+Ex0/tD2Z1UDbO0GgS5Xk2pMX7h7OEVLrpR/Q3gjufRHTNMw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
       react: ^19.0.0
@@ -1412,7 +1412,7 @@ snapshots:
     dependencies:
       react: 19.2.7
 
-  '@sito/ui@0.4.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@sito/ui@0.4.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
