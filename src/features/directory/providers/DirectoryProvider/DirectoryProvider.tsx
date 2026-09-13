@@ -55,10 +55,15 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
   const clearRevealID = useCallback(() => setRevealID(null), []);
 
   // Navigating to a different folder starts with a clean selection — otherwise the entry we
-  // opened (or any prior selection) lingers as a stale, now-offscreen selection.
+  // opened (or any prior selection) lingers as a stale, now-offscreen selection. An inline rename
+  // in progress is dropped too: leaving the folder abandons it, so coming back must not resume an
+  // edit the user walked away from. A reveal that starts a rename (focusCreatedEntry) is safe —
+  // its effect runs after this one and re-sets renamingID once the new listing has loaded.
   const { clearSelection, setSelectedIDs } = selection;
   useEffect(() => {
     clearSelection();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRenamingID("");
   }, [path, clearSelection]);
 
   // Called by the toasts: remember what to select, then navigate. Selection is applied by the
