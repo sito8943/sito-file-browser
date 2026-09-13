@@ -435,7 +435,7 @@
   gap: var(--space-4);
 }
 
-.settings_modal .settings_context_actions_header .Button {
+.settings_modal .settings_context_actions_header_actions {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1-5);
@@ -498,7 +498,7 @@
   font-size: var(--font-size-base);
 }
 
-.settings_modal .settings_context_action_form input,
+.settings_modal .settings_context_action_form input:not([type="checkbox"]),
 .settings_modal .settings_context_action_form select,
 .settings_modal .settings_context_action_form textarea {
   width: 100%;
@@ -520,6 +520,8 @@
   align-items: center;
   gap: var(--space-1);
   color: var(--color-text-primary);
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .settings_modal .settings_context_action_icon_select {

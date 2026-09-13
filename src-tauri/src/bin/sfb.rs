@@ -17,7 +17,7 @@ use std::process::exit;
 
 use serde_json::{json, Value};
 
-use sito_file_browser_lib::filesystem::{archive, fs, sftp, smb, tags};
+use sito_file_browser_lib::filesystem::{actions, archive, fs, sftp, smb, tags};
 use sito_file_browser_lib::functions::sidebar;
 
 // ---- Command table (declarative registry) ----------------------------------------------------
@@ -521,6 +521,63 @@ const COMMANDS: &[Command] = &[
             let path = smb::location_path(host, share, a.opt("name"));
             let added = sidebar::add_item_to(&app_config_dir()?, "network", path.clone())?;
             Ok(json!({ "path": path, "added": added, "group": "network" }))
+        },
+    },
+    // -- Custom context actions (the same context_menu.toml the GUI edits) ------------------
+    Command {
+        name: "actions-list",
+        group: "actions",
+        summary: "List the user's custom context-menu actions (id, label, targets, extensions, enabled).",
+        args: &[],
+        run: |_a| {
+            let menu = actions::load_core(&app_config_dir()?)?;
+            let rows: Vec<Value> = menu
+                .custom_action
+                .iter()
+                .map(|action| {
+                    json!({
+                        "id": action.id,
+                        "label": action.label,
+                        "targets": action.targets,
+                        "extensions": action.extensions,
+                        "enabled": action.enabled,
+                    })
+                })
+                .collect();
+            Ok(json!({ "actions": rows }))
+        },
+    },
+    Command {
+        name: "actions-run",
+        group: "actions",
+        summary: "Run a custom context-menu action on a path, exactly as the GUI would. Requires --force.",
+        args: &[
+            val("id", true, "Id of the action to run (see `sfb get actions`)."),
+            val("path", true, "Path the action acts on (the clicked entry)."),
+            val(
+                "paths",
+                false,
+                r#"JSON array of paths for the {paths} token, e.g. ["/tmp/a","/tmp/b"] (default: just --path)."#,
+            ),
+            flag("force", "Required acknowledgement: this launches a user-defined command."),
+        ],
+        run: |a| {
+            if !a.has("force") {
+                return Err("Refusing to run a custom action without --force.".to_string());
+            }
+            let paths: Vec<String> = match a.opt("paths") {
+                Some(raw) => serde_json::from_str(raw)
+                    .map_err(|e| format!("Invalid --paths JSON: {}", e))?,
+                None => Vec::new(),
+            };
+            let spawned = actions::run_action_core(
+                &app_config_dir()?,
+                &home()?,
+                a.require("id")?,
+                a.require("path")?,
+                &paths,
+            )?;
+            to_value(&spawned)
         },
     },
     // -- UI (drive the running GUI over the control socket) ---------------------------------
@@ -1141,6 +1198,30 @@ const OPERATIONS: &[OperationSpec] = &[
         false,
         true,
         MACOS_ONLY,
+    ),
+    op(
+        "get",
+        "actions",
+        &["custom-actions", "context-actions"],
+        "actions-list",
+        &[],
+        FILESYSTEM_SCOPE,
+        false,
+        false,
+        false,
+        ALL_PLATFORMS,
+    ),
+    op(
+        "run",
+        "action",
+        &["custom-action", "context-action"],
+        "actions-run",
+        &["id"],
+        FILESYSTEM_SCOPE,
+        true,
+        false,
+        false,
+        ALL_PLATFORMS,
     ),
 ];
 

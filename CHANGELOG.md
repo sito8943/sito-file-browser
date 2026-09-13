@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.10.0]
+
+### Added
+
+- `sfb` CLI gains custom context-menu actions: `sfb get actions` lists the user's actions (id, label, targets, extensions, enabled); `sfb run action --id ... --path ... --force` runs one exactly as the GUI would, sharing the same `filesystem::actions` core as `functions::context_menu` (`0e68a3d`)
+- Export/Import for custom context-menu actions — Settings › Context Actions can save the user's custom actions to a shareable `context-actions.json` and import one back; imported entries are validated (label/command/target required, unknown icons fall back to default) and get freshly generated ids so a shared bundle never collides with a local action (`04323ef`)
+
+### Changed
+
+- Right-click "Inspect Element" works again in dev builds — the app's context-menu override (which replaces the OS/webview menu everywhere) is skipped when `import.meta.env.DEV` (`e4f1e3b`)
+
+### Fixed
+
+- Leaving a folder while an inline rename was in progress no longer leaves it resumed on return — navigating to a new path now clears `renamingID` alongside the stale selection (`d8e4045`)
+
 ## [0.9.1]
 
 ### Fixed

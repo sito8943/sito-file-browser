@@ -230,7 +230,9 @@ const App = () => {
   }, [revealWindow]);
 
   // The OS/webview context menu is replaced by the app's own; suppress it everywhere.
+  // Skipped in dev builds so right-click still offers "Inspect Element" for devtools.
   useEffect(() => {
+    if (import.meta.env.DEV) return;
     const preventContextMenu = (event: MouseEvent) => event.preventDefault();
     document.addEventListener("contextmenu", preventContextMenu);
     return () =>
