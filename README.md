@@ -73,6 +73,8 @@ sfb set entry-tags report.pdf --values '[{"name":"Work","color":4}]'
 sfb diagnose share 192.168.1.50 Shared
 sfb connect share 192.168.1.50 Shared
 sfb get mounts
+sfb get actions                     # the custom context-menu actions from context_menu.toml
+sfb run action open-in-code --path ~/project --force   # runs a user-defined command
 sfb delete entry old.log --force   # permanent deletion requires --force
 ```
 
