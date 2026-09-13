@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.10.1]
+
+### Fixed
+
+- `src-tauri/tauri.conf.json` version was left at `0.9.1` when 0.10.0 was cut, so the packaged dmg was named `..._0.9.1_....dmg` while the release tag/cask expected `..._0.10.0_....dmg` — Homebrew upgrades 404'd. Version file now kept in sync with `package.json`.
+
 ## [0.10.0]
 
 ### Added
