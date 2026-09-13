@@ -2,13 +2,15 @@ import { useState, type FormEvent } from "react";
 import {
   faArrowDown,
   faArrowUp,
+  faFileExport,
+  faFileImport,
   faPen,
   faPlus,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
-import Checkbox from "@/shared/components/elements/Checkbox";
+import Switcher from "@/shared/components/elements/Switcher";
 import Icon from "@/shared/components/elements/Icon";
 import IconButton, {
   ICON_BUTTON_SIZE,
@@ -41,7 +43,8 @@ import {
 import { useContextActions } from "./useContextActions";
 
 const ContextActionsBelow = () => {
-  const { actions, saving, save } = useContextActions();
+  const { actions, saving, save, exportActions, importActions } =
+    useContextActions();
   const { confirm } = useConfirm();
   const [draft, setDraft] = useState<ContextActionDraft | null>(null);
 
@@ -127,14 +130,32 @@ const ContextActionsBelow = () => {
         <span className="settings_row_hint">
           {t.settings.contextActionsPlaceholders}
         </span>
-        <Button
-          variant={BUTTON_VARIANT.OUTLINED}
-          disabled={saving || actions === null || draft !== null}
-          onClick={() => setDraft(newContextActionDraft())}
-        >
-          <Icon icon={faPlus} />
-          {t.settings.contextActionsAdd}
-        </Button>
+        <span className="settings_context_actions_header_actions">
+          <IconButton
+            icon={faFileImport}
+            variant={ICON_BUTTON_VARIANT.BOXED}
+            disabled={saving || actions === null}
+            tooltip={t.settings.contextActionsImport}
+            aria-label={t.settings.contextActionsImport}
+            onClick={() => void importActions()}
+          />
+          <IconButton
+            icon={faFileExport}
+            variant={ICON_BUTTON_VARIANT.BOXED}
+            disabled={saving || actions === null}
+            tooltip={t.settings.contextActionsExport}
+            aria-label={t.settings.contextActionsExport}
+            onClick={() => void exportActions()}
+          />
+          <IconButton
+            icon={faPlus}
+            variant={ICON_BUTTON_VARIANT.BOXED}
+            disabled={saving || actions === null || draft !== null}
+            tooltip={t.settings.contextActionsAdd}
+            aria-label={t.settings.contextActionsAdd}
+            onClick={() => setDraft(newContextActionDraft())}
+          />
+        </span>
       </div>
 
       {actions === null && (
@@ -165,7 +186,7 @@ const ContextActionsBelow = () => {
               {action.command}
             </span>
           </span>
-          <Checkbox
+          <Switcher
             checked={action.enabled}
             disabled={saving}
             aria-label={t.settings.contextActionsEnabled}
@@ -249,7 +270,7 @@ const ContextActionsBelow = () => {
             <span className="settings_context_action_targets">
               {CUSTOM_ACTION_TARGET_OPTIONS.map((target) => (
                 <label key={target}>
-                  <Checkbox
+                  <Switcher
                     checked={draft.targets.includes(target)}
                     onChange={() => toggleTarget(target)}
                   />

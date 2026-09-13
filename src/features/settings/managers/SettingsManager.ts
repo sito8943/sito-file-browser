@@ -6,8 +6,13 @@ import type {
   CleanupTarget,
   ExportResult,
 } from "@/shared/services/api";
-import type { ContextMenuLayout } from "@/shared/models";
+import type { ContextMenuLayout, CustomContextAction } from "@/shared/models";
 import type { CleanupMode } from "@/shared/constants";
+import {
+  contextActionsBundlePath,
+  parseContextActionsBundle,
+  toContextActionsBundle,
+} from "@/shared/contextActions";
 
 // Encapsulates the settings dialog's domain operations: inspecting the app's on-disk storage,
 // toggling the macOS default-folder-handler (Launch Services state), and importing/exporting the
@@ -20,6 +25,36 @@ export class SettingsManager {
 
   setContextMenu(menu: ContextMenuLayout): Promise<ContextMenuLayout> {
     return api.setContextMenu(menu);
+  }
+
+  // Write the custom context actions into `dir` as a shareable context-actions.json. An existing
+  // bundle there is reported back (`existed`) and left untouched unless `overwrite` — the caller
+  // confirms first, mirroring the settings export.
+  async exportContextActions(
+    dir: string,
+    actions: CustomContextAction[],
+    overwrite: boolean,
+  ): Promise<{ path: string; existed: boolean }> {
+    const path = contextActionsBundlePath(dir);
+    const existed = await api
+      .getEntry(path)
+      .then(() => true)
+      .catch(() => false);
+    if (existed && !overwrite) return { path, existed };
+    await api.writeTextFile(
+      path,
+      `${JSON.stringify(toContextActionsBundle(actions), null, 2)}\n`,
+    );
+    return { path, existed };
+  }
+
+  // Read + validate a bundle the user picked. Does not persist — the caller merges the result
+  // into the current actions and saves them through the normal context-menu writer.
+  async importContextActions(
+    path: string,
+    reasons: { invalid: string; empty: string },
+  ): Promise<CustomContextAction[]> {
+    return parseContextActionsBundle(await api.readTextFile(path), reasons);
   }
 
   // The app's on-disk data locations with their recursively-summed sizes (Storage panel).

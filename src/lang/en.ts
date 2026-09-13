@@ -477,6 +477,20 @@ export const en = {
     contextActionsPlaceholders:
       "Arguments support {path}, {paths}, {directory}, {name}, and {extension}. Put each argument on its own line; {paths} expands to the full selection.",
     contextActionsAdd: "Add action",
+    contextActionsExport: "Export actions",
+    contextActionsImport: "Import actions",
+    contextActionsExportEmpty: "There are no custom actions to export.",
+    contextActionsExportExists:
+      "A context-actions.json already exists in this folder. Overwrite it?",
+    contextActionsExported: (path: string) => `Actions exported to ${path}`,
+    contextActionsImported: (count: number) =>
+      count === 1 ? "1 action imported" : `${count} actions imported`,
+    contextActionsExportError: (reason: string) =>
+      `Could not export actions: ${reason}`,
+    contextActionsImportError: (reason: string) =>
+      `Could not import actions: ${reason}`,
+    contextActionsImportInvalid: "That file is not a custom-actions export.",
+    contextActionsImportEmpty: "That file contains no usable actions.",
     contextActionsLoading: "Loading custom actions…",
     contextActionsEmpty: "No custom context-menu actions.",
     contextActionsEnabled: "Action enabled",
