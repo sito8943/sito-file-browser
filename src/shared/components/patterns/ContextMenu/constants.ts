@@ -11,5 +11,11 @@ export const CONTEXT_MENU_INITIAL_POSITION = { x: 0, y: 0 };
 // parent row onto the (detached) flyout without it vanishing mid-move.
 export const SUBMENU_CLOSE_DELAY = 140;
 
+// The flyout is portaled to <body>, so it lives outside the menu element every outside-press
+// handler tests containment against. Menus must treat a press inside it as a press inside
+// themselves, otherwise the menu closes on mousedown and the row unmounts before its click fires.
+export const SUBMENU_CLASS = "context_menu_submenu";
+export const SUBMENU_SELECTOR = `.${SUBMENU_CLASS}`;
+
 // Gap (px) kept from the viewport edges when clamping the submenu flyout into view.
 export const SUBMENU_VIEWPORT_PADDING = 8;

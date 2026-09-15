@@ -21,6 +21,7 @@ import {
   SUBMENU_CLOSE_DELAY,
   SUBMENU_VIEWPORT_PADDING,
   SUBMENU_POPUP_ROLE,
+  SUBMENU_CLASS,
 } from "./constants";
 import type { ContextMenuItemProps } from "./types";
 
@@ -213,7 +214,7 @@ export const ContextMenuItem = ({
         createPortal(
           <div
             ref={flyoutRef}
-            className="context_menu context_menu_submenu visible"
+            className={`context_menu ${SUBMENU_CLASS} visible`}
             role={MENU_ROLE}
             aria-orientation="vertical"
             onKeyDown={handleSubmenuKeyDown}
