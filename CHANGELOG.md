@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.10.2]
+
+### Fixed
+
+- Context-menu submenus did nothing when picked — Compress › To zip / To 7z, Sort By, New File, and every other submenu row. The flyout is portaled to `<body>` to escape the menu's `overflow`, so it sits outside the element the outside-press handlers test containment against: the press dismissed the whole menu on `mousedown` and the row unmounted before its `click` could fire. `useContextMenu` and `useContextMenuState` now treat a press inside `.context_menu_submenu` as a press inside the menu
+- Clicking an actionable toast (the "reveal the archive" toast after compressing, and the like) could drop the action — the global "any interaction dismisses" `pointerdown` handler fired on the toast itself, starting the exit animation under the cursor so the toast slid out from under the pending `mouseup`. Presses on a toast are now left to that toast's own click handler
+
 ## [0.10.1]
 
 ### Fixed
