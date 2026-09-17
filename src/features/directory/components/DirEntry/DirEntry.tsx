@@ -7,15 +7,12 @@ import {
   formatDate,
 } from "@/shared/utils";
 import {
-  IMAGE_FORMATS,
-  VIDEO_FORMATS,
-  PDF_FORMAT,
-  MARKDOWN_FORMATS,
-  SVG_FORMAT,
-} from "@/features/directory/constants";
+  useFileTypeExtensions,
+  isCategory,
+} from "@/features/directory/formats";
 import Tooltip from "@/shared/components/elements/Tooltip";
 import TextInput from "@/shared/components/elements/TextInput";
-import { SFTP_SCHEME } from "@/shared/constants";
+import { SFTP_SCHEME, SVG_FORMAT, FILE_CATEGORY } from "@/shared/constants";
 import { t } from "@/lang";
 
 import { METADATA_TOOLTIP_DELAY } from "./constants";
@@ -58,6 +55,8 @@ const DirEntryItemComponent = ({
   showFolderThumbnails,
 }: DirEntryItemProps) => {
   const itemRef = useRef<HTMLDivElement>(null);
+  // The user's extension → category map; drives both the glyph and what may be thumbnailed.
+  const fileTypes = useFileTypeExtensions();
 
   useEntryContextMenu({
     itemRef,
@@ -97,11 +96,15 @@ const DirEntryItemComponent = ({
   const extensionSuffix = hasExtension ? entry.name.slice(lastDot) : "";
 
   const ext = extension.toLowerCase().trim();
-  const isImage = entry.metadata.isFile && IMAGE_FORMATS.includes(ext);
+  const isImage =
+    entry.metadata.isFile && isCategory(fileTypes, ext, FILE_CATEGORY.IMAGE);
   // Videos, PDFs and markdown get a thumbnail too (macOS QuickLook); same lazy/throttled path.
-  const isVideo = entry.metadata.isFile && VIDEO_FORMATS.includes(ext);
-  const isPdf = entry.metadata.isFile && ext === PDF_FORMAT;
-  const isMarkdown = entry.metadata.isFile && MARKDOWN_FORMATS.includes(ext);
+  const isVideo =
+    entry.metadata.isFile && isCategory(fileTypes, ext, FILE_CATEGORY.VIDEO);
+  const isPdf =
+    entry.metadata.isFile && isCategory(fileTypes, ext, FILE_CATEGORY.PDF);
+  const isMarkdown =
+    entry.metadata.isFile && isCategory(fileTypes, ext, FILE_CATEGORY.MARKDOWN);
   // SVG draws straight from the file (no backend thumbnail) — the webview rasterises it natively.
   const isSvg = entry.metadata.isFile && ext === SVG_FORMAT;
   const isThumbnail = isImage || isVideo || isPdf || isMarkdown;

@@ -40,6 +40,7 @@ import { useUpdateCheck } from "./hooks/useUpdateCheck";
 import { useAppSettings } from "./hooks/useAppSettings";
 import { useDockMenu } from "./hooks/useDockMenu";
 import { useTheme } from "./hooks/useTheme";
+import { useFileTypes } from "./hooks/useFileTypes";
 import { useAccent } from "./hooks/useAccent";
 import { useControlBridge } from "./hooks/useControlBridge";
 import { useControlProbe } from "./hooks/useControlProbe";
@@ -100,6 +101,7 @@ const App = () => {
   // stranding the user in a dead, empty directory.
   useStaleMountRedirect(tabs.path, directory.volumes, tabs.setPath);
   useTheme(settings.theme as Theme);
+  useFileTypes(settings.fileTypeExtensions);
   useAccent(settings.accentColor as Accent);
   const zoom = useZoom(fs, tabs.path, settings.defaultZoom);
   const { toasts, dismissToast } = useToasts();

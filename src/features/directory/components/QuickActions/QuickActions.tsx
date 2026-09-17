@@ -4,6 +4,7 @@ import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
 import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
+import { useFileTypeExtensions } from "@/features/directory/formats";
 
 import { useDirectory } from "../../providers/DirectoryProvider";
 import { useContextMenuLayout } from "../../hooks/useContextMenuLayout";
@@ -39,6 +40,7 @@ const QuickActions = () => {
   } = useStateContext();
   const { keymap } = useKeymap();
   const layout = useContextMenuLayout();
+  const fileTypes = useFileTypeExtensions();
   const {
     sorted,
     selectedIDs,
@@ -94,6 +96,7 @@ const QuickActions = () => {
     toggleShowHidden,
     opensInAppPreview: opensInAppPreview(
       fileExtension.toLowerCase(),
+      fileTypes,
       previewImagesInApp,
       previewMarkdownInApp,
     ),

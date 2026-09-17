@@ -14,15 +14,12 @@ import {
   ContextMenu,
   ContextMenuItem,
 } from "@/shared/components/patterns/ContextMenu";
-import { KEY, SFTP_SCHEME } from "@/shared/constants";
+import { KEY, SFTP_SCHEME, FILE_CATEGORY } from "@/shared/constants";
+import { ENTRY_KIND } from "@/features/directory/constants";
 import {
-  AUDIO_FORMATS,
-  IMAGE_FORMATS,
-  VIDEO_FORMATS,
-  ENTRY_KIND,
-  MARKDOWN_FORMAT,
-  PDF_FORMAT,
-} from "@/features/directory/constants";
+  useFileTypeExtensions,
+  categoryOf,
+} from "@/features/directory/formats";
 import {
   useKeymap,
   useHotkey,
@@ -80,6 +77,7 @@ const Preview = ({
 }: PreviewProps) => {
   const { fs } = useStateContext();
   const { keymap } = useKeymap();
+  const fileTypes = useFileTypeExtensions();
   const {
     ref: imageMenuRef,
     visible: imageMenuVisible,
@@ -119,13 +117,18 @@ const Preview = ({
   }, [filePath, previewVisible, fs]);
 
   const mac = isMacPlatform();
-  const isImage = IMAGE_FORMATS.includes(fileType);
-  const isMarkdown = fileType === MARKDOWN_FORMAT;
+  // Everything the preview branches on is the extension's category, so an extension the user
+  // mapped onto Image/Video/Audio renders with that surface.
+  const category = categoryOf(fileTypes, fileType);
+  const isImage = category === FILE_CATEGORY.IMAGE;
+  const isVideo = category === FILE_CATEGORY.VIDEO;
+  const isPdf = category === FILE_CATEGORY.PDF;
+  const isAudio = category === FILE_CATEGORY.AUDIO;
+  const isMarkdown = category === FILE_CATEGORY.MARKDOWN;
   // Basename (name.ext) for the header title, e.g. "Preview - notes.md".
   const fileName = filePath.split("/").pop() ?? "";
   // Big media (image/video/pdf) opens near-fullscreen; everything else takes the ~45% side
-  const isBig =
-    isImage || VIDEO_FORMATS.includes(fileType) || fileType === PDF_FORMAT;
+  const isBig = isImage || isVideo || isPdf;
 
   // Panel position/size (drag, resize, maximize) and markdown doc/find state live in dedicated
   // hooks; this component wires them to the shared chrome (header, controls, hotkeys).
@@ -312,7 +315,7 @@ const Preview = ({
           onClick={requestClose}
         ></div>
       )}
-      {AUDIO_FORMATS.includes(fileType) ? (
+      {isAudio ? (
         <AudioPreview
           key={`${filePath}:${previewVisible}`}
           isVisible={previewVisible}
@@ -375,9 +378,9 @@ const Preview = ({
               "preview_content",
               !isReady && "loading",
               isMarkdown && "markdown",
-              IMAGE_FORMATS.includes(fileType) && "image",
-              VIDEO_FORMATS.includes(fileType) && "video",
-              fileType === PDF_FORMAT && "pdf",
+              isImage && "image",
+              isVideo && "video",
+              isPdf && "pdf",
             )}
           >
             {isReady ? (
@@ -397,7 +400,7 @@ const Preview = ({
                     dangerouslySetInnerHTML={{ __html: doc?.html ?? "" }}
                   ></div>
                 )
-              ) : IMAGE_FORMATS.includes(fileType) ? (
+              ) : isImage ? (
                 <ZoomableImage
                   key={filePath}
                   src={convertFileSrc(localPath)}
@@ -408,14 +411,14 @@ const Preview = ({
                   onZoomTo={zoomTo}
                   onPanChange={setPan}
                 />
-              ) : VIDEO_FORMATS.includes(fileType) ? (
+              ) : isVideo ? (
                 <video
                   ref={videoRef}
                   src={convertFileSrc(localPath)}
                   controls
                   autoPlay
                 />
-              ) : fileType === PDF_FORMAT ? (
+              ) : isPdf ? (
                 <iframe
                   src={convertFileSrc(localPath)}
                   title={t.common.preview}

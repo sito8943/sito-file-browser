@@ -9,6 +9,7 @@ import { startDrag } from "@crabnebula/tauri-plugin-drag";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
+import type { FileTypeExtensions } from "@/shared/constants";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
@@ -92,6 +93,10 @@ export type AppSettings = {
   // Glob patterns (matched against an entry's file name) excluded from recursive folder-size
   // calculation, e.g. ".DS_Store", "*.tmp", "node_modules". Applied live on save.
   sizeIgnores: string[];
+  // Which file-type category each extension belongs to (see FILE_CATEGORY). Seeded from
+  // DEFAULT_FILE_TYPE_EXTENSIONS so the whole map is visible (and editable) in settings.toml;
+  // the category drives the entry glyph, thumbnailing and the built-in preview.
+  fileTypeExtensions: FileTypeExtensions;
   // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
   // Settings so the user can stop it from ever reappearing (or bring it back).
   showOnboarding: boolean;

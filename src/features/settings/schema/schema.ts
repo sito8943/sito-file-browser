@@ -21,6 +21,8 @@ import CleanupControl from "../components/SettingsDialog/controls/CleanupControl
 import CleanupBelow from "../components/SettingsDialog/controls/CleanupBelow";
 import SizeIgnoresControl from "../components/SettingsDialog/controls/SizeIgnoresControl";
 import SizeIgnoresBelow from "../components/SettingsDialog/controls/SizeIgnoresBelow";
+import FileTypesControl from "../components/SettingsDialog/controls/FileTypesControl";
+import FileTypesBelow from "../components/SettingsDialog/controls/FileTypesBelow";
 import AccentControl from "../components/SettingsDialog/controls/AccentControl";
 import FolderHandlerControl from "../components/SettingsDialog/controls/FolderHandlerControl";
 import ContextActionsControl from "../components/SettingsDialog/controls/ContextActionsControl";
@@ -65,33 +67,6 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     subsection: () => t.settings.subsections.filesFolders,
     label: () => t.settings.hideSystemRecents,
     hint: () => t.settings.hideSystemRecentsHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "showFolderSizes",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.folderSizes,
-    label: () => t.settings.showFolderSizes,
-    hint: () => t.settings.showFolderSizesHint,
-    // Walking every folder can spike CPU on large directories — confirm before enabling.
-    confirmOn: {
-      title: () => t.settings.showFolderSizesConfirmTitle,
-      message: () => t.settings.showFolderSizesConfirmMessage,
-    },
-  },
-  {
-    kind: SETTING_KIND.CUSTOM,
-    key: "sizeIgnores",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.folderSizes,
-    label: () => t.settings.sizeIgnores,
-    hint: () => t.settings.sizeIgnoresHint,
-    Control: SizeIgnoresControl,
-    Below: SizeIgnoresBelow,
-    isModified: (settings, defaults) =>
-      settings.sizeIgnores.join("\n") !== defaults.sizeIgnores.join("\n"),
-    reset: (update, defaults) =>
-      update({ sizeIgnores: [...defaults.sizeIgnores] }),
   },
   {
     kind: SETTING_KIND.CUSTOM,
@@ -200,38 +175,6 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     subsection: () => t.settings.subsections.systemIntegration,
     label: () => t.settings.useCustomFolderPicker,
     hint: () => t.settings.useCustomFolderPickerHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "previewImagesInApp",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.previews,
-    label: () => t.settings.previewImagesInApp,
-    hint: () => t.settings.previewImagesInAppHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "previewMarkdownInApp",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.previews,
-    label: () => t.settings.previewMarkdownInApp,
-    hint: () => t.settings.previewMarkdownInAppHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "openPreviewInWindow",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.previews,
-    label: () => t.settings.openPreviewInWindow,
-    hint: () => t.settings.openPreviewInWindowHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "openPropertiesInWindow",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.previews,
-    label: () => t.settings.openPropertiesInWindow,
-    hint: () => t.settings.openPropertiesInWindowHint,
   },
   {
     kind: SETTING_KIND.TOGGLE,
@@ -387,7 +330,83 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     format: (opacity) => percent(SIDEBAR_OPACITY_MAX - opacity),
   },
 
-  // ── Files & Transfers ── what dragging entries onto folders / out of the window does.
+  // ── Files ── how files are treated: their types, previews, sizes, menus, drag & drop, deletion.
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "fileTypeExtensions",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.fileTypes,
+    label: () => t.settings.fileTypes,
+    hint: () => t.settings.fileTypesHint,
+    Control: FileTypesControl,
+    Below: FileTypesBelow,
+    isModified: (settings, defaults) =>
+      JSON.stringify(settings.fileTypeExtensions) !==
+      JSON.stringify(defaults.fileTypeExtensions),
+    reset: (update, defaults) =>
+      update({
+        fileTypeExtensions: structuredClone(defaults.fileTypeExtensions),
+      }),
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "previewImagesInApp",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.previews,
+    label: () => t.settings.previewImagesInApp,
+    hint: () => t.settings.previewImagesInAppHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "previewMarkdownInApp",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.previews,
+    label: () => t.settings.previewMarkdownInApp,
+    hint: () => t.settings.previewMarkdownInAppHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "openPreviewInWindow",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.previews,
+    label: () => t.settings.openPreviewInWindow,
+    hint: () => t.settings.openPreviewInWindowHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "openPropertiesInWindow",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.previews,
+    label: () => t.settings.openPropertiesInWindow,
+    hint: () => t.settings.openPropertiesInWindowHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "showFolderSizes",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.folderSizes,
+    label: () => t.settings.showFolderSizes,
+    hint: () => t.settings.showFolderSizesHint,
+    // Walking every folder can spike CPU on large directories — confirm before enabling.
+    confirmOn: {
+      title: () => t.settings.showFolderSizesConfirmTitle,
+      message: () => t.settings.showFolderSizesConfirmMessage,
+    },
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "sizeIgnores",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.folderSizes,
+    label: () => t.settings.sizeIgnores,
+    hint: () => t.settings.sizeIgnoresHint,
+    Control: SizeIgnoresControl,
+    Below: SizeIgnoresBelow,
+    isModified: (settings, defaults) =>
+      settings.sizeIgnores.join("\n") !== defaults.sizeIgnores.join("\n"),
+    reset: (update, defaults) =>
+      update({ sizeIgnores: [...defaults.sizeIgnores] }),
+  },
   {
     kind: SETTING_KIND.CUSTOM,
     key: "contextActions",

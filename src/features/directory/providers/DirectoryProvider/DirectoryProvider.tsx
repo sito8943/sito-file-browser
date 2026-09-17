@@ -8,6 +8,7 @@ import type { DirEntry } from "@/shared/models";
 import { t } from "@/lang";
 import { revealTargetFromUrl } from "@/features/tabs";
 import { opensInAppPreview } from "../../constants";
+import { useFileTypeExtensions } from "../../formats";
 import { DEFAULT_FILTERS } from "@/shared/search/filters";
 
 import { useDirectoryEntries } from "../../hooks/useDirectoryEntries";
@@ -36,6 +37,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
     previewMarkdownInApp,
   } = useStateContext();
 
+  const fileTypes = useFileTypeExtensions();
   const entries = useDirectoryEntries(view);
   const selection = useSelection(entries.sorted.map((entry) => entry.path));
   const [renamingID, setRenamingID] = useState("");
@@ -153,7 +155,14 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
       // In-app preview keeps the real (possibly remote) path so prev/next works over the folder's
       // entries; the Preview panel downloads a remote file to the cache itself. Opening in the OS
       // app needs a local path now, so materialize first (read-only — see SSH_PLAN.md phase 3a).
-      if (opensInAppPreview(ext, previewImagesInApp, previewMarkdownInApp)) {
+      if (
+        opensInAppPreview(
+          ext,
+          fileTypes,
+          previewImagesInApp,
+          previewMarkdownInApp,
+        )
+      ) {
         openPreview(entry.path);
         return;
       }
@@ -166,7 +175,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
         notify(t.connections.openError(String(err)), TOAST_TYPE.ERROR);
       }
     },
-    [previewImagesInApp, previewMarkdownInApp, openPreview, fs],
+    [fileTypes, previewImagesInApp, previewMarkdownInApp, openPreview, fs],
   );
 
   // Same branch for properties: in-app dialog, or a detached window when openPropertiesInWindow is

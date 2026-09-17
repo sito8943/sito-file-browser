@@ -417,7 +417,7 @@ export const en = {
     sections: {
       general: "General",
       appearance: "Appearance",
-      files: "Files & Transfers",
+      files: "Files",
       notifications: "Notifications",
       remote: "Remote",
       storage: "Storage",
@@ -426,6 +426,7 @@ export const en = {
     subsections: {
       filesFolders: "Files & folders",
       folderSizes: "Folder sizes",
+      fileTypes: "File types",
       startup: "Startup",
       updates: "Updates",
       tabs: "Tabs",
@@ -471,6 +472,30 @@ export const en = {
     sizeIgnoresAdd: "Add pattern",
     sizeIgnoresRemove: "Remove pattern",
     sizeIgnoresEmpty: "No patterns — every file counts toward folder sizes.",
+    fileTypes: "File types",
+    fileTypesHint:
+      "Which file type each extension belongs to. The type decides the entry's icon, whether it can be thumbnailed, and whether the built-in preview opens it — so adding opus to Audio gives .opus files the audio icon. An extension can only belong to one type.",
+    fileTypesCategoryLabel: "File type",
+    fileTypesPlaceholder: "e.g. opus",
+    fileTypesAdd: "Add extension",
+    fileTypesRemove: "Remove extension",
+    fileTypesEmpty: "No extensions.",
+    fileTypesDuplicate: (extension: string, category: string) =>
+      `".${extension}" is already in ${category}. Remove it there first — an extension can only belong to one type.`,
+    fileTypeCategories: {
+      archive: "Archive",
+      audio: "Audio",
+      video: "Video",
+      image: "Image",
+      pdf: "PDF",
+      word: "Document",
+      spreadsheet: "Spreadsheet",
+      csv: "CSV",
+      presentation: "Presentation",
+      code: "Code",
+      text: "Text",
+      markdown: "Markdown",
+    },
     contextActions: "Custom actions",
     contextActionsHint:
       "Add local commands or executable scripts to file and folder context menus. Commands run directly without a shell.",

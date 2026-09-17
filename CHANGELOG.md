@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Settings › Files › File types: map any extension onto a built-in file type (e.g. `opus` → Audio). The type — not a hand-picked icon — decides the entry glyph, whether the file is thumbnailed, and whether the built-in preview opens it, so a remapped extension behaves exactly like a built-in one. The full default map is seeded into `settings.toml` and editable there; an extension may belong to only one type and the editor rejects (and explains) a duplicate
+
+### Changed
+
+- Settings: "Files & Transfers" is now "Files" and gathers everything about how files are treated — File types, Previews & windows and Folder sizes moved there from General, which was carrying 21 settings across 8 sub-headings
+
 ## [0.10.2]
 
 ### Fixed
