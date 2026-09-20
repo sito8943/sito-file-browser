@@ -63,6 +63,7 @@ export interface ZoomableImageProps {
   // bar). The image applies the transform; wheel reports zoom via onZoomTo and drag reports pan
   // via onPanChange.
   zoom: number;
+  rotation: number;
   pan: { x: number; y: number };
   onZoomTo: (value: number) => void;
   onPanChange: (pan: { x: number; y: number }) => void;

@@ -63,6 +63,7 @@ export const en = {
     restore: "Restore",
     deletePermanently: "Destroy",
     copyImage: "Copy image",
+    copyImageCurrentState: "Copy image for current state",
     paste: "Paste",
     properties: "Properties",
     compress: "Compress",
@@ -181,6 +182,10 @@ export const en = {
     searchPlaceholder: "Search in folder",
     recentSearches: "Recent searches",
     clearRecents: "Clear",
+  },
+  imagePreview: {
+    rotateLeft: "Rotate left",
+    rotateRight: "Rotate right",
   },
   quickbar: {
     zoomIn: "Zoom in",

@@ -46,6 +46,8 @@ import {
   IMAGE_ZOOM_MIN,
   IMAGE_ZOOM_MAX,
   IMAGE_ZOOM_BUTTON_STEP,
+  IMAGE_ROTATION_ACTIONS,
+  IMAGE_COPY_ACTIONS,
 } from "./constants";
 
 import {
@@ -57,6 +59,8 @@ import {
   faEye,
   faFloppyDisk,
   faMagnifyingGlass,
+  faRotateLeft,
+  faRotateRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 import "@/styles/components/Preview.css";
@@ -176,11 +180,13 @@ const Preview = ({
   const {
     zoom,
     pan,
+    rotation,
+    rotate,
     setPan,
     zoomTo,
     stepZoom,
     reset: resetZoom,
-  } = useImageZoom();
+  } = useImageZoom(filePath, previewVisible);
 
   // Navigation resets the zoom (so the next file opens at 1x) — done here rather than in an
   // effect to avoid a synchronous reset-on-prop-change.
@@ -193,17 +199,17 @@ const Preview = ({
     onNext();
   }, [resetZoom, onNext]);
 
-  // Right-click an image → custom menu to copy it to the clipboard. (The webview's native menu
+  // Right-click an image → copy the original or its current orientation. (The webview's native menu
   // is blocked app-wide and would only show "Inspect Element" in dev anyway.)
   const handleImageContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     openImageMenu(e.clientX, e.clientY, filePath, ENTRY_KIND.FILE);
   };
 
-  const handleCopyImage = async () => {
+  const handleCopyImage = async (currentState: boolean) => {
     setImageMenuVisible(false);
     try {
-      await fs.copyImage(filePath);
+      await fs.copyImage(localPath, currentState ? rotation : undefined);
       notify(t.common.copied, TOAST_TYPE.SUCCESS);
     } catch (err) {
       notify(t.errors.copyImage(String(err)), TOAST_TYPE.ERROR);
@@ -407,6 +413,7 @@ const Preview = ({
                   alt={filePath}
                   onContextMenu={handleImageContextMenu}
                   zoom={zoom}
+                  rotation={rotation}
                   pan={pan}
                   onZoomTo={zoomTo}
                   onPanChange={setPan}
@@ -469,20 +476,32 @@ const Preview = ({
               </>
             )}
             {isImage && (
-              <ZoomControl
-                value={zoom}
-                min={IMAGE_ZOOM_MIN}
-                max={IMAGE_ZOOM_MAX}
-                onZoomIn={() => stepZoom(IMAGE_ZOOM_BUTTON_STEP)}
-                onZoomOut={() => stepZoom(-IMAGE_ZOOM_BUTTON_STEP)}
-                onZoomTo={zoomTo}
-                zoomInHotkey={formatBinding(
-                  keymap[KEYMAP_ACTION.PREVIEW_ZOOM_IN],
-                )}
-                zoomOutHotkey={formatBinding(
-                  keymap[KEYMAP_ACTION.PREVIEW_ZOOM_OUT],
-                )}
-              />
+              <>
+                {IMAGE_ROTATION_ACTIONS.map(({ direction, label }) => (
+                  <IconButton
+                    key={label}
+                    icon={direction < 0 ? faRotateLeft : faRotateRight}
+                    onClick={() => rotate(direction)}
+                    disabled={!isReady}
+                    tooltip={t.imagePreview[label]}
+                    aria-label={t.imagePreview[label]}
+                  />
+                ))}
+                <ZoomControl
+                  value={zoom}
+                  min={IMAGE_ZOOM_MIN}
+                  max={IMAGE_ZOOM_MAX}
+                  onZoomIn={() => stepZoom(IMAGE_ZOOM_BUTTON_STEP)}
+                  onZoomOut={() => stepZoom(-IMAGE_ZOOM_BUTTON_STEP)}
+                  onZoomTo={zoomTo}
+                  zoomInHotkey={formatBinding(
+                    keymap[KEYMAP_ACTION.PREVIEW_ZOOM_IN],
+                  )}
+                  zoomOutHotkey={formatBinding(
+                    keymap[KEYMAP_ACTION.PREVIEW_ZOOM_OUT],
+                  )}
+                />
+              </>
             )}
             <IconButton
               icon={faChevronRight}
@@ -507,11 +526,17 @@ const Preview = ({
       )}
 
       <ContextMenu contextMenuVisible={imageMenuVisible} ref={imageMenuRef}>
-        <ContextMenuItem
-          text={t.contextMenu.copyImage}
-          icon={<Icon icon={faCopy} />}
-          onClick={handleCopyImage}
-        />
+        {IMAGE_COPY_ACTIONS.filter(
+          ({ currentState }) => !currentState || rotation !== 0,
+        ).map(({ label, currentState }) => (
+          <ContextMenuItem
+            key={label}
+            text={t.contextMenu[label]}
+            icon={<Icon icon={faCopy} />}
+            disabled={!localPath}
+            onClick={() => handleCopyImage(currentState)}
+          />
+        ))}
       </ContextMenu>
     </>
   );
