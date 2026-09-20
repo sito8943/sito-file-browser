@@ -6,7 +6,7 @@
   margin-bottom: var(--space-4);
 }
 
-/* The scrollable strip of tabs; the "new tab" button stays pinned beside it. */
+/* The new-tab button follows the last tab inside the same scrollable strip. */
 .TabBar .tab_strip {
   display: flex;
   align-items: center;
@@ -74,6 +74,22 @@
 
 .TabBar .tab_new {
   flex-shrink: 0;
+}
+
+/* IconButton puts tab_new on its tooltip wrapper; style the actual button inside it. */
+.TabBar .tab_new .IconButton {
+  width: var(--size-tab-height);
+  min-width: var(--size-tab-height);
+  height: var(--size-tab-height);
+  min-height: var(--size-tab-height);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-row);
+  color: var(--color-text-tertiary);
+}
+
+.TabBar .tab_new .IconButton:hover:not(:disabled) {
+  background-color: var(--color-overlay-hover);
+  color: var(--color-text-primary);
 }
 
 /* Draggable tabs: touch-action none lets the pointer gesture own horizontal moves (no native
