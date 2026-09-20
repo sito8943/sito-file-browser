@@ -48,7 +48,8 @@
   --size-slider-thumb: var(--space-2);
   --size-spinner: var(--space-12);
   --size-directory-tile: 76px;
-  --size-directory-row: var(--space-8);
+  --size-directory-row: var(--space-20);
+  --size-directory-list-icon: var(--space-12);
   --size-entry-metadata-width: 288px;
   --size-sidebar-expanded: 220px;
   --size-sidebar-collapsed: 72px;
