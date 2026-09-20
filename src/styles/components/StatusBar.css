@@ -23,7 +23,8 @@
 .directory_page .status_bar .stats_row {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-3);
+  align-items: center;
+  gap: var(--space-1-5);
 }
 
 .directory_page .status_bar .stats_row .stat {

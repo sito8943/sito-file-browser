@@ -871,8 +871,9 @@ export const en = {
     calculatingSizes: "Calculating sizes…",
     // Status-bar OS stats readout (opt-in via the showSystemStats setting).
     statCpu: (percent: number) => `CPU ${percent}%`,
-    statRam: (used: string, total: string) => `RAM ${used} / ${total}`,
-    statDisk: (used: string, total: string) => `Disk ${used} / ${total}`,
+    statRam: (percent: number) => `RAM ${percent}%`,
+    statDisk: (percent: number) => `Disk ${percent}%`,
+    statSeparator: "·",
     // Tooltip on the clickable CPU / RAM readouts.
     openSystemMonitor: "Open the system resource monitor",
     copying: "Copying…",

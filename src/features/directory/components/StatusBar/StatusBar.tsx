@@ -5,7 +5,7 @@ import {
 
 import Button from "@/shared/components/elements/Button";
 import Icon from "@/shared/components/elements/Icon";
-import { classNames, formatBytes } from "@/shared/utils";
+import { classNames } from "@/shared/utils";
 import { openSystemMonitor, openStorageSettings } from "@/shared/services/api";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { useSettings } from "@/features/settings";
@@ -17,6 +17,7 @@ import { useSystemStats } from "../../hooks/useSystemStats";
 import "@/styles/components/StatusBar.css";
 
 import type { StatusBarProps } from "./types";
+import { usagePercent } from "./utils";
 
 // Footer with the total entry count and, when any are selected, the selection count.
 // Shows spinners on the right while folder sizes are being computed (the list re-sorts as they
@@ -111,6 +112,7 @@ const StatusBar = ({
           >
             {t.directory.statCpu(Math.round(stats.cpuUsage))}
           </Button>
+          <span aria-hidden="true">{t.directory.statSeparator}</span>
           <Button
             unstyled
             className="stat stat_button"
@@ -118,10 +120,10 @@ const StatusBar = ({
             title={t.directory.openSystemMonitor}
           >
             {t.directory.statRam(
-              formatBytes(stats.memUsed),
-              formatBytes(stats.memTotal),
+              usagePercent(stats.memUsed, stats.memTotal),
             )}
           </Button>
+          <span aria-hidden="true">{t.directory.statSeparator}</span>
           <Button
             unstyled
             className="stat stat_button"
@@ -129,8 +131,7 @@ const StatusBar = ({
             title={t.storage.title}
           >
             {t.directory.statDisk(
-              formatBytes(stats.diskUsed),
-              formatBytes(stats.diskTotal),
+              usagePercent(stats.diskUsed, stats.diskTotal),
             )}
           </Button>
         </div>
