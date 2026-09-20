@@ -15,14 +15,13 @@ import { usePathBarShortcuts } from "./hooks/usePathBarShortcuts";
 import PathField from "./components/PathField";
 import PathSearch from "./components/PathSearch";
 import SearchFilters from "./components/SearchFilters";
+import { VIEW_OPTIONS } from "./constants";
 
 import {
   faArrowLeft,
   faArrowRight,
   faArrowUp,
   faHouse,
-  faList,
-  faTableCellsLarge,
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -172,16 +171,24 @@ const PathBar = () => {
       {/* Search-result filters live just left of the view toggle, only while a search is active. */}
       {search.trim().length > 0 && <SearchFilters />}
 
-      <IconButton
-        icon={view === VIEW_MODE.GRID ? faList : faTableCellsLarge}
-        onClick={switchView}
-        variant={ICON_BUTTON_VARIANT.BOXED}
-        size={ICON_BUTTON_SIZE.LG}
-        tooltip={t.pathbar.toggleView}
-        hotkey={formatBinding(keymap[KEYMAP_ACTION.TOGGLE_VIEW])}
-        aria-label={t.pathbar.toggleView}
-        className="shadow"
-      />
+      {VIEW_OPTIONS.map(({ value, icon, label }) => (
+        <IconButton
+          key={value}
+          icon={icon}
+          onClick={() => setView(value)}
+          variant={ICON_BUTTON_VARIANT.BOXED}
+          size={ICON_BUTTON_SIZE.LG}
+          tooltip={label()}
+          hotkey={formatBinding(keymap[KEYMAP_ACTION.TOGGLE_VIEW])}
+          aria-label={label()}
+          aria-pressed={view === value}
+          className={classNames(
+            "shadow",
+            "view_toggle",
+            view === value && "active",
+          )}
+        />
+      ))}
 
       <IconButton
         icon={faCircleInfo}

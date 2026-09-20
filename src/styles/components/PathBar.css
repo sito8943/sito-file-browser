@@ -35,9 +35,9 @@
   min-width: 0;
 }
 
-/* Info-panel and search toggles: highlight the button while active. */
+/* Highlight the selected view and the info-panel toggle while active. */
 .PathBar .info_toggle.active .IconButton,
-.PathBar .search_toggle.active .IconButton {
+.PathBar .view_toggle.active .IconButton {
   color: var(--color-text-primary);
   background-color: var(--color-overlay-active);
 }

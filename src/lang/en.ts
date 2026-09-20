@@ -177,6 +177,8 @@ export const en = {
     forward: "Forward",
     up: "Up",
     toggleView: "Toggle view",
+    listView: "List view",
+    gridView: "Grid view",
     toggleInfo: "Toggle info panel",
     search: "Search",
     searchPlaceholder: "Search in folder",
