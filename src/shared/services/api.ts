@@ -568,8 +568,10 @@ export const createFolder = async (parent: string): Promise<string> =>
 export const createTextFile = async (parent: string): Promise<string> =>
   (await invoke("create_text_file", { parent })) as string;
 // Copy a local image as a bitmap, optionally applying the preview's clockwise rotation.
-export const copyImage = async (path: string, rotation?: number): Promise<void> =>
-  await invoke("copy_image", { path, rotation });
+export const copyImage = async (
+  path: string,
+  rotation?: number,
+): Promise<void> => await invoke("copy_image", { path, rotation });
 export const deleteEntry = async (path: string): Promise<void> =>
   await invoke("delete_entry", { path });
 // Restore a trashed item to its recorded original location. Resolves to the restored path, or

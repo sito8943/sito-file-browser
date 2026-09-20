@@ -53,7 +53,11 @@ export const useImageGeometry = (
   // Quarter turns swap the visual axes; fit again before applying the user's zoom.
   const fit =
     width && height && bounds.viewportWidth && bounds.viewportHeight
-      ? Math.min(1, bounds.viewportWidth / width, bounds.viewportHeight / height)
+      ? Math.min(
+          1,
+          bounds.viewportWidth / width,
+          bounds.viewportHeight / height,
+        )
       : 1;
   const scale = fit * zoom;
   const maxX = Math.max(0, (width * scale - bounds.viewportWidth) / 2);

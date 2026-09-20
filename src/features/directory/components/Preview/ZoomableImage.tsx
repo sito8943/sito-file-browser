@@ -53,7 +53,10 @@ export const ZoomableImage = ({
   const onPointerDown = (e: PointerEvent<HTMLImageElement>) => {
     if (zoom <= IMAGE_ZOOM_MIN) return;
     e.currentTarget.setPointerCapture(e.pointerId);
-    dragRef.current = { x: e.clientX - visiblePan.x, y: e.clientY - visiblePan.y };
+    dragRef.current = {
+      x: e.clientX - visiblePan.x,
+      y: e.clientY - visiblePan.y,
+    };
   };
 
   const onPointerMove = (e: PointerEvent<HTMLImageElement>) => {
@@ -85,9 +88,10 @@ export const ZoomableImage = ({
       onPointerCancel={onPointerUp}
       onLostPointerCapture={onPointerUp}
       style={{
-        transform: zoomed || rotation !== 0
-          ? `translate(${visiblePan.x}px, ${visiblePan.y}px) rotate(${rotation}deg) scale(${scale})`
-          : undefined,
+        transform:
+          zoomed || rotation !== 0
+            ? `translate(${visiblePan.x}px, ${visiblePan.y}px) rotate(${rotation}deg) scale(${scale})`
+            : undefined,
         cursor: zoomed ? "grab" : undefined,
         userSelect: zoomed ? "none" : undefined,
       }}

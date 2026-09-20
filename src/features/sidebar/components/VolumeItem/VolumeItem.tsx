@@ -72,11 +72,7 @@ const VolumeItem = ({
 
   // Collapsed: the details are hidden in the rail, so surface them in our tooltip.
   return collapsed ? (
-    <Tooltip
-      contents
-      label={volume.name}
-      placement={TOOLTIP_PLACEMENT.RIGHT}
-    >
+    <Tooltip contents label={volume.name} placement={TOOLTIP_PLACEMENT.RIGHT}>
       {row}
     </Tooltip>
   ) : (

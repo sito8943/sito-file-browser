@@ -5,5 +5,9 @@ import { t } from "@/lang";
 
 export const VIEW_OPTIONS = [
   { value: VIEW_MODE.LIST, icon: faList, label: () => t.pathbar.listView },
-  { value: VIEW_MODE.GRID, icon: faTableCellsLarge, label: () => t.pathbar.gridView },
+  {
+    value: VIEW_MODE.GRID,
+    icon: faTableCellsLarge,
+    label: () => t.pathbar.gridView,
+  },
 ] as const;

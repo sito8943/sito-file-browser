@@ -119,9 +119,7 @@ const StatusBar = ({
             onClick={showMonitor}
             title={t.directory.openSystemMonitor}
           >
-            {t.directory.statRam(
-              usagePercent(stats.memUsed, stats.memTotal),
-            )}
+            {t.directory.statRam(usagePercent(stats.memUsed, stats.memTotal))}
           </Button>
           <span aria-hidden="true">{t.directory.statSeparator}</span>
           <Button

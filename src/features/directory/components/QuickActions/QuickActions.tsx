@@ -189,7 +189,8 @@ const QuickActions = () => {
           action={sortAction}
           ctx={sortCtx}
           label={
-            sortAction.submenu?.(sortCtx).find((item) => item.key === sort.key)?.label
+            sortAction.submenu?.(sortCtx).find((item) => item.key === sort.key)
+              ?.label
           }
         />
       </div>
