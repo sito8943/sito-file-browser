@@ -35,7 +35,7 @@ const VolumeItem = ({
       tabIndex={0}
       data-path={volume.mountPoint}
       aria-current={active ? "true" : undefined}
-      aria-label={`${volume.mountPoint} ${volume.name}`}
+      aria-label={volume.name}
       onClick={open}
       onKeyDown={activateOnKey(open)}
       onContextMenu={onContextMenu}
@@ -43,9 +43,7 @@ const VolumeItem = ({
     >
       <Icon icon={volumeIcon(volume)} />
       <div className="details">
-        <p>
-          <span>{volume.mountPoint}</span> {volume.name}
-        </p>
+        <p>{volume.name}</p>
         <UsageBar percentage={volume.diskUsage.percentage} />
         {settings.showVolumeSize && (
           <p className="drive_size">
@@ -76,7 +74,7 @@ const VolumeItem = ({
   return collapsed ? (
     <Tooltip
       contents
-      label={`${volume.mountPoint} ${volume.name}`}
+      label={volume.name}
       placement={TOOLTIP_PLACEMENT.RIGHT}
     >
       {row}
