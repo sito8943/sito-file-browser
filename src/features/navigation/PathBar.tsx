@@ -130,17 +130,6 @@ const PathBar = () => {
 
   return (
     <div className="PathBar">
-      <IconButton
-        icon={faHouse}
-        onClick={goHome}
-        variant={ICON_BUTTON_VARIANT.BOXED}
-        size={ICON_BUTTON_SIZE.LG}
-        tooltip={t.pathbar.home}
-        hotkey={formatBinding(keymap[KEYMAP_ACTION.GO_HOME])}
-        aria-label={t.pathbar.home}
-        className="shadow"
-      />
-
       <div className="controls shadow">
         <IconButton
           icon={faArrowLeft}
@@ -173,6 +162,17 @@ const PathBar = () => {
           aria-label={t.pathbar.up}
         />
       </div>
+
+      <IconButton
+        icon={faHouse}
+        onClick={goHome}
+        variant={ICON_BUTTON_VARIANT.BOXED}
+        size={ICON_BUTTON_SIZE.LG}
+        tooltip={t.pathbar.home}
+        hotkey={formatBinding(keymap[KEYMAP_ACTION.GO_HOME])}
+        aria-label={t.pathbar.home}
+        className="shadow"
+      />
 
       {path === RECENTS ? (
         <div className="path_label shadow">{t.pathbar.recents}</div>
