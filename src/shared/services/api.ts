@@ -97,6 +97,8 @@ export type AppSettings = {
   // DEFAULT_FILE_TYPE_EXTENSIONS so the whole map is visible (and editable) in settings.toml;
   // the category drives the entry glyph, thumbnailing and the built-in preview.
   fileTypeExtensions: FileTypeExtensions;
+  // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
+  colorfulFileTypes: boolean;
   // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
   // Settings so the user can stop it from ever reappearing (or bring it back).
   showOnboarding: boolean;

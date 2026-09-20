@@ -1,9 +1,10 @@
 import Icon from "@/shared/components/elements/Icon";
 import { classNames } from "@/shared/utils";
+import { FILE_CATEGORY_COLORS } from "@/shared/constants";
 
 import { faFolder } from "@fortawesome/free-solid-svg-icons";
 
-import { useFileTypeExtensions } from "../../formats";
+import { categoryOf, useFileTypeExtensions } from "../../formats";
 
 import { getFileIcon } from "./fileIcon";
 
@@ -12,6 +13,7 @@ import type { EntryIconProps } from "./types";
 // The entry's leading visual: a lazy-loaded thumbnail when available, else a folder glyph or a
 // file-type glyph resolved from the extension (zip, audio, code, …).
 const EntryIcon = ({
+  colorfulFileTypes,
   isDir,
   extension,
   imgSrc,
@@ -22,6 +24,8 @@ const EntryIcon = ({
   // Subscribed here rather than passed down: the glyph must change the moment the user remaps an
   // extension in Settings, without every DirEntry having to thread the map through.
   const fileTypes = useFileTypeExtensions();
+  const category =
+    !isDir && colorfulFileTypes ? categoryOf(fileTypes, extension) : null;
 
   return (
     <div
@@ -62,7 +66,12 @@ const EntryIcon = ({
           onError={finishLoad}
         />
       ) : (
-        <Icon icon={isDir ? faFolder : getFileIcon(fileTypes, extension)} />
+        <Icon
+          icon={isDir ? faFolder : getFileIcon(fileTypes, extension)}
+          style={
+            category ? { color: FILE_CATEGORY_COLORS[category] } : undefined
+          }
+        />
       )}
     </div>
   );

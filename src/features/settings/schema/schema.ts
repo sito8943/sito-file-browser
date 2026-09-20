@@ -332,6 +332,14 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
 
   // ── Files ── how files are treated: their types, previews, sizes, menus, drag & drop, deletion.
   {
+    kind: SETTING_KIND.TOGGLE,
+    key: "colorfulFileTypes",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.fileTypes,
+    label: () => t.settings.colorfulFileTypes,
+    hint: () => t.settings.colorfulFileTypesHint,
+  },
+  {
     kind: SETTING_KIND.CUSTOM,
     key: "fileTypeExtensions",
     section: SETTINGS_SECTION.FILES,

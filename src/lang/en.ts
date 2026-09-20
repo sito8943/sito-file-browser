@@ -478,6 +478,9 @@ export const en = {
     sizeIgnoresRemove: "Remove pattern",
     sizeIgnoresEmpty: "No patterns — every file counts toward folder sizes.",
     fileTypes: "File types",
+    colorfulFileTypes: "Colorful file types",
+    colorfulFileTypesHint:
+      "Use category colors for file icons in list and grid views. Turn off for gray icons. Folders and thumbnails keep their appearance.",
     fileTypesHint:
       "Which file type each extension belongs to. The type decides the entry's icon, whether it can be thumbnailed, and whether the built-in preview opens it — so adding opus to Audio gives .opus files the audio icon. An extension can only belong to one type.",
     fileTypesCategoryLabel: "File type",

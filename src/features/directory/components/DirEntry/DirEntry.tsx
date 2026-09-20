@@ -53,6 +53,7 @@ const DirEntryItemComponent = ({
   metadataTooltipDisabled,
   remoteThumbnails,
   showFolderThumbnails,
+  colorfulFileTypes,
 }: DirEntryItemProps) => {
   const itemRef = useRef<HTMLDivElement>(null);
   // The user's extension → category map; drives both the glyph and what may be thumbnailed.
@@ -192,6 +193,7 @@ const DirEntryItemComponent = ({
 
         <div className="name">
           <EntryIcon
+            colorfulFileTypes={colorfulFileTypes}
             isDir={entry.metadata.isDir}
             extension={ext}
             imgSrc={imgSrc}

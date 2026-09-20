@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { t } from "@/lang";
 import { useTags } from "@/shared/providers/TagsProvider";
+import { useSettings } from "@/features/settings";
 import { DirEntryItem } from "../DirEntry";
 
 import { NO_TAGS, RENDER_BATCH_SIZE, RENDER_PREFETCH_PX } from "./constants";
@@ -37,6 +38,7 @@ const EntriesView = ({
   clearRevealID,
 }: EntriesViewProps) => {
   const { fs, setPath, dateFormat, remoteThumbnails } = useStateContext();
+  const { settings } = useSettings();
   const { tags: tagsByPath, loadTags } = useTags();
   const [renderCount, setRenderCount] = useState(RENDER_BATCH_SIZE);
   const viewRef = useRef<HTMLDivElement>(null);
@@ -165,6 +167,7 @@ const EntriesView = ({
             bindDrag={bindDrag}
             metadataTooltipDisabled={metadataTooltipDisabled}
             remoteThumbnails={remoteThumbnails}
+            colorfulFileTypes={settings.colorfulFileTypes}
             showFolderThumbnails={showFolderThumbnails}
           />
         );
