@@ -148,14 +148,6 @@ const QuickActions = () => {
 
   return (
     <div className="quick_actions">
-      <QuickActionMenu action={sortAction} ctx={sortCtx} />
-      {actionIds.length > 0 && (
-        <span
-          className="quick_action_separator"
-          role="separator"
-          aria-orientation="vertical"
-        />
-      )}
       {actionIds.map((id, index) => {
         if (id === ACTION_SEPARATOR)
           return (
@@ -192,6 +184,15 @@ const QuickActions = () => {
           />
         );
       })}
+      <div className="quick_sort">
+        <QuickActionMenu
+          action={sortAction}
+          ctx={sortCtx}
+          label={
+            sortAction.submenu?.(sortCtx).find((item) => item.key === sort.key)?.label
+          }
+        />
+      </div>
     </div>
   );
 };
