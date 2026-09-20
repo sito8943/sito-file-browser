@@ -19,8 +19,8 @@
   border-radius: var(--radius-md);
   /* Empty gutters around the entries (no padding-top so the sticky list header stays
      flush). These bands give the rubber-band selection somewhere to start on every side,
-     not just the floor below the entries. Header and rows inset together, so list columns
-     stay aligned. */
+     not just the floor below the entries. The header cancels the side gutters for its background
+     and restores them as inner padding to keep its columns aligned with the rows. */
   padding: 0 var(--space-2-5) var(--space-2-5);
 }
 
@@ -484,7 +484,9 @@ body.is-entry-dragging .drag_ghost {
   grid-template-columns: var(--list-grid);
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1-5) var(--space-2-5);
+  /* Extend the background across the selection gutters without moving the column content. */
+  margin-inline: calc(-1 * var(--space-2-5));
+  padding: var(--space-1-5) calc(var(--space-2-5) * 2);
   background-color: var(--color-surface-backdrop);
   backdrop-filter: blur(var(--blur-medium));
   border-bottom: var(--border-width-default) solid var(--color-border-default);
