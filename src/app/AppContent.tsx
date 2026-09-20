@@ -11,6 +11,8 @@ import Directory, { DirectoryProvider, InfoPanel } from "@/features/directory";
 
 import { ROUTES } from "./routes";
 
+import "@/styles/components/AppContent.css";
+
 function AppContent() {
   const location = useLocation();
   const { tabs, activeTabId, newTab, closeTab, selectTab } = useStateContext();
@@ -45,17 +47,19 @@ function AppContent() {
     <DirectoryProvider>
       <div className="AppContent">
         <TabBar />
-        <PathBar />
-        {/* Zoom only applies to the directory view, so the quick bar is hidden on Volumes. */}
-        {onDirectory && <QuickBar />}
-        <div className="Page">
-          <div className="page_main">
-            <Routes>
-              <Route path={ROUTES.volumes} element={<Volumes />} />
-              <Route path={ROUTES.directory} element={<Directory />} />
-            </Routes>
+        <div className="tab_content">
+          <PathBar />
+          {/* Zoom only applies to the directory view, so the quick bar is hidden on Volumes. */}
+          {onDirectory && <QuickBar />}
+          <div className="Page">
+            <div className="page_main">
+              <Routes>
+                <Route path={ROUTES.volumes} element={<Volumes />} />
+                <Route path={ROUTES.directory} element={<Directory />} />
+              </Routes>
+            </div>
+            {onDirectory && <InfoPanel />}
           </div>
-          {onDirectory && <InfoPanel />}
         </div>
       </div>
     </DirectoryProvider>

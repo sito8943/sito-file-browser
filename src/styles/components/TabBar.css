@@ -3,7 +3,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-1-5);
-  margin-bottom: var(--space-4);
+  flex-shrink: 0;
+  padding-inline: var(--space-2);
+  /* Overlap the panel border so the active tab can open it without measuring tab positions. */
+  margin-bottom: calc(-1 * var(--border-width-default));
+  position: relative;
+  z-index: 1;
 }
 
 /* The new-tab button follows the last tab inside the same scrollable strip. */
@@ -34,6 +39,7 @@
   min-width: var(--size-tab-min-width);
   max-width: var(--size-tab-max-width);
   padding: var(--space-0) var(--space-2-5);
+  border: var(--border-width-default) solid transparent;
   border-radius: var(--radius-md);
   background-color: var(--color-surface-row);
   color: var(--color-text-tertiary);
@@ -46,9 +52,12 @@
   background-color: var(--color-overlay-hover);
 }
 
-/* The active tab reads as selected: brighter surface and full-strength text. */
+/* An opaque bottom edge hides the panel border, joining the active tab to its content. */
 .TabBar .TabItem.active {
-  background-color: var(--color-overlay-active);
+  background-color: var(--color-background-app);
+  border-color: var(--color-border-default);
+  border-bottom-color: var(--color-background-app);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   color: var(--color-text-primary);
 }
 
