@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useStateContext } from "@/shared/providers/StateProvider";
 import IconButton, {
@@ -22,7 +22,6 @@ import {
   faArrowUp,
   faHouse,
   faList,
-  faMagnifyingGlass,
   faTableCellsLarge,
   faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
@@ -47,37 +46,18 @@ const PathBar = () => {
     setSearch,
   } = useStateContext();
 
-  // Inline search field. `searchOpen` = mounted (replacing the search button); `searchClosing` =
-  // playing the exit animation before unmount. Closing also clears the filter.
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchClosing, setSearchClosing] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
 
-  const openSearch = useCallback(() => {
-    setSearchClosing(false);
-    setSearchOpen(true);
+  // The search shortcut focuses the persistent field without stealing focus on navigation.
+  const focusSearch = useCallback(() => {
+    searchInputRef.current?.focus();
+    searchInputRef.current?.select();
   }, []);
-  // Start the exit animation and clear the filter; the unmount happens on the animation's end.
   const closeSearch = useCallback(() => {
-    setSearchClosing(true);
     setSearch("");
+    searchInputRef.current?.blur();
   }, [setSearch]);
-  const finishCloseSearch = useCallback(() => {
-    setSearchOpen(false);
-    setSearchClosing(false);
-  }, []);
-  const toggleSearch = useCallback(
-    () => (searchOpen && !searchClosing ? closeSearch() : openSearch()),
-    [searchOpen, searchClosing, closeSearch, openSearch],
-  );
-
-  // Collapse search on navigation (the filter is per-tab and resets on a new folder anyway).
-  // Adjusting state during render on a changed value, per React's "you might not need an effect".
-  const [prevPath, setPrevPath] = useState(path);
-  if (path !== prevPath) {
-    setPrevPath(path);
-    setSearchOpen(false);
-    setSearchClosing(false);
-  }
 
   const { revealEntries } = useDirectory();
 
@@ -123,9 +103,9 @@ const PathBar = () => {
     toggleView: switchView,
     toggleHidden: toggleShowHidden,
     toggleInfo: toggleInfoPanel,
-    toggleSearch,
+    toggleSearch: focusSearch,
     closeSearch,
-    searchActive: searchOpen && !searchClosing,
+    searchActive: searchFocused || search.length > 0,
   });
 
   return (
@@ -182,28 +162,12 @@ const PathBar = () => {
         <PathField key={path} path={path} onCommit={commitPath} />
       )}
 
-      {/* The search button expands into an inline folder filter; while open it replaces the
-          button (no redundancy) and shrinks the path field. */}
-      {searchOpen ? (
-        <PathSearch
-          value={search}
-          onChange={setSearch}
-          onClose={closeSearch}
-          closing={searchClosing}
-          onExited={finishCloseSearch}
-        />
-      ) : (
-        <IconButton
-          icon={faMagnifyingGlass}
-          onClick={openSearch}
-          variant={ICON_BUTTON_VARIANT.BOXED}
-          size={ICON_BUTTON_SIZE.LG}
-          tooltip={t.pathbar.search}
-          hotkey={formatBinding(keymap[KEYMAP_ACTION.SEARCH])}
-          aria-label={t.pathbar.search}
-          className="shadow search_toggle"
-        />
-      )}
+      <PathSearch
+        value={search}
+        onChange={setSearch}
+        inputRef={searchInputRef}
+        onFocusChange={setSearchFocused}
+      />
 
       {/* Search-result filters live just left of the view toggle, only while a search is active. */}
       {search.trim().length > 0 && <SearchFilters />}

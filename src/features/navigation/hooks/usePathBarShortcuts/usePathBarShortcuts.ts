@@ -32,7 +32,7 @@ export const usePathBarShortcuts = ({
     event.preventDefault();
     return false;
   });
-  // Escape closes the search field whether or not the input is focused (allowInInput), so it works
+  // Escape clears the search whether or not the input is focused (allowInInput), so it works
   // both while typing and while browsing the results.
   useHotkey({ keys: [KEY.ESCAPE] }, closeSearch, {
     when: searchActive,
