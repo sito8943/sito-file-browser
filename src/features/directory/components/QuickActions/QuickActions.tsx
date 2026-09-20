@@ -4,6 +4,7 @@ import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
 import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
+import { useFileTypeExtensions } from "@/features/directory/formats";
 
 import { useDirectory } from "../../providers/DirectoryProvider";
 import { useContextMenuLayout } from "../../hooks/useContextMenuLayout";
@@ -39,6 +40,7 @@ const QuickActions = () => {
   } = useStateContext();
   const { keymap } = useKeymap();
   const layout = useContextMenuLayout();
+  const fileTypes = useFileTypeExtensions();
   const {
     sorted,
     selectedIDs,
@@ -94,6 +96,7 @@ const QuickActions = () => {
     toggleShowHidden,
     opensInAppPreview: opensInAppPreview(
       fileExtension.toLowerCase(),
+      fileTypes,
       previewImagesInApp,
       previewMarkdownInApp,
     ),
@@ -145,14 +148,6 @@ const QuickActions = () => {
 
   return (
     <div className="quick_actions">
-      <QuickActionMenu action={sortAction} ctx={sortCtx} />
-      {actionIds.length > 0 && (
-        <span
-          className="quick_action_separator"
-          role="separator"
-          aria-orientation="vertical"
-        />
-      )}
       {actionIds.map((id, index) => {
         if (id === ACTION_SEPARATOR)
           return (
@@ -189,6 +184,16 @@ const QuickActions = () => {
           />
         );
       })}
+      <div className="quick_sort">
+        <QuickActionMenu
+          action={sortAction}
+          ctx={sortCtx}
+          label={
+            sortAction.submenu?.(sortCtx).find((item) => item.key === sort.key)
+              ?.label
+          }
+        />
+      </div>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { startDrag } from "@crabnebula/tauri-plugin-drag";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
+import type { FileTypeExtensions } from "@/shared/constants";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
@@ -92,6 +93,12 @@ export type AppSettings = {
   // Glob patterns (matched against an entry's file name) excluded from recursive folder-size
   // calculation, e.g. ".DS_Store", "*.tmp", "node_modules". Applied live on save.
   sizeIgnores: string[];
+  // Which file-type category each extension belongs to (see FILE_CATEGORY). Seeded from
+  // DEFAULT_FILE_TYPE_EXTENSIONS so the whole map is visible (and editable) in settings.toml;
+  // the category drives the entry glyph, thumbnailing and the built-in preview.
+  fileTypeExtensions: FileTypeExtensions;
+  // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
+  colorfulFileTypes: boolean;
   // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
   // Settings so the user can stop it from ever reappearing (or bring it back).
   showOnboarding: boolean;
@@ -560,9 +567,11 @@ export const createFolder = async (parent: string): Promise<string> =>
 // Create a uniquely named empty .txt file in `parent`; returns the created file's path.
 export const createTextFile = async (parent: string): Promise<string> =>
   (await invoke("create_text_file", { parent })) as string;
-// Copy an image file to the system clipboard as a bitmap.
-export const copyImage = async (path: string): Promise<void> =>
-  await invoke("copy_image", { path });
+// Copy a local image as a bitmap, optionally applying the preview's clockwise rotation.
+export const copyImage = async (
+  path: string,
+  rotation?: number,
+): Promise<void> => await invoke("copy_image", { path, rotation });
 export const deleteEntry = async (path: string): Promise<void> =>
   await invoke("delete_entry", { path });
 // Restore a trashed item to its recorded original location. Resolves to the restored path, or

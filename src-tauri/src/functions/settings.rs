@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
@@ -108,6 +109,13 @@ pub struct AppSettings {
     last_seen_version: String,
     // After an update, show a clickable toast that opens the changelog for the new version.
     show_changelog_after_update: bool,
+    // Which file-type category each extension belongs to, keyed by category ("audio", "image", …).
+    // Only persisted here — the frontend owns the behaviour it drives (entry glyph, thumbnails,
+    // preview). Seeded with the built-in extensions so the whole map is visible and editable in
+    // settings.toml. A BTreeMap so the written file keeps a stable key order between saves.
+    file_type_extensions: BTreeMap<String, Vec<String>>,
+    // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
+    colorful_file_types: bool,
 }
 
 impl AppSettings {
@@ -165,6 +173,8 @@ impl Default for AppSettings {
             check_for_updates: true,
             last_seen_version: String::new(),
             show_changelog_after_update: true,
+            file_type_extensions: default_file_type_extensions(),
+            colorful_file_types: false,
         }
     }
 }
@@ -197,6 +207,39 @@ fn default_size_ignores() -> Vec<String> {
 #[cfg(not(target_os = "macos"))]
 fn default_size_ignores() -> Vec<String> {
     Vec::new()
+}
+
+// The built-in extension → category map. Mirrors DEFAULT_FILE_TYPE_EXTENSIONS in
+// shared/constants.ts (must stay in sync).
+fn default_file_type_extensions() -> BTreeMap<String, Vec<String>> {
+    [
+        ("archive", vec!["zip", "rar", "7z", "tar", "gz", "bz2", "xz"]),
+        ("audio", vec!["mp3", "wav", "ogg"]),
+        ("video", vec!["mp4", "webm", "mov", "m4v", "ogv"]),
+        ("image", vec!["png", "jpg", "jpeg", "webp", "gif", "svg"]),
+        ("pdf", vec!["pdf"]),
+        ("word", vec!["doc", "docx", "odt", "pages"]),
+        ("spreadsheet", vec!["xls", "xlsx", "ods"]),
+        ("csv", vec!["csv", "tsv"]),
+        ("presentation", vec!["ppt", "pptx", "odp"]),
+        (
+            "code",
+            vec![
+                "js", "jsx", "ts", "tsx", "json", "html", "css", "scss", "rs", "py", "go", "java",
+                "c", "cpp", "h", "sh", "yml", "yaml", "toml", "xml",
+            ],
+        ),
+        ("text", vec!["txt", "log", "rtf"]),
+        ("markdown", vec!["md", "markdown"]),
+    ]
+    .into_iter()
+    .map(|(category, extensions)| {
+        (
+            category.to_string(),
+            extensions.into_iter().map(|e| e.to_string()).collect(),
+        )
+    })
+    .collect()
 }
 
 fn config_path(app: &AppHandle) -> Result<PathBuf, String> {
@@ -305,4 +348,23 @@ pub fn export_settings(
         path: Some(target.to_string_lossy().to_string()),
         existed: false,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // TOML rejects a scalar emitted after a table, so the file-type map must stay the last field of
+    // the struct. This locks that in: a field added below it would fail this round-trip, not a user's
+    // save.
+    #[test]
+    fn defaults_round_trip_through_toml() {
+        let written = toml::to_string_pretty(&AppSettings::default()).unwrap();
+        let parsed: AppSettings = toml::from_str(&written).unwrap();
+        assert_eq!(
+            parsed.file_type_extensions,
+            default_file_type_extensions(),
+            "file-type map must survive a save/load round-trip"
+        );
+    }
 }

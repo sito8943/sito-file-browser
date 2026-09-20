@@ -20,6 +20,7 @@ import ToastStack from "@/shared/components/patterns/ToastStack";
 import { useToasts } from "@/app/hooks/useToasts";
 import { useTheme } from "@/app/hooks/useTheme";
 import { useAccent } from "@/app/hooks/useAccent";
+import { useFileTypes } from "@/app/hooks/useFileTypes";
 import { FileSystemManager } from "@/shared/managers/FileSystemManager";
 import { getSettings } from "@/shared/services/api";
 import { DEFAULT_SETTINGS, type Theme, type Accent } from "@/shared/constants";
@@ -29,7 +30,7 @@ import { t } from "@/lang";
 import type { DirEntry } from "@/shared/models";
 import type { AppSettings } from "@/shared/services/api";
 
-import { ACCEPTED_PREVIEW_FORMATS } from "../../constants";
+import { isPreviewable } from "../../constants";
 import { usePreview } from "../../hooks/usePreview";
 import { entryLabel } from "../../hooks/useFileOperations/utils";
 
@@ -102,6 +103,7 @@ const PreviewWindow = ({ target }: { target: string }) => {
   }, []);
   useTheme(settings.theme as Theme);
   useAccent(settings.accentColor as Accent);
+  useFileTypes(settings.fileTypeExtensions);
   useEffect(() => {
     const root = document.documentElement.style;
     root.setProperty("--dialog-opacity", String(settings.dialogOpacity));
@@ -130,13 +132,13 @@ const PreviewWindow = ({ target }: { target: string }) => {
         entries.filter(
           (e) =>
             !e.metadata.isDir &&
-            ACCEPTED_PREVIEW_FORMATS.includes(extension(e.name)),
+            isPreviewable(settings.fileTypeExtensions, extension(e.name)),
         ),
       );
     } catch (err) {
       notify(t.errors.read(String(err)), TOAST_TYPE.ERROR);
     }
-  }, [fs, parent]);
+  }, [fs, parent, settings.fileTypeExtensions]);
   useEffect(() => {
     // Async listing of the target's folder — syncing React to an external system (the filesystem),
     // the intended use of an effect; setState lands in the resolved promise, not synchronously.

@@ -197,9 +197,9 @@ export class FileSystemManager {
     return api.createTextFile(parent);
   }
 
-  // Copy an image file to the system clipboard.
-  copyImage(path: string): Promise<void> {
-    return api.copyImage(path);
+  // Copy a local image, optionally using the preview's clockwise rotation in degrees.
+  copyImage(path: string, rotation?: number): Promise<void> {
+    return api.copyImage(path, rotation);
   }
 
   trash(path: string): Promise<void> {

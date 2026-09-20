@@ -21,6 +21,106 @@ export const MACOS_SIZE_IGNORES = [
   "desktop.ini",
 ];
 
+// The file-type categories an extension can belong to. A category decides everything the app does
+// by file type: which glyph an entry shows, whether it can be thumbnailed, and whether the built-in
+// preview can open it. Users map extra extensions onto these in Settings (they pick the category,
+// never the glyph), so the set itself is closed.
+export const FILE_CATEGORY = {
+  ARCHIVE: "archive",
+  AUDIO: "audio",
+  VIDEO: "video",
+  IMAGE: "image",
+  PDF: "pdf",
+  WORD: "word",
+  SPREADSHEET: "spreadsheet",
+  CSV: "csv",
+  PRESENTATION: "presentation",
+  CODE: "code",
+  TEXT: "text",
+  MARKDOWN: "markdown",
+} as const;
+
+export type FileCategory = (typeof FILE_CATEGORY)[keyof typeof FILE_CATEGORY];
+
+// One palette for category badges in Settings and optional coloured explorer file glyphs.
+export const FILE_CATEGORY_COLORS: Record<FileCategory, string> = {
+  [FILE_CATEGORY.ARCHIVE]: "var(--color-tag-gray)",
+  [FILE_CATEGORY.AUDIO]: "var(--color-tag-purple)",
+  [FILE_CATEGORY.VIDEO]: "var(--color-tag-red)",
+  [FILE_CATEGORY.IMAGE]: "var(--color-tag-green)",
+  [FILE_CATEGORY.PDF]: "var(--color-tag-red)",
+  [FILE_CATEGORY.WORD]: "var(--color-tag-blue)",
+  [FILE_CATEGORY.SPREADSHEET]: "var(--color-tag-green)",
+  [FILE_CATEGORY.CSV]: "var(--color-tag-green)",
+  [FILE_CATEGORY.PRESENTATION]: "var(--color-tag-orange)",
+  [FILE_CATEGORY.CODE]: "var(--color-tag-orange)",
+  [FILE_CATEGORY.TEXT]: "var(--color-tag-gray)",
+  [FILE_CATEGORY.MARKDOWN]: "var(--color-tag-blue)",
+};
+
+// Resolution order: the first category whose extensions contain the one looked up wins. An
+// extension can only live in one category (the settings editor rejects duplicates), so this is
+// only a tie-break for a hand-edited settings.toml. Also the order the Settings editor lists them.
+export const FILE_CATEGORY_ORDER: readonly FileCategory[] = [
+  FILE_CATEGORY.ARCHIVE,
+  FILE_CATEGORY.AUDIO,
+  FILE_CATEGORY.VIDEO,
+  FILE_CATEGORY.IMAGE,
+  FILE_CATEGORY.PDF,
+  FILE_CATEGORY.WORD,
+  FILE_CATEGORY.SPREADSHEET,
+  FILE_CATEGORY.CSV,
+  FILE_CATEGORY.PRESENTATION,
+  FILE_CATEGORY.CODE,
+  FILE_CATEGORY.TEXT,
+  FILE_CATEGORY.MARKDOWN,
+];
+
+// Extension → category map as stored in settings (lowercase, no leading dot).
+export type FileTypeExtensions = Record<FileCategory, string[]>;
+
+// SVG renders natively in the webview's <img>, so it skips the Rust thumbnail pipeline (the
+// `image` crate can't rasterise SVG) and is drawn straight from the file — see useEntryThumbnail.
+export const SVG_FORMAT = "svg";
+
+// The categories seeded into settings.toml on first run and restored by "reset to default".
+// Mirrors default_file_type_extensions() in functions/settings.rs (must stay in sync).
+export const DEFAULT_FILE_TYPE_EXTENSIONS: FileTypeExtensions = {
+  [FILE_CATEGORY.ARCHIVE]: ["zip", "rar", "7z", "tar", "gz", "bz2", "xz"],
+  [FILE_CATEGORY.AUDIO]: ["mp3", "wav", "ogg"],
+  [FILE_CATEGORY.VIDEO]: ["mp4", "webm", "mov", "m4v", "ogv"],
+  [FILE_CATEGORY.IMAGE]: ["png", "jpg", "jpeg", "webp", "gif", SVG_FORMAT],
+  [FILE_CATEGORY.PDF]: ["pdf"],
+  [FILE_CATEGORY.WORD]: ["doc", "docx", "odt", "pages"],
+  [FILE_CATEGORY.SPREADSHEET]: ["xls", "xlsx", "ods"],
+  [FILE_CATEGORY.CSV]: ["csv", "tsv"],
+  [FILE_CATEGORY.PRESENTATION]: ["ppt", "pptx", "odp"],
+  [FILE_CATEGORY.CODE]: [
+    "js",
+    "jsx",
+    "ts",
+    "tsx",
+    "json",
+    "html",
+    "css",
+    "scss",
+    "rs",
+    "py",
+    "go",
+    "java",
+    "c",
+    "cpp",
+    "h",
+    "sh",
+    "yml",
+    "yaml",
+    "toml",
+    "xml",
+  ],
+  [FILE_CATEGORY.TEXT]: ["txt", "log", "rtf"],
+  [FILE_CATEGORY.MARKDOWN]: ["md", "markdown"],
+};
+
 export const VIEW_MODE = {
   GRID: "grid",
   LIST: "list",
@@ -243,6 +343,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showFolderSizes: false,
   showVolumeSize: false,
   sizeIgnores: isMacPlatform() ? [...MACOS_SIZE_IGNORES] : [],
+  fileTypeExtensions: structuredClone(DEFAULT_FILE_TYPE_EXTENSIONS),
+  colorfulFileTypes: false,
   showOnboarding: true,
   onboardingSeen: false,
   checkForUpdates: true,

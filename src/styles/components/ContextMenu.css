@@ -59,12 +59,11 @@
   justify-content: flex-start;
   align-items: center;
   gap: var(--space-2);
-  transition: all 0.2s ease-in-out;
+  /* Switching the active row must not leave the previous highlight fading underneath it. */
+  transition: none;
 }
 
-/* Soft-primary hover/focus: a faint accent-tinted fill with accent label/icon, matching
-   IconButton's ghost hover (and the sidebar rows). Danger items override this below. */
-.context_menu .context_menu_item.ctx_button:hover:not(:disabled),
+/* Pointer movement transfers focus, so keyboard and pointer share exactly one highlighted row. */
 .context_menu .context_menu_item.ctx_button:focus:not(:disabled) {
   background-color: var(--color-selection-hover);
   color: var(--color-accent);
@@ -74,7 +73,6 @@
   outline: none;
 }
 
-.context_menu .context_menu_item.ctx_button:hover:not(:disabled) svg,
 .context_menu .context_menu_item.ctx_button:focus:not(:disabled) svg {
   color: var(--color-accent);
 }
@@ -119,23 +117,17 @@
    stay text-muted, dark and unreadable in light mode) — flips to a light on-danger colour.
    Uses --color-danger-solid, not --color-danger-surface: the latter is a faint tint (for red-text-
    on-tint hovers like the close button) and washes out under white text. */
-.context_menu .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled),
 .context_menu .context_menu_item.ctx_button.ctx_danger:focus:not(:disabled) {
   background-color: var(--color-danger-solid);
 }
 
-.context_menu .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled),
 .context_menu .context_menu_item.ctx_button.ctx_danger:focus:not(:disabled),
-.context_menu .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled) svg,
 .context_menu
   .context_menu_item.ctx_button.ctx_danger:focus:not(:disabled)
   svg {
   color: var(--color-text-on-solid);
 }
 
-.context_menu
-  .context_menu_item.ctx_button.ctx_danger:hover:not(:disabled)
-  .ctx_hotkey,
 .context_menu
   .context_menu_item.ctx_button.ctx_danger:focus:not(:disabled)
   .ctx_hotkey {

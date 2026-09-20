@@ -7,13 +7,9 @@ import {
 } from "react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 
-import {
-  FOLDER_THUMBNAIL_COUNT,
-  IMAGE_FORMATS,
-  SVG_FORMAT,
-} from "@/features/directory/constants";
+import { FOLDER_THUMBNAIL_COUNT } from "@/features/directory/constants";
 import { FileSystemManager } from "@/shared/managers/FileSystemManager";
-import { SFTP_SCHEME } from "@/shared/constants";
+import { SFTP_SCHEME, SVG_FORMAT, FILE_CATEGORY } from "@/shared/constants";
 
 import {
   acquireImageSlot,
@@ -22,6 +18,7 @@ import {
 import { THUMBNAIL_PREFETCH_MARGIN, THUMBNAIL_SIZE } from "./constants";
 import type { FolderThumbnail } from "./types";
 import { extensionOf } from "./utils";
+import { useFileTypeExtensions, isCategory } from "../../formats";
 
 // Resolve up to four direct image children for one folder. Discovery and thumbnail generation use
 // the same viewport gate and concurrency queue as file thumbnails, so zoomed-out or off-screen
@@ -37,6 +34,7 @@ export const useFolderThumbnails = (
   const loadedRef = useRef(false);
   const loadEndedRef = useRef(true);
   const releaseSlotRef = useRef<(() => void) | null>(null);
+  const fileTypes = useFileTypeExtensions();
 
   const endLoad = useCallback(() => {
     if (loadEndedRef.current) return;
@@ -82,7 +80,7 @@ export const useFolderThumbnails = (
               return false;
             const extension = extensionOf(child.name);
             return (
-              IMAGE_FORMATS.includes(extension) &&
+              isCategory(fileTypes, extension, FILE_CATEGORY.IMAGE) &&
               !(remote && extension === SVG_FORMAT)
             );
           });
@@ -125,7 +123,7 @@ export const useFolderThumbnails = (
       cancelled = true;
       endLoad();
     };
-  }, [enabled, wanted, path, fs, endLoad]);
+  }, [enabled, wanted, path, fs, endLoad, fileTypes]);
 
   return { thumbnails: enabled ? thumbnails : [] };
 };

@@ -872,11 +872,33 @@ pub async fn create_text_file(app: AppHandle, parent: String) -> Result<String, 
     }
 }
 
-// Copy an image file to the system clipboard (as a bitmap), so it can be pasted into other
-// apps. Decodes to RGBA8 and hands it to the OS clipboard.
-#[tauri::command]
-pub fn copy_image(path: String) -> Result<(), String> {
-    let rgba = image::open(&path).map_err(|e| e.to_string())?.to_rgba8();
+// The original copy preserves its existing decoding behavior. A preview-state copy first
+// applies embedded orientation, matching the browser, then the user's clockwise quarter turns.
+pub fn copy_image_local(path: String, rotation: Option<u16>) -> Result<(), String> {
+    use image::{metadata::Orientation, ImageDecoder};
+
+    let mut decoded = if let Some(degrees) = rotation {
+        if !matches!(degrees, 0 | 90 | 180 | 270) {
+            return Err("Image rotation must be 0, 90, 180 or 270 degrees".to_string());
+        }
+        let mut decoder = image::ImageReader::open(&path)
+            .map_err(|e| e.to_string())?
+            .into_decoder()
+            .map_err(|e| e.to_string())?;
+        let orientation = decoder.orientation().map_err(|e| e.to_string())?;
+        let mut decoded = image::DynamicImage::from_decoder(decoder).map_err(|e| e.to_string())?;
+        decoded.apply_orientation(orientation);
+        decoded
+    } else {
+        image::open(&path).map_err(|e| e.to_string())?
+    };
+    decoded.apply_orientation(match rotation {
+        Some(90) => Orientation::Rotate90,
+        Some(180) => Orientation::Rotate180,
+        Some(270) => Orientation::Rotate270,
+        _ => Orientation::NoTransforms,
+    });
+    let rgba = decoded.to_rgba8();
     let (width, height) = rgba.dimensions();
 
     let mut clipboard = arboard::Clipboard::new().map_err(|e| e.to_string())?;
@@ -887,6 +909,14 @@ pub fn copy_image(path: String) -> Result<(), String> {
             bytes: std::borrow::Cow::Owned(rgba.into_raw()),
         })
         .map_err(|e| e.to_string())
+}
+
+// Decode, rotate and write the clipboard on a worker; large images must not block Tauri's UI.
+#[tauri::command]
+pub async fn copy_image(path: String, rotation: Option<u16>) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || copy_image_local(path, rotation))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 // Rename an entry in place within its parent directory.

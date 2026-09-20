@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ACCEPTED_PREVIEW_FORMATS } from "@/features/directory/constants";
+import { isPreviewable } from "@/features/directory/constants";
+import { useFileTypeExtensions } from "@/features/directory/formats";
 import { extension } from "@/shared/utils";
 import { DirEntry } from "@/shared/models";
 
@@ -9,6 +10,7 @@ import { DirEntry } from "@/shared/models";
 export const usePreview = (previewables: DirEntry[]) => {
   const [visible, setVisible] = useState(false);
   const [index, setIndex] = useState(-1);
+  const fileTypes = useFileTypeExtensions();
 
   // Clamp the index to the live list (derived, no state write). When the open file is trashed the
   // list shifts down, so the same index now points at the next file ("advance to next" for free);
@@ -46,7 +48,7 @@ export const usePreview = (previewables: DirEntry[]) => {
   const open = useCallback(
     (path: string) => {
       const ext = extension(path);
-      if (!ACCEPTED_PREVIEW_FORMATS.includes(ext)) return;
+      if (!isPreviewable(fileTypes, ext)) return;
 
       const i = previewables.findIndex((e) => e.path === path);
       if (i < 0) return;
@@ -54,7 +56,7 @@ export const usePreview = (previewables: DirEntry[]) => {
       setIndex(i);
       setVisible(true);
     },
-    [previewables],
+    [previewables, fileTypes],
   );
 
   // Memoized so the returned object has a stable identity across renders. Consumers put it in

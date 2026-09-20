@@ -15,10 +15,12 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
   /* Empty gutters around the entries (no padding-top so the sticky list header stays
      flush). These bands give the rubber-band selection somewhere to start on every side,
-     not just the floor below the entries. Header and rows inset together, so list columns
-     stay aligned. */
+     not just the floor below the entries. The header cancels the side gutters for its background
+     and restores them as inner padding to keep its columns aligned with the rows. */
   padding: 0 var(--space-2-5) var(--space-2-5);
 }
 
@@ -482,7 +484,9 @@ body.is-entry-dragging .drag_ghost {
   grid-template-columns: var(--list-grid);
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1-5) var(--space-2-5);
+  /* Extend the background across the selection gutters without moving the column content. */
+  margin-inline: calc(-1 * var(--space-2-5));
+  padding: var(--space-1-5) calc(var(--space-2-5) * 2);
   background-color: var(--color-surface-backdrop);
   backdrop-filter: blur(var(--blur-medium));
   border-bottom: var(--border-width-default) solid var(--color-border-default);
@@ -613,10 +617,10 @@ body.is-entry-dragging .drag_ghost {
 
 .directory_page .list .dir_entry_item .icon {
   width: calc(
-    var(--size-control-large) * var(--zoom, 1) * var(--list-tile-scale, 1)
+    var(--size-directory-list-icon) * var(--zoom, 1) * var(--list-tile-scale, 1)
   );
   height: calc(
-    var(--size-control-large) * var(--zoom, 1) * var(--list-tile-scale, 1)
+    var(--size-directory-list-icon) * var(--zoom, 1) * var(--list-tile-scale, 1)
   );
   flex-shrink: 0;
   display: flex;
@@ -626,7 +630,7 @@ body.is-entry-dragging .drag_ghost {
 
 .directory_page .list .dir_entry_item .icon svg {
   font-size: calc(
-    var(--font-size-lg) * var(--zoom, 1) * var(--list-tile-scale, 1)
+    var(--font-size-3xl) * var(--zoom, 1) * var(--list-tile-scale, 1)
   );
   color: var(--color-text-muted);
 }
@@ -751,6 +755,10 @@ body.is-entry-dragging .drag_ghost {
 
 .directory_page .list .dir_entry_item.selected {
   background-color: var(--color-selection-background);
+  /* Inset outline adds a full selection frame without shifting the column geometry. */
+  outline: var(--border-width-default) solid var(--color-selection-border);
+  outline-offset: calc(-1 * var(--border-width-default));
+  border-radius: var(--radius-sm);
   box-shadow: inset var(--border-width-accent) 0 0
     var(--color-selection-indicator);
 }

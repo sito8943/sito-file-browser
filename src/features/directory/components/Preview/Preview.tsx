@@ -14,15 +14,12 @@ import {
   ContextMenu,
   ContextMenuItem,
 } from "@/shared/components/patterns/ContextMenu";
-import { KEY, SFTP_SCHEME } from "@/shared/constants";
+import { KEY, SFTP_SCHEME, FILE_CATEGORY } from "@/shared/constants";
+import { ENTRY_KIND } from "@/features/directory/constants";
 import {
-  AUDIO_FORMATS,
-  IMAGE_FORMATS,
-  VIDEO_FORMATS,
-  ENTRY_KIND,
-  MARKDOWN_FORMAT,
-  PDF_FORMAT,
-} from "@/features/directory/constants";
+  useFileTypeExtensions,
+  categoryOf,
+} from "@/features/directory/formats";
 import {
   useKeymap,
   useHotkey,
@@ -49,6 +46,8 @@ import {
   IMAGE_ZOOM_MIN,
   IMAGE_ZOOM_MAX,
   IMAGE_ZOOM_BUTTON_STEP,
+  IMAGE_ROTATION_ACTIONS,
+  IMAGE_COPY_ACTIONS,
 } from "./constants";
 
 import {
@@ -60,6 +59,8 @@ import {
   faEye,
   faFloppyDisk,
   faMagnifyingGlass,
+  faRotateLeft,
+  faRotateRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 import "@/styles/components/Preview.css";
@@ -80,6 +81,7 @@ const Preview = ({
 }: PreviewProps) => {
   const { fs } = useStateContext();
   const { keymap } = useKeymap();
+  const fileTypes = useFileTypeExtensions();
   const {
     ref: imageMenuRef,
     visible: imageMenuVisible,
@@ -119,13 +121,18 @@ const Preview = ({
   }, [filePath, previewVisible, fs]);
 
   const mac = isMacPlatform();
-  const isImage = IMAGE_FORMATS.includes(fileType);
-  const isMarkdown = fileType === MARKDOWN_FORMAT;
+  // Everything the preview branches on is the extension's category, so an extension the user
+  // mapped onto Image/Video/Audio renders with that surface.
+  const category = categoryOf(fileTypes, fileType);
+  const isImage = category === FILE_CATEGORY.IMAGE;
+  const isVideo = category === FILE_CATEGORY.VIDEO;
+  const isPdf = category === FILE_CATEGORY.PDF;
+  const isAudio = category === FILE_CATEGORY.AUDIO;
+  const isMarkdown = category === FILE_CATEGORY.MARKDOWN;
   // Basename (name.ext) for the header title, e.g. "Preview - notes.md".
   const fileName = filePath.split("/").pop() ?? "";
   // Big media (image/video/pdf) opens near-fullscreen; everything else takes the ~45% side
-  const isBig =
-    isImage || VIDEO_FORMATS.includes(fileType) || fileType === PDF_FORMAT;
+  const isBig = isImage || isVideo || isPdf;
 
   // Panel position/size (drag, resize, maximize) and markdown doc/find state live in dedicated
   // hooks; this component wires them to the shared chrome (header, controls, hotkeys).
@@ -173,11 +180,13 @@ const Preview = ({
   const {
     zoom,
     pan,
+    rotation,
+    rotate,
     setPan,
     zoomTo,
     stepZoom,
     reset: resetZoom,
-  } = useImageZoom();
+  } = useImageZoom(filePath, previewVisible);
 
   // Navigation resets the zoom (so the next file opens at 1x) — done here rather than in an
   // effect to avoid a synchronous reset-on-prop-change.
@@ -190,17 +199,17 @@ const Preview = ({
     onNext();
   }, [resetZoom, onNext]);
 
-  // Right-click an image → custom menu to copy it to the clipboard. (The webview's native menu
+  // Right-click an image → copy the original or its current orientation. (The webview's native menu
   // is blocked app-wide and would only show "Inspect Element" in dev anyway.)
   const handleImageContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     openImageMenu(e.clientX, e.clientY, filePath, ENTRY_KIND.FILE);
   };
 
-  const handleCopyImage = async () => {
+  const handleCopyImage = async (currentState: boolean) => {
     setImageMenuVisible(false);
     try {
-      await fs.copyImage(filePath);
+      await fs.copyImage(localPath, currentState ? rotation : undefined);
       notify(t.common.copied, TOAST_TYPE.SUCCESS);
     } catch (err) {
       notify(t.errors.copyImage(String(err)), TOAST_TYPE.ERROR);
@@ -312,7 +321,7 @@ const Preview = ({
           onClick={requestClose}
         ></div>
       )}
-      {AUDIO_FORMATS.includes(fileType) ? (
+      {isAudio ? (
         <AudioPreview
           key={`${filePath}:${previewVisible}`}
           isVisible={previewVisible}
@@ -375,9 +384,9 @@ const Preview = ({
               "preview_content",
               !isReady && "loading",
               isMarkdown && "markdown",
-              IMAGE_FORMATS.includes(fileType) && "image",
-              VIDEO_FORMATS.includes(fileType) && "video",
-              fileType === PDF_FORMAT && "pdf",
+              isImage && "image",
+              isVideo && "video",
+              isPdf && "pdf",
             )}
           >
             {isReady ? (
@@ -397,25 +406,26 @@ const Preview = ({
                     dangerouslySetInnerHTML={{ __html: doc?.html ?? "" }}
                   ></div>
                 )
-              ) : IMAGE_FORMATS.includes(fileType) ? (
+              ) : isImage ? (
                 <ZoomableImage
                   key={filePath}
                   src={convertFileSrc(localPath)}
                   alt={filePath}
                   onContextMenu={handleImageContextMenu}
                   zoom={zoom}
+                  rotation={rotation}
                   pan={pan}
                   onZoomTo={zoomTo}
                   onPanChange={setPan}
                 />
-              ) : VIDEO_FORMATS.includes(fileType) ? (
+              ) : isVideo ? (
                 <video
                   ref={videoRef}
                   src={convertFileSrc(localPath)}
                   controls
                   autoPlay
                 />
-              ) : fileType === PDF_FORMAT ? (
+              ) : isPdf ? (
                 <iframe
                   src={convertFileSrc(localPath)}
                   title={t.common.preview}
@@ -466,20 +476,32 @@ const Preview = ({
               </>
             )}
             {isImage && (
-              <ZoomControl
-                value={zoom}
-                min={IMAGE_ZOOM_MIN}
-                max={IMAGE_ZOOM_MAX}
-                onZoomIn={() => stepZoom(IMAGE_ZOOM_BUTTON_STEP)}
-                onZoomOut={() => stepZoom(-IMAGE_ZOOM_BUTTON_STEP)}
-                onZoomTo={zoomTo}
-                zoomInHotkey={formatBinding(
-                  keymap[KEYMAP_ACTION.PREVIEW_ZOOM_IN],
-                )}
-                zoomOutHotkey={formatBinding(
-                  keymap[KEYMAP_ACTION.PREVIEW_ZOOM_OUT],
-                )}
-              />
+              <>
+                {IMAGE_ROTATION_ACTIONS.map(({ direction, label }) => (
+                  <IconButton
+                    key={label}
+                    icon={direction < 0 ? faRotateLeft : faRotateRight}
+                    onClick={() => rotate(direction)}
+                    disabled={!isReady}
+                    tooltip={t.imagePreview[label]}
+                    aria-label={t.imagePreview[label]}
+                  />
+                ))}
+                <ZoomControl
+                  value={zoom}
+                  min={IMAGE_ZOOM_MIN}
+                  max={IMAGE_ZOOM_MAX}
+                  onZoomIn={() => stepZoom(IMAGE_ZOOM_BUTTON_STEP)}
+                  onZoomOut={() => stepZoom(-IMAGE_ZOOM_BUTTON_STEP)}
+                  onZoomTo={zoomTo}
+                  zoomInHotkey={formatBinding(
+                    keymap[KEYMAP_ACTION.PREVIEW_ZOOM_IN],
+                  )}
+                  zoomOutHotkey={formatBinding(
+                    keymap[KEYMAP_ACTION.PREVIEW_ZOOM_OUT],
+                  )}
+                />
+              </>
             )}
             <IconButton
               icon={faChevronRight}
@@ -504,11 +526,17 @@ const Preview = ({
       )}
 
       <ContextMenu contextMenuVisible={imageMenuVisible} ref={imageMenuRef}>
-        <ContextMenuItem
-          text={t.contextMenu.copyImage}
-          icon={<Icon icon={faCopy} />}
-          onClick={handleCopyImage}
-        />
+        {IMAGE_COPY_ACTIONS.filter(
+          ({ currentState }) => !currentState || rotation !== 0,
+        ).map(({ label, currentState }) => (
+          <ContextMenuItem
+            key={label}
+            text={t.contextMenu[label]}
+            icon={<Icon icon={faCopy} />}
+            disabled={!localPath}
+            onClick={() => handleCopyImage(currentState)}
+          />
+        ))}
       </ContextMenu>
     </>
   );

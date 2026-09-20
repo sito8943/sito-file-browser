@@ -24,6 +24,7 @@ import {
   SUBMENU_CLASS,
 } from "./constants";
 import type { ContextMenuItemProps } from "./types";
+import { focusMenuItem } from "./utils";
 
 export const ContextMenuItem = ({
   isSeparator,
@@ -170,6 +171,7 @@ export const ContextMenuItem = ({
 
   const row = (
     <Button
+      unstyled
       ref={submenu ? anchorRef : undefined}
       className={classNames(
         "context_menu_item ctx_button",
@@ -180,6 +182,8 @@ export const ContextMenuItem = ({
       // Roving focus: items aren't individual Tab stops; arrow keys move focus (see ContextMenu).
       tabIndex={-1}
       onClick={onClick}
+      onPointerEnter={focusMenuItem}
+      onPointerMove={focusMenuItem}
       onKeyDown={handleParentKeyDown}
       disabled={isDisabled}
       aria-haspopup={submenu ? SUBMENU_POPUP_ROLE : undefined}

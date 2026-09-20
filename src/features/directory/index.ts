@@ -11,3 +11,4 @@ export { default as EntryContextMenu } from "./components/EntryContextMenu";
 export { useContextMenu } from "./hooks/useContextMenu";
 export { ENTRY_ACTION, ACTION_SEPARATOR } from "./actions";
 export { ENTRY_KIND } from "./constants";
+export { FILE_ICON_REGISTRY } from "./components/DirEntry/fileIcon";

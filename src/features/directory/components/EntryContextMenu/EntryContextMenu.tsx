@@ -22,6 +22,7 @@ import {
   type EntryActionId,
 } from "../../actions";
 import { opensInAppPreview } from "../../constants";
+import { useFileTypeExtensions } from "../../formats";
 import { useContextMenuLayout } from "../../hooks/useContextMenuLayout";
 import { useArchiveActions } from "../../hooks/useArchiveActions";
 import { useSevenzipAvailable } from "@/shared/hooks/useSevenzipAvailable";
@@ -65,6 +66,7 @@ const EntryContextMenu = ({
   const { sort, handleSort, searchActive, focusCreatedEntry } = useDirectory();
   const { keymap } = useKeymap();
   const layout = useContextMenuLayout();
+  const fileTypes = useFileTypeExtensions();
 
   // Act on the whole selection if the clicked item is part of it, otherwise just that item.
   const targets = selectedIDs.includes(elementId) ? selectedIDs : [elementId];
@@ -96,6 +98,7 @@ const EntryContextMenu = ({
     toggleShowHidden,
     opensInAppPreview: opensInAppPreview(
       fileExtension.toLowerCase(),
+      fileTypes,
       previewImagesInApp,
       previewMarkdownInApp,
     ),

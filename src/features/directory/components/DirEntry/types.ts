@@ -11,6 +11,7 @@ export type FolderThumbnail = {
 };
 
 export type EntryIconProps = {
+  colorfulFileTypes: boolean;
   isDir: boolean;
   // File extension (lowercased or not) used to pick a type-specific glyph; "" for folders.
   extension: string;
@@ -29,6 +30,7 @@ export type EntryMetadataProps = {
 };
 
 export type DirEntryItemProps = {
+  colorfulFileTypes: boolean;
   entry: DirEntry;
   fs: FileSystemManager;
   setPath: (path: string) => void;
