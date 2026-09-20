@@ -15,6 +15,13 @@ All notable changes to this project are documented in this file.
 
 - Settings: "Files & Transfers" is now "Files" and gathers everything about how files are treated — File types, Previews & windows and Folder sizes moved there from General, which was carrying 21 settings across 8 sub-headings
 - File types are presented as responsive category cards with coloured icons, descriptions, extension chips and an inline Add editor for each category (`085aede`)
+- The active tab joins a bordered content panel, visually grouping navigation, actions and the directory under their owning tab (`03173d7`)
+- Navigation and quick-action bars gain subtle backgrounds and rounded borders; the Home button follows Back, Forward and Up (`94ea8a9`, `f5667cb`, `0296735`)
+- Directory listings gain a rounded frame, larger rows and thumbnails, and a full selection outline alongside the accent strip (`2ce7b20`)
+- The quick-action bar shows the active sort criterion in a labelled menu on the right, reusing the existing folder sorting choices (`d760aca`)
+- Item counts and optional system statistics share a framed status row, wrapping when space is limited (`859a679`)
+- Folder search stays visible in the navigation bar. The search shortcut focuses the field; Escape clears the filter and releases focus, while recent searches remain available (`f5a5766`)
+- Separate List and Grid buttons replace the single view toggle and highlight the active view; the existing toggle shortcut remains available (`7cca898`)
 
 ### Fixed
 
