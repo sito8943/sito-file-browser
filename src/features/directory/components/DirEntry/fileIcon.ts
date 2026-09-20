@@ -21,7 +21,7 @@ import { categoryOf } from "../../formats";
 // Declarative file-category → glyph registry. Which extensions land in a category is the user's
 // call (Settings › File types); the glyph for a category is not — that mapping lives here so the
 // user never has to pick an icon. Extend by adding a category + row, no branching.
-const FILE_ICON_REGISTRY: Record<
+export const FILE_ICON_REGISTRY: Record<
   (typeof FILE_CATEGORY)[keyof typeof FILE_CATEGORY],
   IconDefinition
 > = {

@@ -42,6 +42,22 @@ export const FILE_CATEGORY = {
 
 export type FileCategory = (typeof FILE_CATEGORY)[keyof typeof FILE_CATEGORY];
 
+// One palette for category badges in Settings and optional coloured explorer file glyphs.
+export const FILE_CATEGORY_COLORS: Record<FileCategory, string> = {
+  [FILE_CATEGORY.ARCHIVE]: "var(--color-tag-gray)",
+  [FILE_CATEGORY.AUDIO]: "var(--color-tag-purple)",
+  [FILE_CATEGORY.VIDEO]: "var(--color-tag-red)",
+  [FILE_CATEGORY.IMAGE]: "var(--color-tag-green)",
+  [FILE_CATEGORY.PDF]: "var(--color-tag-red)",
+  [FILE_CATEGORY.WORD]: "var(--color-tag-blue)",
+  [FILE_CATEGORY.SPREADSHEET]: "var(--color-tag-green)",
+  [FILE_CATEGORY.CSV]: "var(--color-tag-green)",
+  [FILE_CATEGORY.PRESENTATION]: "var(--color-tag-orange)",
+  [FILE_CATEGORY.CODE]: "var(--color-tag-orange)",
+  [FILE_CATEGORY.TEXT]: "var(--color-tag-gray)",
+  [FILE_CATEGORY.MARKDOWN]: "var(--color-tag-blue)",
+};
+
 // Resolution order: the first category whose extensions contain the one looked up wins. An
 // extension can only live in one category (the settings editor rejects duplicates), so this is
 // only a tie-break for a hand-edited settings.toml. Also the order the Settings editor lists them.

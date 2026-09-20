@@ -18,9 +18,23 @@ export const useFileTypeEditor = ({ settings, update }: CustomControlProps) => {
     DEFAULT_EDITOR_CATEGORY,
   );
   const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
   const [duplicate, setDuplicate] = useState<DuplicateError | null>(null);
 
   const extensions = settings.fileTypeExtensions;
+
+  const beginAdd = (next: FileCategory) => {
+    setCategory(next);
+    setDraft("");
+    setDuplicate(null);
+    setEditing(true);
+  };
+
+  const cancelAdd = () => {
+    setEditing(false);
+    setDraft("");
+    setDuplicate(null);
+  };
 
   const add = () => {
     const ext = normalizeExtension(draft);
@@ -35,6 +49,7 @@ export const useFileTypeEditor = ({ settings, update }: CustomControlProps) => {
     setDuplicate(null);
     setDraft("");
     if (extensions[category].includes(ext)) return;
+    setEditing(false);
     update({
       fileTypeExtensions: {
         ...extensions,
@@ -61,7 +76,9 @@ export const useFileTypeEditor = ({ settings, update }: CustomControlProps) => {
     categories: FILE_CATEGORY_ORDER,
     extensions,
     category,
-    setCategory,
+    editing,
+    beginAdd,
+    cancelAdd,
     draft,
     changeDraft,
     duplicate,
