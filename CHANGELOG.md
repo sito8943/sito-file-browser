@@ -2,15 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [0.11.0]
 
 ### Added
 
 - Settings › Files › File types: map any extension onto a built-in file type (e.g. `opus` → Audio). The type — not a hand-picked icon — decides the entry glyph, whether the file is thumbnailed, and whether the built-in preview opens it, so a remapped extension behaves exactly like a built-in one. The full default map is seeded into `settings.toml` and editable there; an extension may belong to only one type and the editor rejects (and explains) a duplicate
+- Image previews gain 90° left/right rotation controls alongside zoom, in both the in-app panel and detached window. Rotated images fit the viewport and retain zoom and pan support; rotation is temporary and resets when switching files or reopening the preview (`744d0d5`)
+- Rotated image previews expose "Copy image for current state" in the context menu: copy the full image with its current orientation, respecting embedded EXIF orientation and leaving the original file untouched. "Copy image" remains available for the original; decoding, rotation and clipboard writes run on a worker (`744d0d5`)
+- Settings › Files › File types gains "Colorful file types": optionally colour file icons in list and grid views using the category palette. The choice is persisted and defaults to gray; folders and thumbnails keep their appearance (`9efab19`)
 
 ### Changed
 
 - Settings: "Files & Transfers" is now "Files" and gathers everything about how files are treated — File types, Previews & windows and Folder sizes moved there from General, which was carrying 21 settings across 8 sub-headings
+- File types are presented as responsive category cards with coloured icons, descriptions, extension chips and an inline Add editor for each category (`085aede`)
+
+### Fixed
+
+- Context menus no longer highlight one row under the pointer and another with keyboard focus at the same time. Pointer movement and keyboard navigation share a single focused row, including submenu items (`744d0d5`)
 
 ## [0.10.2]
 
