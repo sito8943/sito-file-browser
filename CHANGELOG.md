@@ -26,6 +26,7 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - Context menus no longer highlight one row under the pointer and another with keyboard focus at the same time. Pointer movement and keyboard navigation share a single focused row, including submenu items (`744d0d5`)
+- The list header background extends across the directory's side gutters to the edges of the scrollable area, keeping column labels aligned with the file rows
 
 ## [0.10.2]
 
