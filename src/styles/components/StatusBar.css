@@ -1,14 +1,17 @@
-/* Footer column: the counts/busy row on top, the optional OS-stats readout on its own row below. */
+/* Counts and OS stats share a row, wrapping only when the available width needs it. */
 .directory_page .status_bar {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  margin-top: var(--space-2-5);
   padding: var(--space-1-5) var(--space-2);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  background-color: var(--color-background-app);
-  border-top: var(--border-width-default) solid var(--color-border-soft);
+  background-color: var(--color-overlay-soft);
+  border: var(--border-width-default) solid var(--color-border-default);
+  border-radius: var(--radius-md);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -16,15 +19,19 @@
 /* Top row: item/selection counts on the left, busy indicators pushed to the right. */
 .directory_page .status_bar .status_row {
   display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-4);
 }
 
-/* Bottom row: live CPU / RAM / disk readout, right-aligned under the counts. */
+/* Auto margin keeps the readout right-aligned even when it wraps below the counts. */
 .directory_page .status_bar .stats_row {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: var(--space-1-5);
+  margin-left: auto;
 }
 
 .directory_page .status_bar .stats_row .stat {
