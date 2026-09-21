@@ -23,6 +23,7 @@ export const en = {
     play: "Play",
     pause: "Pause",
     volume: "Volume",
+    playbackPosition: "Playback position",
     cancel: "Cancel",
     confirm: "Confirm",
     showPassword: "Show password",

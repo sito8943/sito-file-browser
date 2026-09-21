@@ -2,9 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 
 import { useStateContext } from "@/shared/providers/StateProvider";
-import IconButton, {
-  ICON_BUTTON_VARIANT,
-} from "@/shared/components/elements/IconButton";
+import IconButton from "@/shared/components/elements/IconButton";
 import Spinner from "@/shared/components/elements/Spinner";
 import Icon from "@/shared/components/elements/Icon";
 import TextArea from "@/shared/components/elements/TextArea";
@@ -34,6 +32,7 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 
 import AudioPreview from "../AudioPreview";
+import PreviewControls from "../PreviewControls/PreviewControls";
 import { useContextMenu } from "../../hooks/useContextMenu";
 
 import { ZoomableImage } from "./ZoomableImage";
@@ -51,10 +50,7 @@ import {
 } from "./constants";
 
 import {
-  faChevronLeft,
-  faChevronRight,
   faCopy,
-  faTrash,
   faPen,
   faEye,
   faFloppyDisk,
@@ -325,7 +321,12 @@ const Preview = ({
         <AudioPreview
           key={`${filePath}:${previewVisible}`}
           isVisible={previewVisible}
-          filePath={filePath}
+          filePath={localPath}
+          onPrev={navPrev}
+          onNext={navNext}
+          hasPrev={hasPrev}
+          hasNext={hasNext}
+          onDelete={onDelete}
         />
       ) : (
         <div
@@ -441,15 +442,13 @@ const Preview = ({
           </div>
 
           {/* Floating controls, centred over the content: prev · (md/zoom tools) · next · trash. */}
-          <div className="preview_controls">
-            <IconButton
-              icon={faChevronLeft}
-              onClick={navPrev}
-              disabled={!hasPrev}
-              tooltip={t.common.previous}
-              hotkey={formatBinding(keymap[KEYMAP_ACTION.PREVIEW_PREV])}
-              aria-label={t.common.previous}
-            />
+          <PreviewControls
+            onPrev={navPrev}
+            onNext={navNext}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+            onDelete={onDelete}
+          >
             {isMarkdown && docReady && (
               <>
                 <IconButton
@@ -503,23 +502,7 @@ const Preview = ({
                 />
               </>
             )}
-            <IconButton
-              icon={faChevronRight}
-              onClick={navNext}
-              disabled={!hasNext}
-              tooltip={t.common.next}
-              hotkey={formatBinding(keymap[KEYMAP_ACTION.PREVIEW_NEXT])}
-              aria-label={t.common.next}
-            />
-            <IconButton
-              icon={faTrash}
-              variant={ICON_BUTTON_VARIANT.DANGER}
-              onClick={onDelete}
-              tooltip={t.contextMenu.delete}
-              hotkey={formatBinding(keymap[KEYMAP_ACTION.TRASH])}
-              aria-label={t.contextMenu.delete}
-            />
-          </div>
+          </PreviewControls>
 
           {!windowed && <PreviewResizeHandles bind={resizeBind} />}
         </div>
