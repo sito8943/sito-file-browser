@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.11.1]
+
+### Added
+
+- Audio playback progress highlights the played portion with the theme's accent colour, updating during playback and when seeking (`7cd620b`)
+
+### Changed
+
+- Audio previews share the floating controls bar used by other previews, with matching pill shape, transparency, shadows and buttons. Previous, Next and Trash actions now sit alongside playback, progress and volume controls (`7528c86`)
+
+### Fixed
+
+- Previews track the opened file by its path instead of its position in the list, preventing directory refreshes or sorting changes from switching the preview to another file. Removing the previewed file still advances to a neighbouring entry (`ee7823c`)
+- Audio progress and volume slider thumbs are vertically centred on their tracks (`e140848`)
+
 ## [0.11.0]
 
 ### Added
