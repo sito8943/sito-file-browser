@@ -42,7 +42,8 @@ const AudioPreview = ({
   const [progress, setProgress] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [volume, setVolume] = useState<number>(DEFAULT_VOLUME);
-  const playedFraction = duration > 0 ? Math.min(1, Math.max(0, progress / duration)) : 0;
+  const playedFraction =
+    duration > 0 ? Math.min(1, Math.max(0, progress / duration)) : 0;
 
   const togglePlay = useCallback(() => {
     setIsPlaying((prev) => !prev);
@@ -59,7 +60,11 @@ const AudioPreview = ({
     if (!audioRef.current) return;
 
     setProgress(audioRef.current.currentTime);
-    setDuration(Number.isFinite(audioRef.current.duration) ? audioRef.current.duration : 0);
+    setDuration(
+      Number.isFinite(audioRef.current.duration)
+        ? audioRef.current.duration
+        : 0,
+    );
   };
 
   const handleVolumeButtonClick = () => {

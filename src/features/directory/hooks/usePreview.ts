@@ -15,7 +15,9 @@ export const usePreview = (previewables: DirEntry[]) => {
 
   // Keep the opened file's identity when sorting or refreshing changes its position. Only fall
   // back to the previous position when that file disappears (e.g. after moving it to Trash).
-  const selectedIndex = previewables.findIndex((entry) => entry.path === selectedPath);
+  const selectedIndex = previewables.findIndex(
+    (entry) => entry.path === selectedPath,
+  );
   const safeIndex =
     selectedIndex >= 0
       ? selectedIndex
@@ -43,22 +45,16 @@ export const usePreview = (previewables: DirEntry[]) => {
   }, [visible, previewables.length]);
 
   // Navigation changes identity as well as position in the current list.
-  const prev = useCallback(
-    () => {
-      if (safeIndex <= 0) return;
-      setIndex(safeIndex - 1);
-      setSelectedPath(previewables[safeIndex - 1].path);
-    },
-    [safeIndex, previewables],
-  );
-  const next = useCallback(
-    () => {
-      if (safeIndex < 0 || safeIndex >= previewables.length - 1) return;
-      setIndex(safeIndex + 1);
-      setSelectedPath(previewables[safeIndex + 1].path);
-    },
-    [safeIndex, previewables],
-  );
+  const prev = useCallback(() => {
+    if (safeIndex <= 0) return;
+    setIndex(safeIndex - 1);
+    setSelectedPath(previewables[safeIndex - 1].path);
+  }, [safeIndex, previewables]);
+  const next = useCallback(() => {
+    if (safeIndex < 0 || safeIndex >= previewables.length - 1) return;
+    setIndex(safeIndex + 1);
+    setSelectedPath(previewables[safeIndex + 1].path);
+  }, [safeIndex, previewables]);
 
   // Open the preview for a file path if it's a supported, previewable entry.
   const open = useCallback(
