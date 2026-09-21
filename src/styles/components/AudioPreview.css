@@ -59,6 +59,8 @@
   -webkit-appearance: none;
   width: var(--size-slider-thumb);
   height: var(--size-slider-thumb);
+  /* Override Slider's offset to match the smaller audio thumb. */
+  margin-top: calc((var(--size-progress-track) - var(--size-slider-thumb)) / 2);
   border-radius: 50%;
   background-color: var(--color-control-thumb);
   transition: transform 0.2s;
@@ -127,6 +129,8 @@
   -webkit-appearance: none;
   width: var(--size-slider-thumb);
   height: var(--size-slider-thumb);
+  /* Volume uses the same smaller thumb as playback progress. */
+  margin-top: calc((var(--size-progress-track) - var(--size-slider-thumb)) / 2);
   border-radius: 50%;
   background-color: var(--color-control-thumb);
   transition: transform 0.2s;
