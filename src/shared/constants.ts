@@ -240,8 +240,7 @@ export type Theme = (typeof THEME)[keyof typeof THEME];
 // Default: follow the system appearance.
 export const DEFAULT_THEME: Theme = THEME.SYSTEM;
 
-// Accent colour — the single hue that drives selection wells, focus rings, and links. Neutral
-// surfaces/text stay black/white; the accent is the one "alive" colour on top. Values double as
+// Accent colour drives focus rings, links and interactive highlights. Values double as
 // the data-accent attribute on <html> and select the matching palette in theme.css (keep in sync).
 export const ACCENT = {
   BLUE: "blue",
@@ -256,14 +255,14 @@ export type Accent = (typeof ACCENT)[keyof typeof ACCENT];
 // Ordered for the settings swatch row. `rgb` mirrors --color-accent-rgb in theme.css so the
 // preview swatches match the live tokens without re-reading CSS.
 export const ACCENTS: readonly { value: Accent; rgb: string }[] = [
-  { value: ACCENT.BLUE, rgb: "94, 154, 255" },
+  { value: ACCENT.BLUE, rgb: "59, 130, 246" },
   { value: ACCENT.NAVY, rgb: "42, 94, 168" },
   { value: ACCENT.RED, rgb: "224, 74, 80" },
   { value: ACCENT.TEAL, rgb: "20, 160, 135" },
   { value: ACCENT.GOLD, rgb: "201, 144, 43" },
 ];
 
-// Default: the friendly blue (matches the prior hardcoded selection colour).
+// Default: the palette's blue accent.
 export const DEFAULT_ACCENT: Accent = ACCENT.BLUE;
 
 // What dragging entries onto a folder does: MOVE them there, or COPY them there.
