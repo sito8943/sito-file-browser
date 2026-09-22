@@ -9,9 +9,7 @@
   padding: var(--space-1-5) var(--space-2);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  background-color: var(--color-overlay-soft);
-  border: var(--border-width-default) solid var(--color-border-default);
-  border-radius: var(--radius-md);
+  border-top: var(--border-width-default) solid var(--color-border-soft);
   -webkit-user-select: none;
   user-select: none;
 }

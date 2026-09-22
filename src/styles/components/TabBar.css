@@ -5,8 +5,7 @@
   gap: var(--space-1-5);
   flex-shrink: 0;
   padding-inline: var(--space-2);
-  /* Overlap the panel border so the active tab can open it without measuring tab positions. */
-  margin-bottom: calc(-1 * var(--border-width-default));
+  margin-bottom: var(--space-1);
   position: relative;
   z-index: 1;
 }
@@ -52,12 +51,9 @@
   background-color: var(--color-overlay-hover);
 }
 
-/* An opaque bottom edge hides the panel border, joining the active tab to its content. */
+/* Surface contrast identifies the active tab without requiring a frame around its content. */
 .TabBar .TabItem.active {
-  background-color: var(--color-background-app);
-  border-color: var(--color-border-default);
-  border-bottom-color: var(--color-background-app);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background-color: var(--color-selection-background);
   color: var(--color-text-primary);
 }
 
