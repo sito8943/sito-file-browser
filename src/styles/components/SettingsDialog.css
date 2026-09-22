@@ -25,9 +25,15 @@
 
 /* Deltas over the shared TextInput base: fill the toolbar row + roomier padding. */
 .settings_modal .settings_search {
+  /* Native search controls need the matching scheme to contrast with the custom input surface. */
+  color-scheme: dark;
   flex: 1;
   min-width: 0;
   padding: var(--space-2) var(--space-3);
+}
+
+:root[data-theme="light"] .settings_modal .settings_search {
+  color-scheme: light;
 }
 
 /* Two-pane body: category rail on the left, scrolling settings panel on the right. Flexes to fill
