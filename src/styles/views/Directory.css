@@ -15,8 +15,6 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  border: var(--border-width-default) solid var(--color-border-default);
-  border-radius: var(--radius-md);
   /* Empty gutters around the entries (no padding-top so the sticky list header stays
      flush). These bands give the rubber-band selection somewhere to start on every side,
      not just the floor below the entries. The header cancels the side gutters for its background
@@ -487,15 +485,9 @@ body.is-entry-dragging .drag_ghost {
   /* Extend the background across the selection gutters without moving the column content. */
   margin-inline: calc(-1 * var(--space-2-5));
   padding: var(--space-1-5) calc(var(--space-2-5) * 2);
-  background-color: var(--color-surface-backdrop);
-  backdrop-filter: blur(var(--blur-medium));
-  border-bottom: var(--border-width-default) solid var(--color-border-default);
-}
-
-/* Light theme: the dark 25%-black backdrop reads as a heavy gray band here. Use the
-   translucent-white floating surface so the header stays light and subtle. */
-:root[data-theme="light"] .directory_page .list_header {
-  background-color: var(--color-surface-floating);
+  /* An opaque surface keeps scrolling filenames from showing through the sticky header. */
+  background-color: var(--color-surface-solid);
+  border-bottom: var(--border-width-default) solid var(--color-border-soft);
 }
 
 .directory_page .list_header button {
@@ -725,14 +717,6 @@ body.is-entry-dragging .drag_ghost {
   text-overflow: ellipsis;
   -webkit-user-select: none;
   user-select: none;
-}
-
-.directory_page .list .dir_entry_item:nth-child(odd) {
-  background-color: var(--color-overlay-faint);
-}
-
-.directory_page .list .dir_entry_item:nth-child(even) {
-  background-color: var(--color-surface-row);
 }
 
 .directory_page .list .dir_entry_item:hover {
