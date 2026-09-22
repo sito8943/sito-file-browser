@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.12.0]
+
+### Changed
+
+- Dark theme adopts a blue-gray palette for backgrounds, panels, text, borders and selection, with updated blue, green and red accents. The blue accent swatch in Settings matches the new palette (`6140f4a`)
+- Navigation and directory surfaces use fewer nested borders: the outer content frame and listing frame are removed, breadcrumbs sit directly on the canvas, and the search field retains its own surface. Active tabs use a background highlight, the quick-action bar loses its border, and the status bar keeps only a subtle top separator (`71c0cb9`)
+- List rows use a continuous background with hover and selection highlights instead of alternating stripes; the sticky column header has an opaque surface and a subtle bottom separator (`71c0cb9`)
+
+### Fixed
+
+- Settings search uses the matching light or dark colour scheme for its native clear button, improving contrast against the input background (`99b5e18`)
+
 ## [0.11.1]
 
 ### Added
