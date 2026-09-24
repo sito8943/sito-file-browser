@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
-import Button from "@/shared/components/elements/Button";
+import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
 import { classNames } from "@/shared/utils";
 import { KEY } from "@/shared/constants";
 import { t } from "@/lang";
@@ -85,6 +85,7 @@ const ConfirmationDialog = ({
             {cancelLabel ?? t.common.cancel}
           </Button>
           <Button
+            variant={BUTTON_VARIANT.PRIMARY}
             className={classNames(
               "confirmation_confirm",
               destructive && "destructive",
