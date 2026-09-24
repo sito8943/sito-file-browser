@@ -1,6 +1,10 @@
 import Icon from "@/shared/components/elements/Icon";
 import { classNames } from "@/shared/utils";
-import { FILE_CATEGORY_COLORS } from "@/shared/constants";
+import {
+  FILE_CATEGORY_COLORS,
+  TAG_COLOR,
+  TAG_COLOR_CLASS,
+} from "@/shared/constants";
 
 import { faFolder } from "@fortawesome/free-solid-svg-icons";
 
@@ -15,6 +19,7 @@ import type { EntryIconProps } from "./types";
 const EntryIcon = ({
   colorfulFileTypes,
   isDir,
+  tags,
   extension,
   imgSrc,
   imgRef,
@@ -26,6 +31,17 @@ const EntryIcon = ({
   const fileTypes = useFileTypeExtensions();
   const category =
     !isDir && colorfulFileTypes ? categoryOf(fileTypes, extension) : null;
+  // Uncoloured tags do not mask a later colour; reuse the same theme tokens as TagDots.
+  const folderTag = isDir
+    ? tags.find(
+        (tag) => tag.color !== TAG_COLOR.NONE && TAG_COLOR_CLASS[tag.color],
+      )
+    : undefined;
+  const iconColor = folderTag
+    ? `var(--color-tag-${TAG_COLOR_CLASS[folderTag.color]})`
+    : category
+      ? FILE_CATEGORY_COLORS[category]
+      : undefined;
 
   return (
     <div
@@ -37,7 +53,10 @@ const EntryIcon = ({
     >
       {isDir && folderThumbnails.length > 0 ? (
         <>
-          <Icon icon={faFolder} />
+          <Icon
+            icon={faFolder}
+            style={iconColor ? { color: iconColor } : undefined}
+          />
           <span
             className="folder_thumbnails"
             data-count={folderThumbnails.length}
@@ -68,9 +87,7 @@ const EntryIcon = ({
       ) : (
         <Icon
           icon={isDir ? faFolder : getFileIcon(fileTypes, extension)}
-          style={
-            category ? { color: FILE_CATEGORY_COLORS[category] } : undefined
-          }
+          style={iconColor ? { color: iconColor } : undefined}
         />
       )}
     </div>

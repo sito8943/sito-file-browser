@@ -195,6 +195,7 @@ const DirEntryItemComponent = ({
           <EntryIcon
             colorfulFileTypes={colorfulFileTypes}
             isDir={entry.metadata.isDir}
+            tags={tags}
             extension={ext}
             imgSrc={imgSrc}
             imgRef={imgRef}
