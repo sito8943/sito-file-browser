@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.13.0]
+
+### Added
+
+- Folder icons use the first coloured Finder tag in list and grid views, including folders with thumbnail mosaics. Folders without a coloured tag retain their default appearance (`e1b1d5e`)
+
+### Changed
+
+- A vertical divider separates the sort menu from the zoom controls, matching the quick-action separators (`0b46af7`)
+
+### Fixed
+
+- Confirmation buttons, including Move, use the filled primary variant; destructive confirmations retain their red styling (`97bc06a`)
+- Escape closes an open dialog before leaving sidebar edit mode. Clicks inside the dialog also preserve sidebar editing (`cf31d5c`)
+
 ## [0.12.0]
 
 ### Changed
