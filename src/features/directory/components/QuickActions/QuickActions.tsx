@@ -194,6 +194,11 @@ const QuickActions = () => {
           }
         />
       </div>
+      <span
+        className="quick_action_separator"
+        role="separator"
+        aria-orientation="vertical"
+      />
     </div>
   );
 };
