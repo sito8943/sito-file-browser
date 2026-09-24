@@ -13,6 +13,7 @@ export type FolderThumbnail = {
 export type EntryIconProps = {
   colorfulFileTypes: boolean;
   isDir: boolean;
+  tags: Tag[];
   // File extension (lowercased or not) used to pick a type-specific glyph; "" for folders.
   extension: string;
   // A thumbnail (image/video/pdf preview) is available and loaded.
