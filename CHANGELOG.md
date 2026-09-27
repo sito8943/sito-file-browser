@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.14.0]
+
+### Added
+
+- Path bar breadcrumb context menus include applicable user-defined actions, using the existing target filters and execution flow (`20689d9`)
+- Quick Bar shows applicable user-defined actions after Information, with their configured icons and tooltips and a divider separating them from built-in actions. Actions target the current folder or selection (`ac4409a`)
+- Settings sidebar lists subsection headings beneath each category. Clicking a heading opens its category and scrolls the content panel to that subsection; the sidebar scrolls independently (`da38309`)
+
+### Changed
+
+- Settings moves Files & folders from General to the start of Files, grouping Show hidden files, Remember scroll position when navigating up, and Hide app files in Recents there (`f36dc7c`)
+
 ## [0.13.0]
 
 ### Added

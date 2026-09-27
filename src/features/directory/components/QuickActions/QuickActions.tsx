@@ -161,7 +161,9 @@ const QuickActions = () => {
       key={`custom-${action.id}`}
       icon={customActionIcon(action.icon)}
       tooltip={action.label}
-      onClick={() => void fs.runContextAction(action.id, elementId, ctx.targets)}
+      onClick={() =>
+        void fs.runContextAction(action.id, elementId, ctx.targets)
+      }
     />
   ));
 
