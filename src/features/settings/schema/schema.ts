@@ -45,30 +45,6 @@ const percent = (fraction: number) =>
 export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
   // ── General ── behavior basics, launch, and OS integration.
   {
-    kind: SETTING_KIND.TOGGLE,
-    key: "showHidden",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.filesFolders,
-    label: () => t.settings.showHidden,
-    hint: () => t.settings.showHiddenHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "rememberScrollOnUp",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.filesFolders,
-    label: () => t.settings.rememberScrollOnUp,
-    hint: () => t.settings.rememberScrollOnUpHint,
-  },
-  {
-    kind: SETTING_KIND.TOGGLE,
-    key: "hideSystemRecents",
-    section: SETTINGS_SECTION.GENERAL,
-    subsection: () => t.settings.subsections.filesFolders,
-    label: () => t.settings.hideSystemRecents,
-    hint: () => t.settings.hideSystemRecentsHint,
-  },
-  {
     kind: SETTING_KIND.CUSTOM,
     key: "startupMode",
     section: SETTINGS_SECTION.GENERAL,
@@ -331,6 +307,30 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
   },
 
   // ── Files ── how files are treated: their types, previews, sizes, menus, drag & drop, deletion.
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "showHidden",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.filesFolders,
+    label: () => t.settings.showHidden,
+    hint: () => t.settings.showHiddenHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "rememberScrollOnUp",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.filesFolders,
+    label: () => t.settings.rememberScrollOnUp,
+    hint: () => t.settings.rememberScrollOnUpHint,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "hideSystemRecents",
+    section: SETTINGS_SECTION.FILES,
+    subsection: () => t.settings.subsections.filesFolders,
+    label: () => t.settings.hideSystemRecents,
+    hint: () => t.settings.hideSystemRecentsHint,
+  },
   {
     kind: SETTING_KIND.TOGGLE,
     key: "colorfulFileTypes",
