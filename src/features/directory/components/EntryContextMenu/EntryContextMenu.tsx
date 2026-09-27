@@ -112,15 +112,14 @@ const EntryContextMenu = ({
       elementType,
       extension: fileExtension,
     });
-  const customActions = providedActionIds
-    ? []
-    : resolveCustomActions(layout, {
-        isCurrentDirectory,
-        inTrash,
-        elementType,
-        extension: fileExtension,
-        elementId,
-      });
+  // Reduced menus (path breadcrumbs) still expose applicable user-defined actions.
+  const customActions = resolveCustomActions(layout, {
+    isCurrentDirectory,
+    inTrash,
+    elementType,
+    extension: fileExtension,
+    elementId,
+  });
   const hasVisiblePredefinedActions = actionIds.some((id) => {
     const action = ENTRY_ACTIONS[id as EntryActionId];
     return !!action && isActionVisible(action, ctx);

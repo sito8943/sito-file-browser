@@ -42,8 +42,8 @@ export const resolveActionIds = (
   return layout.file.actions;
 };
 
-// User-defined process actions are appended as their own group in the entry context menu. They do
-// not enter the predefined registry or Quick Bar: applicability comes from their saved target and
+// User-defined process actions are shared by the entry context menu and Quick Bar. They do
+// not enter the predefined registry: applicability comes from their saved target and
 // optional extension list, and virtual/remote/Trash paths are excluded because the backend only
 // executes against existing local paths.
 export const resolveCustomActions = (
