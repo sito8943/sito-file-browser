@@ -1,8 +1,11 @@
+import { Fragment } from "react";
+
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { useKeymap, formatBinding } from "@/shared/keymap";
 import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
 import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
+import { customActionIcon } from "@/shared/contextActions";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
 import { useFileTypeExtensions } from "@/features/directory/formats";
 
@@ -15,6 +18,7 @@ import {
   ENTRY_ACTIONS,
   ACTION_SEPARATOR,
   resolveActionIds,
+  resolveCustomActions,
   isActionVisible,
   resolveActionIcon,
   type EntryActionContext,
@@ -146,6 +150,34 @@ const QuickActions = () => {
 
   if (path === "") return null;
 
+  const customActionButtons = resolveCustomActions(layout, {
+    isCurrentDirectory,
+    inTrash,
+    elementType,
+    extension: fileExtension,
+    elementId,
+  }).map((action) => (
+    <IconButton
+      key={`custom-${action.id}`}
+      icon={customActionIcon(action.icon)}
+      tooltip={action.label}
+      onClick={() => void fs.runContextAction(action.id, elementId, ctx.targets)}
+    />
+  ));
+
+  const customActionGroup = customActionButtons.length > 0 && (
+    <>
+      {actionIds.length > 0 && (
+        <span
+          className="quick_action_separator"
+          role="separator"
+          aria-orientation="vertical"
+        />
+      )}
+      {customActionButtons}
+    </>
+  );
+
   return (
     <div className="quick_actions">
       {actionIds.map((id, index) => {
@@ -173,17 +205,21 @@ const QuickActions = () => {
             : undefined);
 
         return (
-          <IconButton
-            key={action.id}
-            icon={resolveActionIcon(action, ctx)}
-            tooltip={action.label()}
-            hotkey={hotkey}
-            disabled={!enabled}
-            onClick={() => action.run?.(ctx)}
-            className={action.color ? `qa_${action.color}` : undefined}
-          />
+          <Fragment key={action.id}>
+            <IconButton
+              icon={resolveActionIcon(action, ctx)}
+              tooltip={action.label()}
+              hotkey={hotkey}
+              disabled={!enabled}
+              onClick={() => action.run?.(ctx)}
+              className={action.color ? `qa_${action.color}` : undefined}
+            />
+            {id === ENTRY_ACTION.PROPERTIES && customActionGroup}
+          </Fragment>
         );
       })}
+      {/* Custom actions remain available when the configured layout omits Information. */}
+      {!actionIds.includes(ENTRY_ACTION.PROPERTIES) && customActionGroup}
       <div className="quick_sort">
         <QuickActionMenu
           action={sortAction}
