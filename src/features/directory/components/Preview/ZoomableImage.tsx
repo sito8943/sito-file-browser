@@ -1,8 +1,12 @@
 import { useEffect, useRef, type PointerEvent } from "react";
 
+import { t } from "@/lang";
+
 import { IMAGE_ZOOM_MIN, IMAGE_ZOOM_STEP } from "./constants";
 import type { ZoomableImageProps } from "./types";
 import { useImageGeometry } from "./useImageGeometry";
+import { useImageLoad } from "./useImageLoad";
+import ImagePreviewSkeleton from "./ImagePreviewSkeleton";
 
 // Image with scroll-to-zoom and drag-to-pan (only while zoomed in). At 1x without rotation it
 // remains untransformed for macOS Live Text selection. Transforms are controlled by Preview
@@ -19,6 +23,7 @@ export const ZoomableImage = ({
   onPanChange,
 }: ZoomableImageProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
+  const { loading, failed, ready } = useImageLoad(imgRef, src);
   const { scale, clampPan } = useImageGeometry(imgRef, rotation, zoom);
   const visiblePan = clampPan(pan);
   // Mirror the zoom prop so the (long-lived) wheel listener reads the latest value.
@@ -76,25 +81,38 @@ export const ZoomableImage = ({
   const zoomed = zoom > IMAGE_ZOOM_MIN;
 
   return (
-    <img
-      ref={imgRef}
-      src={src}
-      alt={alt}
-      draggable={false}
-      onContextMenu={onContextMenu}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      onLostPointerCapture={onPointerUp}
-      style={{
-        transform:
-          zoomed || rotation !== 0
-            ? `translate(${visiblePan.x}px, ${visiblePan.y}px) rotate(${rotation}deg) scale(${scale})`
-            : undefined,
-        cursor: zoomed ? "grab" : undefined,
-        userSelect: zoomed ? "none" : undefined,
-      }}
-    />
+    <>
+      {loading && <ImagePreviewSkeleton />}
+      {failed && (
+        <p className="preview_image_error" role="alert">
+          {t.imagePreview.loadError}
+        </p>
+      )}
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        draggable={false}
+        decoding="async"
+        aria-hidden={!ready}
+        onContextMenu={onContextMenu}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onLostPointerCapture={onPointerUp}
+        style={{
+          // Keep the layout box measurable for zoom/rotation while hiding incomplete pixels.
+          visibility: ready ? "visible" : "hidden",
+          position: failed ? "absolute" : undefined,
+          transform:
+            zoomed || rotation !== 0
+              ? `translate(${visiblePan.x}px, ${visiblePan.y}px) rotate(${rotation}deg) scale(${scale})`
+              : undefined,
+          cursor: zoomed ? "grab" : undefined,
+          userSelect: zoomed ? "none" : undefined,
+        }}
+      />
+    </>
   );
 };

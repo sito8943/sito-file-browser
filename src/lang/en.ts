@@ -187,6 +187,8 @@ export const en = {
     clearRecents: "Clear",
   },
   imagePreview: {
+    loading: "Loading image…",
+    loadError: "Could not load this image.",
     rotateLeft: "Rotate left",
     rotateRight: "Rotate right",
   },

@@ -38,6 +38,7 @@ import PreviewControls from "../PreviewControls/PreviewControls";
 import { useContextMenu } from "../../hooks/useContextMenu";
 
 import { ZoomableImage } from "./ZoomableImage";
+import ImagePreviewSkeleton from "./ImagePreviewSkeleton";
 import { useImageZoom } from "./useImageZoom";
 import { usePanelGeometry } from "./usePanelGeometry";
 import { useMarkdownPreview } from "./useMarkdownPreview";
@@ -448,6 +449,8 @@ const Preview = ({
                   <h3>{t.directory.fileTypeNotSupported}</h3>
                 </div>
               )
+            ) : isImage ? (
+              <ImagePreviewSkeleton />
             ) : (
               <Spinner />
             )}
