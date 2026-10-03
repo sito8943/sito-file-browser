@@ -21,6 +21,13 @@ keys = ["c"]
 mod = true
 alt = true
 
+# Option+C can report "ç" as KeyboardEvent.key on macOS. Keep "c" first so the
+# shortcut label remains Cmd+Option+C while accepting either character from the WebView.
+[copy_path.macos]
+keys = ["c", "ç"]
+mod = true
+alt = true
+
 [cut]
 keys = ["x"]
 mod = true
