@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { open } from "@tauri-apps/plugin-dialog";
 
 import { useStateContext } from "@/shared/providers/StateProvider";
+import { useFilePicker } from "@/shared/providers/FilePickerProvider";
 import type { ThumbnailCapabilities } from "@/shared/services/api";
 import { t } from "@/lang";
 
@@ -13,6 +13,7 @@ export const useThumbnailProbe = ({
   update,
 }: ImageThumbnailSupportProps) => {
   const { fs } = useStateContext();
+  const { pickFile } = useFilePicker();
   const [capabilities, setCapabilities] =
     useState<ThumbnailCapabilities | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,12 +49,7 @@ export const useThumbnailProbe = ({
     setSample(null);
     setError("");
     try {
-      const path = await open({
-        title: t.settings.thumbnailChooseSample(extension),
-        multiple: false,
-        directory: false,
-        filters: [{ name: extension.toUpperCase(), extensions: [extension] }],
-      });
+      const path = await pickFile({ extensions: [extension] });
       if (!path || !active.current) return;
       // The picker filter is only a convenience; reject a mismatched sample explicitly.
       if (path.split(".").pop()?.toLowerCase() !== extension) {
