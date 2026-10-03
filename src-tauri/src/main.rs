@@ -99,6 +99,8 @@ fn main() {
             filesystem::fs::get_dir_size,
             filesystem::fs::get_recent_files,
             filesystem::fs::get_thumbnail,
+            filesystem::fs::get_thumbnail_capabilities,
+            filesystem::fs::probe_quicklook_thumbnail,
             filesystem::fs::read_directory,
             filesystem::fs::search_directory,
             filesystem::fs::can_write,

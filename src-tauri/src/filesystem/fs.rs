@@ -260,6 +260,22 @@ pub fn typeahead_core(path: &str, query: &str) -> Result<TypeaheadResult, String
 // QuickLook has no good markdown thumbnailer and stalls the queue — see TEXT_EXTS.)
 const QUICKLOOK_EXTS: &[&str] = &["mp4", "mov", "m4v", "webm", "ogv", "pdf"];
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ThumbnailCapabilities {
+    image_extensions: Vec<&'static str>,
+    quick_look: bool,
+}
+
+#[tauri::command]
+pub fn get_thumbnail_capabilities() -> ThumbnailCapabilities {
+    // Keep aligned with Cargo.toml's image features. SVG is rendered directly by the WebView.
+    ThumbnailCapabilities {
+        image_extensions: vec!["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg"],
+        quick_look: cfg!(target_os = "macos"),
+    }
+}
+
 fn needs_quicklook(path: &str) -> bool {
     has_ext(path, QUICKLOOK_EXTS)
 }
@@ -362,26 +378,51 @@ fn quicklook_thumbnail(
     size: u32,
     tmp_dir: &Path,
 ) -> Result<image::DynamicImage, String> {
-    use std::process::Command;
+    use std::process::{Command, Stdio};
 
     fs::create_dir_all(tmp_dir).map_err(|e| e.to_string())?;
-    Command::new("qlmanage")
+    let mut child = Command::new("qlmanage")
         .args(["-t", "-s", &size.to_string(), "-o"])
         .arg(tmp_dir)
         .arg(path)
-        .output()
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
         .map_err(|e| e.to_string())?;
 
-    let frame = fs::read_dir(tmp_dir)
-        .map_err(|e| e.to_string())?
-        .flatten()
-        .map(|entry| entry.path())
-        .find(|p| p.extension().and_then(|e| e.to_str()) == Some("png"))
-        .ok_or_else(|| "qlmanage produced no thumbnail".to_string())?;
+    // Native generators can hang on unsupported samples. Bound the worker's wait and reap the
+    // process so one test cannot indefinitely occupy a thumbnail slot.
+    let result = (|| {
+        let started = Instant::now();
+        const TIMEOUT: Duration = Duration::from_secs(10);
+        const POLL_INTERVAL: Duration = Duration::from_millis(50);
+        loop {
+            if let Some(status) = child.try_wait().map_err(|e| e.to_string())? {
+                if !status.success() {
+                    return Err("Quick Look could not generate a thumbnail for this file".to_string());
+                }
+                break;
+            }
+            if started.elapsed() >= TIMEOUT {
+                return Err("Quick Look thumbnail generation timed out".to_string());
+            }
+            std::thread::sleep(POLL_INTERVAL);
+        }
+        let frame = fs::read_dir(tmp_dir)
+            .map_err(|e| e.to_string())?
+            .flatten()
+            .map(|entry| entry.path())
+            .find(|p| p.extension().and_then(|e| e.to_str()) == Some("png"))
+            .ok_or_else(|| "qlmanage produced no thumbnail".to_string())?;
 
-    let img = image::open(&frame).map_err(|e| e.to_string())?;
+        image::open(&frame).map_err(|e| e.to_string())
+    })();
+    if result.is_err() {
+        let _ = child.kill();
+        let _ = child.wait();
+    }
     let _ = fs::remove_dir_all(tmp_dir);
-    Ok(img)
+    result
 }
 
 // TODO(windows/linux): render video/PDF thumbnails on non-macOS platforms — e.g. the Windows
@@ -404,6 +445,27 @@ fn quicklook_thumbnail(
 // folder full of screenshots from saturating the compositor with huge bitmaps.
 #[tauri::command]
 pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<String, String> {
+    generate_thumbnail(app, path, size, false).await
+}
+
+#[tauri::command]
+pub async fn probe_quicklook_thumbnail(app: AppHandle, path: String) -> Result<String, String> {
+    if !cfg!(target_os = "macos") {
+        return Err("Quick Look thumbnails are only supported on macOS".to_string());
+    }
+    if !Path::new(&path).is_absolute() {
+        return Err("Choose a local sample file".to_string());
+    }
+    const SAMPLE_SIZE: u32 = 256;
+    generate_thumbnail(app, path, SAMPLE_SIZE, true).await
+}
+
+async fn generate_thumbnail(
+    app: AppHandle,
+    path: String,
+    size: u32,
+    probe_quicklook: bool,
+) -> Result<String, String> {
     // Remote (sftp://) images: download to the cache first, then thumbnail the local copy. The
     // frontend only requests these when the "remote thumbnails" setting is on (it's off by default,
     // since each one downloads the whole file). See SSH_PLAN.md phase 4.
@@ -421,9 +483,18 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
         .join("thumbnails");
 
     tauri::async_runtime::spawn_blocking(move || -> Result<String, String> {
+        // Read settings on the worker too: disk access must not block Tauri's main thread.
+        let settings = crate::functions::settings::get_settings(app);
+        let configured = settings.quick_look_thumbnail_extensions.iter().any(|ext| {
+            has_ext(&path, &[ext.trim().trim_start_matches('.').to_lowercase().as_str()])
+        });
+        let use_quicklook = probe_quicklook || (cfg!(target_os = "macos") && configured);
         fs::create_dir_all(&cache_dir).map_err(|e| e.to_string())?;
 
         let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+        if !metadata.is_file() {
+            return Err("Choose a regular file for thumbnail generation".to_string());
+        }
         let mtime = metadata
             .modified()
             .ok()
@@ -435,6 +506,8 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
         path.hash(&mut hasher);
         mtime.hash(&mut hasher);
         size.hash(&mut hasher);
+        // A method change must not reuse a thumbnail generated by the previous decoder.
+        use_quicklook.hash(&mut hasher);
         let hash = hasher.finish();
         let out = cache_dir.join(format!("{:x}.jpg", hash));
 
@@ -448,8 +521,17 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
         }
 
         // Per-call scratch dir for the video frame extractor (cleaned up inside).
-        let tmp_dir = cache_dir.join("video").join(format!("{:x}", hash));
-        let img = thumbnail_source(&path, size, &tmp_dir)?;
+        // Separate concurrent requests for the same file so scratch cleanup cannot race.
+        static SCRATCH_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let scratch_id = SCRATCH_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let tmp_dir = cache_dir.join("video").join(format!(
+            "{:x}-{}-{}", hash, std::process::id(), scratch_id
+        ));
+        let img = if use_quicklook {
+            quicklook_thumbnail(&path, size, &tmp_dir)?
+        } else {
+            thumbnail_source(&path, size, &tmp_dir)?
+        };
         // JPEG can't encode alpha, so flatten to RGB. `thumbnail` keeps the aspect ratio and
         // fits within size x size.
         let thumb = image::DynamicImage::ImageRgb8(img.thumbnail(size, size).to_rgb8());

@@ -128,6 +128,14 @@ export class FileSystemManager {
     return api.getThumbnail(path, size);
   }
 
+  getThumbnailCapabilities(): Promise<api.ThumbnailCapabilities> {
+    return api.getThumbnailCapabilities();
+  }
+
+  probeQuickLookThumbnail(path: string): Promise<string> {
+    return api.probeQuickLookThumbnail(path);
+  }
+
   open(path: string): Promise<void> {
     return api.openFile(path);
   }

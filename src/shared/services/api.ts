@@ -97,6 +97,8 @@ export type AppSettings = {
   // DEFAULT_FILE_TYPE_EXTENSIONS so the whole map is visible (and editable) in settings.toml;
   // the category drives the entry glyph, thumbnailing and the built-in preview.
   fileTypeExtensions: FileTypeExtensions;
+  // Image extensions explicitly enabled for macOS Quick Look thumbnails after a sample test.
+  quickLookThumbnailExtensions: string[];
   // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
   colorfulFileTypes: boolean;
   // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
@@ -438,6 +440,19 @@ export const getThumbnail = async (
   path: string,
   size: number,
 ): Promise<string> => await invoke("get_thumbnail", { path, size });
+
+export interface ThumbnailCapabilities {
+  imageExtensions: string[];
+  quickLook: boolean;
+}
+
+// Backend-supported image formats and availability of the native thumbnail alternative.
+export const getThumbnailCapabilities = (): Promise<ThumbnailCapabilities> =>
+  invoke("get_thumbnail_capabilities");
+
+// Test a local sample without enabling a format or changing its classification.
+export const probeQuickLookThumbnail = (path: string): Promise<string> =>
+  invoke("probe_quicklook_thumbnail", { path });
 
 // Open a file with the OS default application. Goes through the Rust `open_file` command so the path
 // is logged to the Tauri terminal; the command returns the error if it fails.

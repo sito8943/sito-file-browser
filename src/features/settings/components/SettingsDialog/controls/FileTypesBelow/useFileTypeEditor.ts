@@ -60,6 +60,9 @@ export const useFileTypeEditor = ({ settings, update }: CustomControlProps) => {
 
   const remove = (from: FileCategory, ext: string) =>
     update({
+      quickLookThumbnailExtensions: settings.quickLookThumbnailExtensions.filter(
+        (entry) => entry !== ext,
+      ),
       fileTypeExtensions: {
         ...extensions,
         [from]: extensions[from].filter((entry) => entry !== ext),

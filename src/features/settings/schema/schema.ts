@@ -350,10 +350,13 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     Below: FileTypesBelow,
     isModified: (settings, defaults) =>
       JSON.stringify(settings.fileTypeExtensions) !==
-      JSON.stringify(defaults.fileTypeExtensions),
+        JSON.stringify(defaults.fileTypeExtensions) ||
+      JSON.stringify(settings.quickLookThumbnailExtensions) !==
+        JSON.stringify(defaults.quickLookThumbnailExtensions),
     reset: (update, defaults) =>
       update({
         fileTypeExtensions: structuredClone(defaults.fileTypeExtensions),
+        quickLookThumbnailExtensions: [...defaults.quickLookThumbnailExtensions],
       }),
   },
   {

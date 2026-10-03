@@ -6,13 +6,14 @@ import TextInput from "@/shared/components/elements/TextInput";
 import Button from "@/shared/components/elements/Button";
 import Icon from "@/shared/components/elements/Icon";
 import { FILE_ICON_REGISTRY } from "@/features/directory";
-import { FILE_CATEGORY_COLORS, KEY } from "@/shared/constants";
+import { FILE_CATEGORY, FILE_CATEGORY_COLORS, KEY } from "@/shared/constants";
 import { t } from "@/lang";
 import "@/styles/components/FileTypesBelow.css";
 
 import type { CustomControlProps } from "../../../../schema";
 import { categoryLabel } from "./constants";
 import { useFileTypeEditor } from "./useFileTypeEditor";
+import ImageThumbnailSupport from "./ImageThumbnailSupport";
 
 // Category cards reuse the persisted extension editor; only the active card exposes an input.
 const FileTypesBelow = (props: CustomControlProps) => {
@@ -84,6 +85,15 @@ const FileTypesBelow = (props: CustomControlProps) => {
             <Icon icon={faPlus} />
             {t.settings.fileTypesAddShort}
           </Button>
+          {option === FILE_CATEGORY.IMAGE &&
+            extensions[option].map((extension) => (
+              <ImageThumbnailSupport
+                key={extension}
+                extension={extension}
+                settings={props.settings}
+                update={props.update}
+              />
+            ))}
           {editing && category === option && (
             <div className="settings_file_types_editor">
               <div className="settings_file_types_input">

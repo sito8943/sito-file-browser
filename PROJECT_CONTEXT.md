@@ -230,6 +230,14 @@ of the app config dir.
 Editable keybindings route through `src/shared/keymap`, Settings schema, and
 `src-tauri/src/functions/keymap.rs`; preserve platform overrides when writing one binding.
 
+The file-type editor reports image thumbnail capabilities through `FileSystemManager` and
+`get_thumbnail_capabilities`. For unsupported image extensions, macOS users can test a local sample
+with `probe_quicklook_thumbnail`, inspect the result, and enable `quickLookThumbnailExtensions` in
+settings. `get_thumbnail` reads that list on its worker and uses the existing Quick Look generator;
+its cache key includes the selected method. Failed samples never change settings or disable a
+format. This enables thumbnails only, not WebView full-size preview support. Windows/Linux do not
+offer this alternative. Reopen the folder after settings are saved to retry existing thumbnails.
+
 ## Remote and platform paths
 
 SFTP:
