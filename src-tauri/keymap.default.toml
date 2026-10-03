@@ -135,6 +135,14 @@ mod = true
 keys = ["-"]
 mod = true
 
+# Rotate the image preview in quarter turns without changing the original file.
+[preview_rotate_left]
+keys = ["r"]
+shift = true
+
+[preview_rotate_right]
+keys = ["r"]
+
 # Tabs. mod = Cmd / Ctrl. Next/prev cycle uses mod+alt+arrows to avoid clashing with the
 # alt+arrow history navigation.
 [new_tab]

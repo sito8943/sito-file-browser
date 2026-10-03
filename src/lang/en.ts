@@ -271,6 +271,8 @@ export const en = {
       previewNext: "Next",
       previewZoomIn: "Zoom in (image)",
       previewZoomOut: "Zoom out (image)",
+      previewRotateLeft: "Rotate left (image)",
+      previewRotateRight: "Rotate right (image)",
       newTab: "New tab",
       newWindow: "New window",
       closeTab: "Close tab",
