@@ -7,9 +7,11 @@
   align-items: center;
   gap: var(--space-2-5);
   padding: var(--space-2);
+  background-color: var(--color-overlay-soft);
+  border-radius: var(--radius-md);
 }
 
-/* Navigation sits directly on the canvas; interactive states supply the visual feedback. */
+/* Keep the navigation controls and path field free of shadows. */
 .PathBar .shadow {
   box-shadow: none;
 }
@@ -63,7 +65,7 @@
   width: 100%;
   height: var(--size-control-large);
   padding: var(--space-1-5) var(--space-2-5);
-  background-color: var(--color-overlay-faint);
+  background-color: var(--color-surface-input);
   border: var(--border-width-default) solid var(--color-border-faint);
   color: var(--color-text-primary);
   border-radius: var(--radius-sm);
@@ -86,8 +88,8 @@
   padding: var(--space-1-5) var(--space-2-5);
   display: flex;
   align-items: center;
-  background-color: transparent;
-  border: var(--border-width-default) solid transparent;
+  background-color: var(--color-surface-input);
+  border: var(--border-width-default) solid var(--color-border-faint);
   color: var(--color-text-secondary);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-base);
