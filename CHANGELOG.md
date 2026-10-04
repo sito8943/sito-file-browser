@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.15.0]
+
+### Added
+
+- Image preview falls back to a cached Quick Look render on macOS when the WebView cannot decode a format such as AVIF or HEIC. Renders are sized from the source (2048–4096 px), kept as PNG only when translucent, stored under `thumbnails/preview/` with their own eviction budget, and flagged with a "compatible preview" tooltip (`5beb5a6`, `47b4ed4`)
+- Rotate the image preview with `R` / `Shift+R`, configurable in the keymap (`7c66521`)
+- Built-in file and folder picker shows file-type icons and colors, Finder tag dots, a search field (`Cmd+F`) filtering the current folder, type-to-find, and full keyboard navigation: arrows, Home/End, Enter, Backspace or `Cmd+↑` to go up (`71cb443`)
+
+### Changed
+
+- Image preview shows a skeleton while loading and reports a load error instead of a blank panel (`cda61fa`)
+- Zoom is remembered per folder and per view, so grid and list keep independent sizes (`dca4825`)
+- File-type map, file icons, tag dots, the typeahead popup and the type-to-find buffer moved to `src/shared` so the picker and the directory share one implementation (`71cb443`)
+- Path bar surface styling (`7f23cf8`)
+
+### Fixed
+
+- Detached preview window could stay on its spinner forever when the folder listing finished before settings loaded and the target file's type was user-mapped (`47b4ed4`)
+- `Cmd+Option+C` copy path hotkey works on macOS, where the WebView reports the key as `ç` (`584d585`)
+- Choose-folder and thumbnail probe dialogs use the built-in picker instead of the native one (`a2cce4a`)
+
 ## [0.14.0]
 
 ### Added
