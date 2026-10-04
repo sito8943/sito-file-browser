@@ -48,7 +48,7 @@ import RemoteErrorNotice from "./components/RemoteErrorNotice";
 import StalledNotice from "./components/StalledNotice";
 import EntryContextMenu from "./components/EntryContextMenu";
 import StatusBar from "./components/StatusBar";
-import TypeaheadPopup from "./components/TypeaheadPopup";
+import TypeaheadPopup from "@/shared/components/patterns/TypeaheadPopup";
 import Preview from "./components/Preview";
 import Properties from "./components/Properties";
 import NtfsNotice from "./components/NtfsNotice";

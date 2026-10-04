@@ -260,6 +260,22 @@ pub fn typeahead_core(path: &str, query: &str) -> Result<TypeaheadResult, String
 // QuickLook has no good markdown thumbnailer and stalls the queue — see TEXT_EXTS.)
 const QUICKLOOK_EXTS: &[&str] = &["mp4", "mov", "m4v", "webm", "ogv", "pdf"];
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ThumbnailCapabilities {
+    image_extensions: Vec<&'static str>,
+    quick_look: bool,
+}
+
+#[tauri::command]
+pub fn get_thumbnail_capabilities() -> ThumbnailCapabilities {
+    // Keep aligned with Cargo.toml's image features. SVG is rendered directly by the WebView.
+    ThumbnailCapabilities {
+        image_extensions: vec!["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg"],
+        quick_look: cfg!(target_os = "macos"),
+    }
+}
+
 fn needs_quicklook(path: &str) -> bool {
     has_ext(path, QUICKLOOK_EXTS)
 }
@@ -348,6 +364,29 @@ fn text_thumbnail(path: &str) -> Result<image::DynamicImage, String> {
     Ok(image::DynamicImage::ImageRgba8(canvas))
 }
 
+// Native tools (qlmanage, sips) can hang on unsupported or damaged files. Poll instead of a
+// blocking `wait` so the worker gives up after `timeout`, and reap a killed process so it never
+// lingers as a zombie. `Ok(None)` means the deadline passed.
+#[cfg(target_os = "macos")]
+fn wait_with_timeout(
+    child: &mut std::process::Child,
+    timeout: Duration,
+) -> Result<Option<std::process::ExitStatus>, String> {
+    const POLL_INTERVAL: Duration = Duration::from_millis(50);
+    let started = Instant::now();
+    loop {
+        match child.try_wait() {
+            Ok(Some(status)) => return Ok(Some(status)),
+            Ok(None) if started.elapsed() < timeout => std::thread::sleep(POLL_INTERVAL),
+            outcome => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return outcome.map(|_| None).map_err(|e| e.to_string());
+            }
+        }
+    }
+}
+
 // Render a thumbnail (video frame / PDF first page) via QuickLook (`qlmanage`), which writes
 // "<name>.png" into the output dir. macOS-only; other platforms fall back to the generic icon.
 //
@@ -362,26 +401,44 @@ fn quicklook_thumbnail(
     size: u32,
     tmp_dir: &Path,
 ) -> Result<image::DynamicImage, String> {
-    use std::process::Command;
+    use std::process::{Command, Stdio};
 
     fs::create_dir_all(tmp_dir).map_err(|e| e.to_string())?;
-    Command::new("qlmanage")
+    let mut child = Command::new("qlmanage")
         .args(["-t", "-s", &size.to_string(), "-o"])
         .arg(tmp_dir)
         .arg(path)
-        .output()
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
         .map_err(|e| e.to_string())?;
 
-    let frame = fs::read_dir(tmp_dir)
-        .map_err(|e| e.to_string())?
-        .flatten()
-        .map(|entry| entry.path())
-        .find(|p| p.extension().and_then(|e| e.to_str()) == Some("png"))
-        .ok_or_else(|| "qlmanage produced no thumbnail".to_string())?;
+    // Native generators can hang on unsupported samples. Bound the worker's wait so one test
+    // cannot indefinitely occupy a thumbnail slot.
+    let result = (|| {
+        const TIMEOUT: Duration = Duration::from_secs(10);
+        match wait_with_timeout(&mut child, TIMEOUT)? {
+            Some(status) if status.success() => {}
+            Some(_) => {
+                return Err("Quick Look could not generate a thumbnail for this file".to_string())
+            }
+            None => return Err("Quick Look thumbnail generation timed out".to_string()),
+        }
+        let frame = fs::read_dir(tmp_dir)
+            .map_err(|e| e.to_string())?
+            .flatten()
+            .map(|entry| entry.path())
+            .find(|p| p.extension().and_then(|e| e.to_str()) == Some("png"))
+            .ok_or_else(|| "qlmanage produced no thumbnail".to_string())?;
 
-    let img = image::open(&frame).map_err(|e| e.to_string())?;
+        image::open(&frame).map_err(|e| e.to_string())
+    })();
+    if result.is_err() {
+        let _ = child.kill();
+        let _ = child.wait();
+    }
     let _ = fs::remove_dir_all(tmp_dir);
-    Ok(img)
+    result
 }
 
 // TODO(windows/linux): render video/PDF thumbnails on non-macOS platforms — e.g. the Windows
@@ -396,6 +453,148 @@ fn quicklook_thumbnail(
     Err("QuickLook thumbnails are only supported on macOS".to_string())
 }
 
+// Preview renders are sized from the source's real dimensions so large images keep their detail.
+// Small sources still request PREVIEW_MIN_SIZE because qlmanage never upscales, and the cap bounds
+// the decoded bitmap (4096² RGBA ≈ 64 MB) the `image` crate holds while re-encoding.
+const PREVIEW_MIN_SIZE: u32 = 2048;
+const PREVIEW_MAX_SIZE: u32 = 4096;
+const PREVIEW_JPEG_QUALITY: u8 = 90;
+const PREVIEW_CACHE_SUBDIR: &str = "preview";
+const JPEG_EXT: &str = "jpg";
+const PNG_EXT: &str = "png";
+
+// Read the source's pixel size without decoding it in-process. None on any failure; the caller
+// then uses the minimum preview size, which matches the previous fixed behaviour.
+#[cfg(target_os = "macos")]
+fn image_pixel_dimensions(path: &str) -> Option<(u32, u32)> {
+    use std::process::{Command, Stdio};
+
+    // A dead network mount or an unusual file can stall sips like any other native tool.
+    const TIMEOUT: Duration = Duration::from_secs(5);
+    let mut child = Command::new("sips")
+        .args(["-g", "pixelWidth", "-g", "pixelHeight"])
+        .arg(path)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .ok()?;
+    // The two-property report is far below the pipe buffer, so polling before reading stdout
+    // cannot deadlock on a full pipe.
+    let status = wait_with_timeout(&mut child, TIMEOUT).ok()??;
+    if !status.success() {
+        return None;
+    }
+    let mut output = String::new();
+    child.stdout.take()?.read_to_string(&mut output).ok()?;
+    parse_sips_dimensions(&output)
+}
+
+#[cfg(not(target_os = "macos"))]
+fn image_pixel_dimensions(_path: &str) -> Option<(u32, u32)> {
+    None
+}
+
+// sips prints the file path first, then one `  <property>: <value>` line per requested property.
+#[cfg(target_os = "macos")]
+fn parse_sips_dimensions(output: &str) -> Option<(u32, u32)> {
+    let property = |key: &str| {
+        output.lines().find_map(|line| {
+            line.trim()
+                .strip_prefix(key)?
+                .trim_start()
+                .strip_prefix(':')?
+                .trim()
+                .parse::<u32>()
+                .ok()
+        })
+    };
+    Some((property("pixelWidth")?, property("pixelHeight")?))
+}
+
+fn preview_render_size(dimensions: Option<(u32, u32)>) -> u32 {
+    dimensions
+        .map_or(PREVIEW_MIN_SIZE, |(width, height)| width.max(height))
+        .clamp(PREVIEW_MIN_SIZE, PREVIEW_MAX_SIZE)
+}
+
+// Grid thumbnails and full-size preview renders differ in storage, encoding, and disk budget, so
+// one kind decides all three instead of a growing list of boolean flags.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ThumbnailKind {
+    Grid,
+    Preview,
+}
+
+impl ThumbnailKind {
+    // Previews live in their own directory so their larger files get a separate eviction budget
+    // instead of pushing grid thumbnails out of the shared one.
+    fn cache_dir(self, thumbnails_dir: &Path) -> PathBuf {
+        match self {
+            ThumbnailKind::Grid => thumbnails_dir.to_path_buf(),
+            ThumbnailKind::Preview => thumbnails_dir.join(PREVIEW_CACHE_SUBDIR),
+        }
+    }
+
+    // A preview's format depends on the decoded image's alpha, which is unknown before decoding,
+    // so a cache hit may carry either extension.
+    fn cached_extensions(self) -> &'static [&'static str] {
+        match self {
+            ThumbnailKind::Grid => &[JPEG_EXT],
+            ThumbnailKind::Preview => &[PNG_EXT, JPEG_EXT],
+        }
+    }
+}
+
+// Quick Look can hand back RGBA output even for opaque content, so the channel's presence alone
+// would send every opaque render to the much larger PNG format. Only a translucent pixel needs it.
+fn has_visible_alpha(img: &image::DynamicImage) -> bool {
+    const ALPHA_CHANNEL: usize = 3;
+    match img {
+        image::DynamicImage::ImageRgba8(buffer) => {
+            buffer.pixels().any(|pixel| pixel.0[ALPHA_CHANNEL] < u8::MAX)
+        }
+        other => other.color().has_alpha(),
+    }
+}
+
+// Grid thumbnails always flatten to RGB JPEG: JPEG can't encode alpha and grid cells are small.
+// Previews keep transparency as PNG only when the image shows it; opaque previews use a
+// higher-quality JPEG, which is far smaller than PNG at these sizes.
+fn save_thumbnail(
+    img: &image::DynamicImage,
+    kind: ThumbnailKind,
+    cache_dir: &Path,
+    hash: u64,
+) -> Result<PathBuf, String> {
+    let keep_alpha = kind == ThumbnailKind::Preview && has_visible_alpha(img);
+    let extension = if keep_alpha { PNG_EXT } else { JPEG_EXT };
+    let out = cache_dir.join(format!("{:x}.{extension}", hash));
+    if keep_alpha {
+        img.save_with_format(&out, image::ImageFormat::Png)
+            .map_err(|e| e.to_string())?;
+        return Ok(out);
+    }
+    let rgb = image::DynamicImage::ImageRgb8(img.to_rgb8());
+    match kind {
+        ThumbnailKind::Grid => rgb
+            .save_with_format(&out, image::ImageFormat::Jpeg)
+            .map_err(|e| e.to_string())?,
+        ThumbnailKind::Preview => {
+            use std::io::Write;
+            let file = fs::File::create(&out).map_err(|e| e.to_string())?;
+            let mut writer = std::io::BufWriter::new(file);
+            rgb.write_with_encoder(image::codecs::jpeg::JpegEncoder::new_with_quality(
+                &mut writer,
+                PREVIEW_JPEG_QUALITY,
+            ))
+            .map_err(|e| e.to_string())?;
+            // Surface a failed final write instead of losing it in BufWriter's drop.
+            writer.flush().map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(out)
+}
+
 // Generate (and cache) a downscaled thumbnail for an image file, returning the path to the
 // cached thumbnail. The full-resolution decode + resize runs on a worker thread
 // (spawn_blocking) so it never blocks the UI thread, and the result is cached on disk keyed
@@ -404,6 +603,73 @@ fn quicklook_thumbnail(
 // folder full of screenshots from saturating the compositor with huge bitmaps.
 #[tauri::command]
 pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<String, String> {
+    generate_thumbnail(app, path, size, false, ThumbnailKind::Grid).await
+}
+
+#[tauri::command]
+pub async fn probe_quicklook_thumbnail(app: AppHandle, path: String) -> Result<String, String> {
+    if !cfg!(target_os = "macos") {
+        return Err("Quick Look thumbnails are only supported on macOS".to_string());
+    }
+    if !Path::new(&path).is_absolute() {
+        return Err("Choose a local sample file".to_string());
+    }
+    const SAMPLE_SIZE: u32 = 256;
+    generate_thumbnail(app, path, SAMPLE_SIZE, true, ThumbnailKind::Grid).await
+}
+
+// Grant only the selected local file, including a hidden path, rather than broadening the
+// asset protocol's global scope. The fallback is a bounded Quick Look representation cached
+// separately, not an edit.
+#[tauri::command]
+pub async fn prepare_image_preview(
+    app: AppHandle,
+    path: String,
+    fallback: bool,
+) -> Result<String, String> {
+    let selected = tauri::async_runtime::spawn_blocking(move || -> Result<_, String> {
+        let local = fs::canonicalize(&path).map_err(|e| e.to_string())?;
+        if !local.is_file() {
+            return Err("The preview requires a local file".to_string());
+        }
+        app.asset_protocol_scope().allow_file(&local).map_err(|e| e.to_string())?;
+        Ok((app, local.to_string_lossy().into_owned()))
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    let (app, path) = selected;
+    if !fallback {
+        return Ok(path);
+    }
+    if !cfg!(target_os = "macos") {
+        return Err("Native image preview fallback is only supported on macOS".to_string());
+    }
+    // sips is a subprocess, so measuring the source stays off Tauri's main thread.
+    let size = {
+        let path = path.clone();
+        tauri::async_runtime::spawn_blocking(move || {
+            preview_render_size(image_pixel_dimensions(&path))
+        })
+        .await
+        .map_err(|e| e.to_string())?
+    };
+    let output =
+        generate_thumbnail(app.clone(), path, size, true, ThumbnailKind::Preview).await?;
+    tauri::async_runtime::spawn_blocking(move || {
+        app.asset_protocol_scope().allow_file(&output).map_err(|e| e.to_string())?;
+        Ok(output)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+async fn generate_thumbnail(
+    app: AppHandle,
+    path: String,
+    size: u32,
+    probe_quicklook: bool,
+    kind: ThumbnailKind,
+) -> Result<String, String> {
     // Remote (sftp://) images: download to the cache first, then thumbnail the local copy. The
     // frontend only requests these when the "remote thumbnails" setting is on (it's off by default,
     // since each one downloads the whole file). See SSH_PLAN.md phase 4.
@@ -414,16 +680,26 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
         }
     };
 
-    let cache_dir = app
+    let thumbnails_dir = app
         .path()
         .app_cache_dir()
         .map_err(|e| e.to_string())?
         .join("thumbnails");
+    let cache_dir = kind.cache_dir(&thumbnails_dir);
 
     tauri::async_runtime::spawn_blocking(move || -> Result<String, String> {
+        // Read settings on the worker too: disk access must not block Tauri's main thread.
+        let settings = crate::functions::settings::get_settings(app);
+        let configured = settings.quick_look_thumbnail_extensions.iter().any(|ext| {
+            has_ext(&path, &[ext.trim().trim_start_matches('.').to_lowercase().as_str()])
+        });
+        let use_quicklook = probe_quicklook || (cfg!(target_os = "macos") && configured);
         fs::create_dir_all(&cache_dir).map_err(|e| e.to_string())?;
 
         let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+        if !metadata.is_file() {
+            return Err("Choose a regular file for thumbnail generation".to_string());
+        }
         let mtime = metadata
             .modified()
             .ok()
@@ -435,10 +711,20 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
         path.hash(&mut hasher);
         mtime.hash(&mut hasher);
         size.hash(&mut hasher);
+        // A method change must not reuse a thumbnail generated by the previous decoder.
+        use_quicklook.hash(&mut hasher);
+        // Grid keys stay unsalted so existing grid thumbnails remain valid cache hits.
+        if kind == ThumbnailKind::Preview {
+            PREVIEW_CACHE_SUBDIR.hash(&mut hasher);
+        }
         let hash = hasher.finish();
-        let out = cache_dir.join(format!("{:x}.jpg", hash));
 
-        if out.exists() {
+        let cached = kind
+            .cached_extensions()
+            .iter()
+            .map(|ext| cache_dir.join(format!("{:x}.{ext}", hash)))
+            .find(|candidate| candidate.exists());
+        if let Some(out) = cached {
             // Bump mtime so eviction treats this as recently used (cheap LRU proxy).
             let _ = std::fs::OpenOptions::new()
                 .write(true)
@@ -448,14 +734,27 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
         }
 
         // Per-call scratch dir for the video frame extractor (cleaned up inside).
-        let tmp_dir = cache_dir.join("video").join(format!("{:x}", hash));
-        let img = thumbnail_source(&path, size, &tmp_dir)?;
-        // JPEG can't encode alpha, so flatten to RGB. `thumbnail` keeps the aspect ratio and
-        // fits within size x size.
-        let thumb = image::DynamicImage::ImageRgb8(img.thumbnail(size, size).to_rgb8());
-        thumb
-            .save_with_format(&out, image::ImageFormat::Jpeg)
-            .map_err(|e| e.to_string())?;
+        // Separate concurrent requests for the same file so scratch cleanup cannot race.
+        static SCRATCH_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let scratch_id = SCRATCH_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        // Scratch stays under the grid dir for both kinds so preview pruning never sees it.
+        let tmp_dir = thumbnails_dir.join("video").join(format!(
+            "{:x}-{}-{}", hash, std::process::id(), scratch_id
+        ));
+        let img = if use_quicklook {
+            quicklook_thumbnail(&path, size, &tmp_dir)?
+        } else {
+            thumbnail_source(&path, size, &tmp_dir)?
+        };
+        // `thumbnail` keeps the aspect ratio and fits within size x size, but it also upscales.
+        // A preview of a small source keeps its own resolution instead of being cached blown up.
+        let fits = img.width() <= size && img.height() <= size;
+        let thumb = if kind == ThumbnailKind::Preview && fits {
+            img
+        } else {
+            img.thumbnail(size, size)
+        };
+        let out = save_thumbnail(&thumb, kind, &cache_dir, hash)?;
 
         Ok(out.to_string_lossy().into_owned())
     })
@@ -463,22 +762,39 @@ pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<St
     .map_err(|e| e.to_string())?
 }
 
-// Max size of the on-disk thumbnail cache before least-recently-used entries are evicted.
+// Max size of the on-disk grid-thumbnail cache before least-recently-used entries are evicted.
 const MAX_THUMBNAIL_CACHE_BYTES: u64 = 200 * 1024 * 1024;
+// Full-size previews are far larger than grid thumbnails, so they get their own budget instead of
+// evicting the grid cache.
+const MAX_PREVIEW_CACHE_BYTES: u64 = 300 * 1024 * 1024;
 
-// Evict least-recently-used thumbnails when the cache grows past the limit. get_thumbnail bumps
-// each file's mtime on a cache hit, so the oldest mtime ≈ least recently used. Best-effort:
-// any IO error just leaves that file in place. Run off the UI thread (e.g. at startup).
-pub fn prune_thumbnail_cache(cache_dir: &Path) {
+// Trim the grid-thumbnail and preview caches, each to its own budget. Run off the UI thread
+// (e.g. at startup).
+pub fn prune_thumbnail_cache(thumbnails_dir: &Path) {
+    prune_cache_dir(thumbnails_dir, MAX_THUMBNAIL_CACHE_BYTES);
+    prune_cache_dir(
+        &ThumbnailKind::Preview.cache_dir(thumbnails_dir),
+        MAX_PREVIEW_CACHE_BYTES,
+    );
+}
+
+// Evict least-recently-used files when a cache dir grows past `max_bytes`. generate_thumbnail
+// bumps each file's mtime on a cache hit, so the oldest mtime ≈ least recently used. Best-effort:
+// any IO error just leaves that file in place. Only the dir's own files count: read_dir does not
+// recurse and subdirs are skipped, so the grid budget never includes `preview/` or `video/`.
+fn prune_cache_dir(cache_dir: &Path, max_bytes: u64) {
     let mut files: Vec<(PathBuf, SystemTime, u64)> = match fs::read_dir(cache_dir) {
         Ok(entries) => entries
             .flatten()
             .filter_map(|entry| {
                 let path = entry.path();
-                if path.extension().and_then(|e| e.to_str()) != Some("jpg") {
+                if !matches!(path.extension().and_then(|e| e.to_str()), Some(JPEG_EXT | PNG_EXT)) {
                     return None;
                 }
                 let metadata = entry.metadata().ok()?;
+                if !metadata.is_file() {
+                    return None;
+                }
                 Some((path, metadata.modified().ok()?, metadata.len()))
             })
             .collect(),
@@ -486,7 +802,7 @@ pub fn prune_thumbnail_cache(cache_dir: &Path) {
     };
 
     let mut total: u64 = files.iter().map(|(_, _, len)| len).sum();
-    if total <= MAX_THUMBNAIL_CACHE_BYTES {
+    if total <= max_bytes {
         return;
     }
 
@@ -494,7 +810,7 @@ pub fn prune_thumbnail_cache(cache_dir: &Path) {
     files.sort_by_key(|(_, mtime, _)| *mtime);
 
     for (path, _, len) in files {
-        if total <= MAX_THUMBNAIL_CACHE_BYTES {
+        if total <= max_bytes {
             break;
         }
         if fs::remove_file(&path).is_ok() {

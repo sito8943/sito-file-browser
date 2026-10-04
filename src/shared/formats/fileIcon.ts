@@ -16,7 +16,7 @@ import {
 
 import { FILE_CATEGORY, type FileTypeExtensions } from "@/shared/constants";
 
-import { categoryOf } from "../../formats";
+import { categoryOf } from "./utils";
 
 // Declarative file-category → glyph registry. Which extensions land in a category is the user's
 // call (Settings › File types); the glyph for a category is not — that mapping lives here so the

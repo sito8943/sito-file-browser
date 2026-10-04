@@ -187,6 +187,10 @@ export const en = {
     clearRecents: "Clear",
   },
   imagePreview: {
+    compatiblePreview:
+      "Compatible preview via Quick Look (up to 2048 px). The original file is unchanged.",
+    loading: "Loading image…",
+    loadError: "Could not load this image.",
     rotateLeft: "Rotate left",
     rotateRight: "Rotate right",
   },
@@ -271,6 +275,8 @@ export const en = {
       previewNext: "Next",
       previewZoomIn: "Zoom in (image)",
       previewZoomOut: "Zoom out (image)",
+      previewRotateLeft: "Rotate left (image)",
+      previewRotateRight: "Rotate right (image)",
       newTab: "New tab",
       newWindow: "New window",
       closeTab: "Close tab",
@@ -289,6 +295,10 @@ export const en = {
     newFolder: "New Folder",
     empty: "No folders here",
     loading: "Loading…",
+    // Search field in the picker's nav bar: filters the current folder's items by name.
+    searchPlaceholder: "Search",
+    search: "Search this folder",
+    noMatches: "No matching items",
     home: "Home",
     desktop: "Desktop",
     documents: "Documents",
@@ -484,6 +494,28 @@ export const en = {
     colorfulFileTypes: "Colorful file types",
     colorfulFileTypesHint:
       "Use category colors for file icons in list and grid views. Turn off for gray icons. Folders and thumbnails keep their appearance.",
+    thumbnailUnsupported: (ext: string) =>
+      `.${ext} is classified as an image, but has no built-in thumbnail support.`,
+    thumbnailTryQuickLook: "Try with Quick Look…",
+    thumbnailTesting: "Testing sample…",
+    thumbnailChooseSample: (ext: string) => `Choose a .${ext} sample file`,
+    thumbnailWrongSample: (ext: string) =>
+      `Choose a file with the .${ext} extension.`,
+    thumbnailProbeError:
+      "Could not generate a thumbnail for this sample. The file may be unreadable, damaged, or unsupported by Quick Look. No settings were changed.",
+    thumbnailCapabilitiesError:
+      "Could not check thumbnail support. Reopen Settings to try again.",
+    thumbnailQuickLookMacOnly:
+      "The Quick Look alternative is only available on macOS.",
+    thumbnailSampleAlt: (ext: string) => `Quick Look sample for .${ext}`,
+    thumbnailConfirmSample:
+      "Check that this shows the file content, not just a generic icon. Enable it only if the result looks correct. This affects thumbnails, not full-size preview support.",
+    thumbnailEnable: "Use Quick Look for this extension",
+    thumbnailDisable: "Disable Quick Look for this extension",
+    thumbnailQuickLookEnabled: (ext: string) =>
+      `Quick Look thumbnails enabled for .${ext}.`,
+    thumbnailReopenFolder:
+      "After settings finish saving, reopen the folder to reload its thumbnails.",
     fileTypesHint:
       "Which file type each extension belongs to. The type decides the entry's icon, whether it can be thumbnailed, and whether the built-in preview opens it — so adding opus to Audio gives .opus files the audio icon. An extension can only belong to one type.",
     fileTypesCategoryLabel: "File type",

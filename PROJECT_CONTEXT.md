@@ -169,7 +169,8 @@ orchestration. Leaf components should not create new global state or call Tauri 
 Current-folder Properties cannot be derived from `dirContent`, because that contains the folder's
 children. It uses the backend `get_entry` path and reuses the existing Properties flow.
 
-Typeahead feedback reuses `useKeyboardNav`; do not add a second keyboard listener.
+Typeahead feedback reuses `useKeyboardNav`; do not add a second keyboard listener. Its buffer/timer
+and prefix matching live in `src/shared/hooks/useTypeahead` (also used by the path picker).
 
 ## Frontend feature map
 
@@ -190,6 +191,8 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 - `shared/components/elements`: small domain-agnostic primitives;
 - `shared/components/patterns`: reusable compositions such as dialogs, popups, menus, and toasts;
 - `shared/keymap`: app keymap/scopes backed by the shared `@sito/commands` hotkey dispatcher;
+- `shared/formats`: file-type extension store/normalisation, category glyphs (`getFileIcon`) and
+  entry icon colours (`entryIconColor`), shared by the directory, Settings, and the path picker;
 - `shared/managers/FileSystemManager.ts`: filesystem domain boundary;
 - `shared/providers`: modal, confirm, picker, tags, archive, and app-state providers;
 - `shared/services/api.ts`: the frontend/Tauri boundary;
@@ -216,8 +219,8 @@ Settings are persisted by Rust in `settings.toml`. A settings change normally cr
 
 Do not change only the visible control or only the Rust default.
 
-Per-folder columns, view, sort, and zoom are stored separately through
-`src-tauri/src/functions/folder_columns.rs`.
+Per-folder columns, view, sort, and zoom (one value per view: grid and list are independent) are
+stored separately through `src-tauri/src/functions/folder_columns.rs`.
 
 The Storage section also hosts the cleanup watch list, which is **not** part of that contract: the
 folders the user registered to watch and reclaim live in `cleanup.toml` through
@@ -229,6 +232,23 @@ of the app config dir.
 
 Editable keybindings route through `src/shared/keymap`, Settings schema, and
 `src-tauri/src/functions/keymap.rs`; preserve platform overrides when writing one binding.
+
+The file-type editor reports image thumbnail capabilities through `FileSystemManager` and
+`get_thumbnail_capabilities`. For unsupported image extensions, macOS users can test a local sample
+with `probe_quicklook_thumbnail`, inspect the result, and enable `quickLookThumbnailExtensions` in
+settings. `get_thumbnail` reads that list on its worker and uses the existing Quick Look generator;
+its cache key includes the selected method. Failed samples never change settings or disable a
+format. This enables thumbnails only, not WebView full-size preview support. Windows/Linux do not
+offer this alternative. Reopen the folder after settings are saved to retry existing thumbnails.
+
+Image preview separately calls `prepare_image_preview` through `FileSystemManager` to authorize
+the selected local file in the asset scope, including hidden paths. `useImageLoad` bounds direct
+WebView decoding; on failure or timeout, macOS retries once with a cached Quick Look render sized
+from the source's `sips` dimensions (clamped to 2048-4096 px; PNG when translucent, otherwise
+JPEG). This is a compatible representation, not always the full-resolution original. Renders live
+in `thumbnails/preview/` with their own LRU budget, separate from grid thumbnails; navigation aborts
+consumption of stale results. Other platforms report an error if direct decoding fails. Original
+files are never rewritten.
 
 ## Remote and platform paths
 

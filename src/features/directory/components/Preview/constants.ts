@@ -1,3 +1,5 @@
+import { KEYMAP_ACTION } from "@/shared/keymap";
+
 import type { ResizeDir } from "./types";
 
 // Image-preview zoom bounds and wheel sensitivity (scale per wheel delta unit).
@@ -11,8 +13,16 @@ export const IMAGE_ROTATION_FULL = 360;
 export const IMAGE_ROTATION_HALF = 180;
 
 export const IMAGE_ROTATION_ACTIONS = [
-  { direction: -1, label: "rotateLeft" },
-  { direction: 1, label: "rotateRight" },
+  {
+    direction: -1,
+    label: "rotateLeft",
+    action: KEYMAP_ACTION.PREVIEW_ROTATE_LEFT,
+  },
+  {
+    direction: 1,
+    label: "rotateRight",
+    action: KEYMAP_ACTION.PREVIEW_ROTATE_RIGHT,
+  },
 ] as const;
 
 export const IMAGE_COPY_ACTIONS = [

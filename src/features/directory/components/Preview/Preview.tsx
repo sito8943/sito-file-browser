@@ -14,18 +14,17 @@ import {
 } from "@/shared/components/patterns/ContextMenu";
 import { KEY, SFTP_SCHEME, FILE_CATEGORY } from "@/shared/constants";
 import { ENTRY_KIND } from "@/features/directory/constants";
-import {
-  useFileTypeExtensions,
-  categoryOf,
-} from "@/features/directory/formats";
+import { useFileTypeExtensions, categoryOf } from "@/shared/formats";
 import {
   useKeymap,
   useHotkey,
+  useHotkeys,
   useHotkeyScope,
   HOTKEY_SCOPE,
   formatBinding,
   isMacPlatform,
   KEYMAP_ACTION,
+  type HotkeySpec,
 } from "@/shared/keymap";
 import { classNames } from "@/shared/utils";
 import { notify, TOAST_TYPE } from "@/shared/toast";
@@ -36,6 +35,7 @@ import PreviewControls from "../PreviewControls/PreviewControls";
 import { useContextMenu } from "../../hooks/useContextMenu";
 
 import { ZoomableImage } from "./ZoomableImage";
+import ImagePreviewSkeleton from "./ImagePreviewSkeleton";
 import { useImageZoom } from "./useImageZoom";
 import { usePanelGeometry } from "./usePanelGeometry";
 import { useMarkdownPreview } from "./useMarkdownPreview";
@@ -298,6 +298,16 @@ const Preview = ({
     () => stepZoom(-IMAGE_ZOOM_BUTTON_STEP),
     { scope: HOTKEY_SCOPE.PREVIEW, when: previewVisible && isImage },
   );
+  const rotationHotkeys: HotkeySpec[] = IMAGE_ROTATION_ACTIONS.map(
+    ({ action, direction }) => ({
+      binding: action,
+      handler: () => rotate(direction),
+      scope: HOTKEY_SCOPE.PREVIEW,
+      when: previewVisible && isImage && isReady,
+    }),
+  );
+  useHotkeys(rotationHotkeys);
+
   // Trash the previewed file (same binding as the directory's trash, which is disabled while a
   // preview is open). usePreview advances to the next file after the list shrinks.
   useHotkey(KEYMAP_ACTION.TRASH, onDelete, {
@@ -410,7 +420,7 @@ const Preview = ({
               ) : isImage ? (
                 <ZoomableImage
                   key={filePath}
-                  src={convertFileSrc(localPath)}
+                  path={localPath}
                   alt={filePath}
                   onContextMenu={handleImageContextMenu}
                   zoom={zoom}
@@ -436,6 +446,8 @@ const Preview = ({
                   <h3>{t.directory.fileTypeNotSupported}</h3>
                 </div>
               )
+            ) : isImage ? (
+              <ImagePreviewSkeleton />
             ) : (
               <Spinner />
             )}
@@ -476,13 +488,14 @@ const Preview = ({
             )}
             {isImage && (
               <>
-                {IMAGE_ROTATION_ACTIONS.map(({ direction, label }) => (
+                {IMAGE_ROTATION_ACTIONS.map(({ direction, label, action }) => (
                   <IconButton
                     key={label}
                     icon={direction < 0 ? faRotateLeft : faRotateRight}
                     onClick={() => rotate(direction)}
                     disabled={!isReady}
                     tooltip={t.imagePreview[label]}
+                    hotkey={formatBinding(keymap[action])}
                     aria-label={t.imagePreview[label]}
                   />
                 ))}

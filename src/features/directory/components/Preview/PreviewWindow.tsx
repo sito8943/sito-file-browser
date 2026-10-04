@@ -93,13 +93,18 @@ const PreviewWindow = ({ target }: { target: string }) => {
   // Match the main window's appearance: theme/accent and the surface-opacity variables the Preview
   // (controls pill, image context menu, discard-edits dialog) reads. Loaded from settings.toml;
   // falls back to defaults until it resolves.
+  // `settingsReady` gates the sibling listing: the user's extension → category map decides which
+  // files are previewable, so listing with the defaults could omit the target (e.g. a remapped
+  // .avif) and leave the window stuck on an empty preview, depending on which promise won.
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [settingsReady, setSettingsReady] = useState(false);
   useEffect(() => {
     getSettings()
       .then(setSettings)
       .catch(() => {
         /* keep defaults — appearance only */
-      });
+      })
+      .finally(() => setSettingsReady(true));
   }, []);
   useTheme(settings.theme as Theme);
   useAccent(settings.accentColor as Accent);
@@ -126,6 +131,7 @@ const PreviewWindow = ({ target }: { target: string }) => {
   const parent = useMemo(() => dirname(target), [target]);
   const [previewables, setPreviewables] = useState<DirEntry[]>([]);
   const loadSiblings = useCallback(async () => {
+    if (!settingsReady) return;
     try {
       const entries = await fs.readDirectory(parent);
       setPreviewables(
@@ -138,7 +144,7 @@ const PreviewWindow = ({ target }: { target: string }) => {
     } catch (err) {
       notify(t.errors.read(String(err)), TOAST_TYPE.ERROR);
     }
-  }, [fs, parent, settings.fileTypeExtensions]);
+  }, [fs, parent, settings.fileTypeExtensions, settingsReady]);
   useEffect(() => {
     // Async listing of the target's folder — syncing React to an external system (the filesystem),
     // the intended use of an effect; setState lands in the resolved promise, not synchronously.
@@ -151,15 +157,17 @@ const PreviewWindow = ({ target }: { target: string }) => {
 
   // Open the target once its folder has been listed (open() locates it among the siblings) and
   // reveal the window. One-shot — afterwards the window follows the user's prev/next navigation.
+  // Waits for the target itself (not just any sibling): `open` silently no-ops on a miss, which
+  // would otherwise consume the one shot and leave the window on its loading state forever.
   const opened = useRef(false);
   useEffect(() => {
-    if (opened.current || previewables.length === 0) return;
+    if (opened.current || !previewables.some((e) => e.path === target)) return;
     opened.current = true;
     open(target);
     const win = getCurrentWindow();
     void win.show();
     void win.setFocus();
-  }, [previewables.length, open, target]);
+  }, [previewables, open, target]);
 
   // Dismissing the preview (Escape / close button / backdrop) closes the whole window — guarded by
   // `opened` so the initial visible=false doesn't close it before it ever opens.

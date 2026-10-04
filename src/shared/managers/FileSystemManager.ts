@@ -1,6 +1,6 @@
 import * as api from "@/shared/services/api";
 import { DirEntry, Volume, Tag } from "@/shared/models";
-import type { DragDropAction } from "@/shared/constants";
+import type { DragDropAction, ViewMode } from "@/shared/constants";
 
 // Encapsulates all filesystem domain operations. Views/components consume this through the provider
 // instead of calling the Tauri service (`api`) directly. Also owns data shaping (filtering, sorting).
@@ -99,12 +99,12 @@ export class FileSystemManager {
   }
 
   // Per-folder zoom level (null when unset).
-  getFolderZoom(path: string): Promise<number | null> {
-    return api.getFolderZoom(path);
+  getFolderZoom(path: string, view: ViewMode): Promise<number | null> {
+    return api.getFolderZoom(path, view);
   }
 
-  setFolderZoom(path: string, zoom: number): Promise<void> {
-    return api.setFolderZoom(path, zoom);
+  setFolderZoom(path: string, view: ViewMode, zoom: number): Promise<void> {
+    return api.setFolderZoom(path, view, zoom);
   }
 
   getDirSize(path: string): Promise<number> {
@@ -126,6 +126,18 @@ export class FileSystemManager {
 
   getThumbnail(path: string, size: number): Promise<string> {
     return api.getThumbnail(path, size);
+  }
+
+  getThumbnailCapabilities(): Promise<api.ThumbnailCapabilities> {
+    return api.getThumbnailCapabilities();
+  }
+
+  probeQuickLookThumbnail(path: string): Promise<string> {
+    return api.probeQuickLookThumbnail(path);
+  }
+
+  prepareImagePreview(path: string, fallback: boolean): Promise<string> {
+    return api.prepareImagePreview(path, fallback);
   }
 
   open(path: string): Promise<void> {

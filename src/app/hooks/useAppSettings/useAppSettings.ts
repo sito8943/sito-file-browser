@@ -6,7 +6,7 @@ import {
   type AppSettings,
 } from "@/shared/services/api";
 
-import { normalizeFileTypeExtensions } from "@/features/directory/formats";
+import { normalizeFileTypeExtensions } from "@/shared/formats";
 
 import { DEFAULT_SETTINGS, SETTINGS_PERSIST_DEBOUNCE_MS } from "./constants";
 

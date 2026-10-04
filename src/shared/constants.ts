@@ -343,6 +343,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showVolumeSize: false,
   sizeIgnores: isMacPlatform() ? [...MACOS_SIZE_IGNORES] : [],
   fileTypeExtensions: structuredClone(DEFAULT_FILE_TYPE_EXTENSIONS),
+  quickLookThumbnailExtensions: [],
   colorfulFileTypes: false,
   showOnboarding: true,
   onboardingSeen: false,

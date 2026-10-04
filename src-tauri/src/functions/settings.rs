@@ -114,6 +114,8 @@ pub struct AppSettings {
     // preview). Seeded with the built-in extensions so the whole map is visible and editable in
     // settings.toml. A BTreeMap so the written file keeps a stable key order between saves.
     file_type_extensions: BTreeMap<String, Vec<String>>,
+    // Image extensions explicitly enabled for macOS Quick Look thumbnails after a sample test.
+    pub quick_look_thumbnail_extensions: Vec<String>,
     // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
     colorful_file_types: bool,
 }
@@ -174,6 +176,7 @@ impl Default for AppSettings {
             last_seen_version: String::new(),
             show_changelog_after_update: true,
             file_type_extensions: default_file_type_extensions(),
+            quick_look_thumbnail_extensions: Vec::new(),
             colorful_file_types: false,
         }
     }

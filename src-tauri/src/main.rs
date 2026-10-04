@@ -78,7 +78,7 @@ fn main() {
                 std::thread::spawn(move || filesystem::fs::prewarm_directories(warm));
             }
 
-            // Trim the thumbnail cache to its size budget, off the UI thread.
+            // Trim the grid-thumbnail and preview caches to their size budgets, off the UI thread.
             if let Ok(cache_dir) = app.path().app_cache_dir() {
                 let thumbnails = cache_dir.join("thumbnails");
                 std::thread::spawn(move || filesystem::fs::prune_thumbnail_cache(&thumbnails));
@@ -99,6 +99,9 @@ fn main() {
             filesystem::fs::get_dir_size,
             filesystem::fs::get_recent_files,
             filesystem::fs::get_thumbnail,
+            filesystem::fs::prepare_image_preview,
+            filesystem::fs::get_thumbnail_capabilities,
+            filesystem::fs::probe_quicklook_thumbnail,
             filesystem::fs::read_directory,
             filesystem::fs::search_directory,
             filesystem::fs::can_write,

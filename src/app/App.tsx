@@ -103,7 +103,8 @@ const App = () => {
   useTheme(settings.theme as Theme);
   useFileTypes(settings.fileTypeExtensions);
   useAccent(settings.accentColor as Accent);
-  const zoom = useZoom(fs, tabs.path, settings.defaultZoom);
+  const [view, setView] = useState<ViewMode>(VIEW_MODE.GRID);
+  const zoom = useZoom(fs, tabs.path, view, settings.defaultZoom);
   const { toasts, dismissToast } = useToasts();
   const sidebar = useSidebarCollapsed();
   // Launch-time check for a newer GitHub release (toast on hit); off via Settings › Updates.
@@ -115,8 +116,6 @@ const App = () => {
     newTab: tabs.newTab,
     homePath: settings.homePath,
   });
-
-  const [view, setView] = useState<ViewMode>(VIEW_MODE.GRID);
 
   // Bridge this window to the headless control channel (`sfb ui …` / MCP): mirror UI state to Rust
   // and apply inbound navigate requests.
@@ -334,6 +333,7 @@ const App = () => {
                   >
                     <FilePickerProvider
                       useCustom={settings.useCustomFolderPicker}
+                      colorfulFileTypes={settings.colorfulFileTypes}
                     >
                       <ShortcutHelpProvider>
                         <OnboardingProvider>

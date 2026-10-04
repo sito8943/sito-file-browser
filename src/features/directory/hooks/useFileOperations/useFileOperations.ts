@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
-import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { homeDir, join } from "@tauri-apps/api/path";
 
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { useConfirm } from "@/shared/providers/ConfirmProvider";
+import { useFolderPicker } from "@/shared/providers/FolderPickerProvider";
 import {
   compressEntries,
   extractArchive,
@@ -42,6 +42,7 @@ export const useFileOperations = ({
 }: UseFileOperationsArgs) => {
   const { fs, clickableToasts, confirmDelete } = useStateContext();
   const { confirm } = useConfirm();
+  const { pickFolder } = useFolderPicker();
   const [clipboard, setClipboard] = useState<Clipboard>(null);
   const {
     record,
@@ -204,10 +205,7 @@ export const useFileOperations = ({
       }
 
       if (unresolved.length) {
-        const dir = await openDialog({
-          directory: true,
-          title: t.directory.restoreToTitle,
-        });
+        const dir = await pickFolder();
         if (typeof dir === "string") {
           for (const target of unresolved) {
             try {
@@ -234,7 +232,7 @@ export const useFileOperations = ({
       setSelectedIDs([]);
       refreshDir();
     },
-    [fs, refreshDir, setSelectedIDs, revealAction],
+    [fs, refreshDir, setSelectedIDs, revealAction, pickFolder],
   );
 
   const paste = useCallback(async () => {

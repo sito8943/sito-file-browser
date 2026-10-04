@@ -1,16 +1,12 @@
 import Icon from "@/shared/components/elements/Icon";
 import { classNames } from "@/shared/utils";
 import {
-  FILE_CATEGORY_COLORS,
-  TAG_COLOR,
-  TAG_COLOR_CLASS,
-} from "@/shared/constants";
+  entryIconColor,
+  getFileIcon,
+  useFileTypeExtensions,
+} from "@/shared/formats";
 
 import { faFolder } from "@fortawesome/free-solid-svg-icons";
-
-import { categoryOf, useFileTypeExtensions } from "../../formats";
-
-import { getFileIcon } from "./fileIcon";
 
 import type { EntryIconProps } from "./types";
 
@@ -29,19 +25,13 @@ const EntryIcon = ({
   // Subscribed here rather than passed down: the glyph must change the moment the user remaps an
   // extension in Settings, without every DirEntry having to thread the map through.
   const fileTypes = useFileTypeExtensions();
-  const category =
-    !isDir && colorfulFileTypes ? categoryOf(fileTypes, extension) : null;
-  // Uncoloured tags do not mask a later colour; reuse the same theme tokens as TagDots.
-  const folderTag = isDir
-    ? tags.find(
-        (tag) => tag.color !== TAG_COLOR.NONE && TAG_COLOR_CLASS[tag.color],
-      )
-    : undefined;
-  const iconColor = folderTag
-    ? `var(--color-tag-${TAG_COLOR_CLASS[folderTag.color]})`
-    : category
-      ? FILE_CATEGORY_COLORS[category]
-      : undefined;
+  const iconColor = entryIconColor({
+    isDir,
+    extension,
+    tags,
+    extensions: fileTypes,
+    colorfulFileTypes,
+  });
 
   return (
     <div

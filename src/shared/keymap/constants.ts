@@ -22,6 +22,8 @@ export const KEYMAP_ACTION = {
   PREVIEW_NEXT: "preview_next",
   PREVIEW_ZOOM_IN: "preview_zoom_in",
   PREVIEW_ZOOM_OUT: "preview_zoom_out",
+  PREVIEW_ROTATE_LEFT: "preview_rotate_left",
+  PREVIEW_ROTATE_RIGHT: "preview_rotate_right",
   NEW_TAB: "new_tab",
   NEW_WINDOW: "new_window",
   CLOSE_TAB: "close_tab",
