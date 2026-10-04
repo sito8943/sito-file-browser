@@ -62,7 +62,7 @@ arboard = "3"
 
 # SSH/SFTP remote browsing (see SSH_PLAN.md). Pure-Rust SSH stack — no libssh2 C dependency, keeps
 # the cross-platform build clean. russh is fully async; it runs on Tauri's tokio runtime.
-russh = "0.62"
+russh = "0.63"
 russh-sftp = "2"
 tokio = { version = "1", features = ["rt", "sync", "macros", "fs", "io-util"] }
 
