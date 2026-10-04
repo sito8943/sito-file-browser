@@ -136,6 +136,10 @@ export class FileSystemManager {
     return api.probeQuickLookThumbnail(path);
   }
 
+  prepareImagePreview(path: string, fallback: boolean): Promise<string> {
+    return api.prepareImagePreview(path, fallback);
+  }
+
   open(path: string): Promise<void> {
     return api.openFile(path);
   }

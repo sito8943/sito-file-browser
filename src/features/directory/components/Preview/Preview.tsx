@@ -423,7 +423,7 @@ const Preview = ({
               ) : isImage ? (
                 <ZoomableImage
                   key={filePath}
-                  src={convertFileSrc(localPath)}
+                  path={localPath}
                   alt={filePath}
                   onContextMenu={handleImageContextMenu}
                   zoom={zoom}

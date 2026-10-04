@@ -13,7 +13,7 @@ import ImagePreviewSkeleton from "./ImagePreviewSkeleton";
 // (so the zoom control can live in the shared bottom bar); this component just applies the
 // transform and reports wheel/drag back up.
 export const ZoomableImage = ({
-  src,
+  path,
   alt,
   onContextMenu,
   zoom,
@@ -23,7 +23,7 @@ export const ZoomableImage = ({
   onPanChange,
 }: ZoomableImageProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
-  const { loading, failed, ready } = useImageLoad(imgRef, src);
+  const { loading, failed, ready, fallback } = useImageLoad(imgRef, path);
   const { scale, clampPan } = useImageGeometry(imgRef, rotation, zoom);
   const visiblePan = clampPan(pan);
   // Mirror the zoom prop so the (long-lived) wheel listener reads the latest value.
@@ -90,8 +90,8 @@ export const ZoomableImage = ({
       )}
       <img
         ref={imgRef}
-        src={src}
         alt={alt}
+        title={fallback ? t.imagePreview.compatiblePreview : undefined}
         draggable={false}
         decoding="async"
         aria-hidden={!ready}

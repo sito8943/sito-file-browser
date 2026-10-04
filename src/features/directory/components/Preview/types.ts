@@ -56,7 +56,7 @@ export interface PreviewProps {
 }
 
 export interface ZoomableImageProps {
-  src: string;
+  path: string;
   alt: string;
   onContextMenu: (e: MouseEvent) => void;
   // Controlled zoom + pan (lifted to Preview so the zoom control can sit in the shared bottom

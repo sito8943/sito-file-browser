@@ -238,6 +238,15 @@ its cache key includes the selected method. Failed samples never change settings
 format. This enables thumbnails only, not WebView full-size preview support. Windows/Linux do not
 offer this alternative. Reopen the folder after settings are saved to retry existing thumbnails.
 
+Image preview separately calls `prepare_image_preview` through `FileSystemManager` to authorize
+the selected local file in the asset scope, including hidden paths. `useImageLoad` bounds direct
+WebView decoding; on failure or timeout, macOS retries once with a cached Quick Look render sized
+from the source's `sips` dimensions (clamped to 2048-4096 px; PNG when translucent, otherwise
+JPEG). This is a compatible representation, not always the full-resolution original. Renders live
+in `thumbnails/preview/` with their own LRU budget, separate from grid thumbnails; navigation aborts
+consumption of stale results. Other platforms report an error if direct decoding fails. Original
+files are never rewritten.
+
 ## Remote and platform paths
 
 SFTP:

@@ -187,6 +187,7 @@ export const en = {
     clearRecents: "Clear",
   },
   imagePreview: {
+    compatiblePreview: "Compatible preview via Quick Look (up to 2048 px). The original file is unchanged.",
     loading: "Loading image…",
     loadError: "Could not load this image.",
     rotateLeft: "Rotate left",
