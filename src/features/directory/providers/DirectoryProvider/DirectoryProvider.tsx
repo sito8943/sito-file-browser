@@ -8,7 +8,7 @@ import type { DirEntry } from "@/shared/models";
 import { t } from "@/lang";
 import { revealTargetFromUrl } from "@/features/tabs";
 import { opensInAppPreview } from "../../constants";
-import { useFileTypeExtensions } from "../../formats";
+import { useFileTypeExtensions } from "@/shared/formats";
 import { DEFAULT_FILTERS } from "@/shared/search/filters";
 
 import { useDirectoryEntries } from "../../hooks/useDirectoryEntries";

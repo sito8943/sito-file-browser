@@ -18,7 +18,7 @@ import {
 import { THUMBNAIL_PREFETCH_MARGIN, THUMBNAIL_SIZE } from "./constants";
 import type { FolderThumbnail } from "./types";
 import { extensionOf } from "./utils";
-import { useFileTypeExtensions, isCategory } from "../../formats";
+import { useFileTypeExtensions, isCategory } from "@/shared/formats";
 
 // Resolve up to four direct image children for one folder. Discovery and thumbnail generation use
 // the same viewport gate and concurrency queue as file thumbnails, so zoomed-out or off-screen

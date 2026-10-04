@@ -4,7 +4,7 @@ import { FILE_CATEGORY_ORDER, type FileCategory } from "@/shared/constants";
 import {
   conflictingCategory,
   normalizeExtension,
-} from "@/features/directory/formats";
+} from "@/shared/formats";
 
 import type { CustomControlProps } from "../../../../schema";
 import { DEFAULT_EDITOR_CATEGORY } from "./constants";

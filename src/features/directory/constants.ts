@@ -5,7 +5,7 @@ import {
   type FileTypeExtensions,
 } from "@/shared/constants";
 
-import { isCategory } from "./formats";
+import { isCategory } from "@/shared/formats";
 
 // How often the status-bar OS-stats readout re-polls the system (ms). Slow enough to be cheap,
 // fast enough to feel live.

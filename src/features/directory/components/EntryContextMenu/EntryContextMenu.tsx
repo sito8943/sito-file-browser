@@ -22,7 +22,7 @@ import {
   type EntryActionId,
 } from "../../actions";
 import { opensInAppPreview } from "../../constants";
-import { useFileTypeExtensions } from "../../formats";
+import { useFileTypeExtensions } from "@/shared/formats";
 import { useContextMenuLayout } from "../../hooks/useContextMenuLayout";
 import { useArchiveActions } from "../../hooks/useArchiveActions";
 import { useSevenzipAvailable } from "@/shared/hooks/useSevenzipAvailable";

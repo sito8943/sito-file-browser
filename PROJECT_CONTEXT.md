@@ -169,7 +169,8 @@ orchestration. Leaf components should not create new global state or call Tauri 
 Current-folder Properties cannot be derived from `dirContent`, because that contains the folder's
 children. It uses the backend `get_entry` path and reuses the existing Properties flow.
 
-Typeahead feedback reuses `useKeyboardNav`; do not add a second keyboard listener.
+Typeahead feedback reuses `useKeyboardNav`; do not add a second keyboard listener. Its buffer/timer
+and prefix matching live in `src/shared/hooks/useTypeahead` (also used by the path picker).
 
 ## Frontend feature map
 
@@ -190,6 +191,8 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 - `shared/components/elements`: small domain-agnostic primitives;
 - `shared/components/patterns`: reusable compositions such as dialogs, popups, menus, and toasts;
 - `shared/keymap`: app keymap/scopes backed by the shared `@sito/commands` hotkey dispatcher;
+- `shared/formats`: file-type extension store/normalisation, category glyphs (`getFileIcon`) and
+  entry icon colours (`entryIconColor`), shared by the directory, Settings, and the path picker;
 - `shared/managers/FileSystemManager.ts`: filesystem domain boundary;
 - `shared/providers`: modal, confirm, picker, tags, archive, and app-state providers;
 - `shared/services/api.ts`: the frontend/Tauri boundary;

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { setFileTypeExtensions } from "@/features/directory/formats";
+import { setFileTypeExtensions } from "@/shared/formats";
 import type { FileTypeExtensions } from "@/shared/constants";
 
 // Mirror the user's extension → category map from settings into the formats store, which is what

@@ -4,9 +4,12 @@ import { readTextFile } from "@tauri-apps/plugin-fs";
 
 import { DirEntry } from "@/shared/models";
 import { extension } from "@/shared/utils";
+import {
+  getFileIcon,
+  getFileTypeExtensions,
+  FILE_ICONS,
+} from "@/shared/formats";
 
-import { getFileIcon, FILE_ICONS } from "./components/DirEntry/fileIcon";
-import { getFileTypeExtensions } from "./formats";
 import { setThumbnailPath } from "./thumbnailCache";
 
 // Native-drag previews for entries without a real thumbnail (folders, documents, …): the entry's

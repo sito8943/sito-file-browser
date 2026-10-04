@@ -12,7 +12,7 @@ import {
 } from "@/shared/search/filters";
 import { FILE_CATEGORY, type FileCategory } from "@/shared/constants";
 
-import { getFileTypeExtensions, categoryOf } from "./formats";
+import { getFileTypeExtensions, categoryOf } from "@/shared/formats";
 
 // Coarse search-filter kind per file-type category. Categories the user can remap (Settings ›
 // File types) feed this, so a custom extension filters like the category it was put in.

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { isPreviewable } from "@/features/directory/constants";
-import { useFileTypeExtensions } from "@/features/directory/formats";
+import { useFileTypeExtensions } from "@/shared/formats";
 import { extension } from "@/shared/utils";
 import { DirEntry } from "@/shared/models";
 

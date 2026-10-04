@@ -7,7 +7,7 @@ import { extension } from "@/shared/utils";
 import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { customActionIcon } from "@/shared/contextActions";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
-import { useFileTypeExtensions } from "@/features/directory/formats";
+import { useFileTypeExtensions } from "@/shared/formats";
 
 import { useDirectory } from "../../providers/DirectoryProvider";
 import { useContextMenuLayout } from "../../hooks/useContextMenuLayout";

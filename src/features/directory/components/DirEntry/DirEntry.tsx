@@ -9,8 +9,9 @@ import {
 import {
   useFileTypeExtensions,
   isCategory,
-} from "@/features/directory/formats";
+} from "@/shared/formats";
 import Tooltip from "@/shared/components/elements/Tooltip";
+import TagDots from "@/shared/components/elements/TagDots";
 import TextInput from "@/shared/components/elements/TextInput";
 import { SFTP_SCHEME, SVG_FORMAT, FILE_CATEGORY } from "@/shared/constants";
 import { t } from "@/lang";
@@ -22,7 +23,6 @@ import { useInlineRename } from "./useInlineRename";
 import { useEntryContextMenu } from "./useEntryContextMenu";
 import { EntryMetadata } from "./EntryMetadata";
 import { EntryIcon } from "./EntryIcon";
-import { TagDots } from "./TagDots";
 import type { DirEntryItemProps } from "./types";
 
 const DirEntryItemComponent = ({

@@ -17,7 +17,7 @@ import { ENTRY_KIND } from "@/features/directory/constants";
 import {
   useFileTypeExtensions,
   categoryOf,
-} from "@/features/directory/formats";
+} from "@/shared/formats";
 import {
   useKeymap,
   useHotkey,

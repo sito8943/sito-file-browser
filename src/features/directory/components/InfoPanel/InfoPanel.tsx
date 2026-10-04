@@ -11,7 +11,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FILE_CATEGORY } from "@/shared/constants";
 
 import { useDirectory } from "../../providers/DirectoryProvider";
-import { useFileTypeExtensions, categoryOf } from "../../formats";
+import { useFileTypeExtensions, categoryOf } from "@/shared/formats";
 import { PropertiesContent } from "../Properties/PropertiesContent";
 
 import "@/styles/components/InfoPanel.css";

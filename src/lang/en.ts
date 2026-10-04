@@ -294,6 +294,10 @@ export const en = {
     newFolder: "New Folder",
     empty: "No folders here",
     loading: "Loading…",
+    // Search field in the picker's nav bar: filters the current folder's items by name.
+    searchPlaceholder: "Search",
+    search: "Search this folder",
+    noMatches: "No matching items",
     home: "Home",
     desktop: "Desktop",
     documents: "Documents",

@@ -333,6 +333,7 @@ const App = () => {
                   >
                     <FilePickerProvider
                       useCustom={settings.useCustomFolderPicker}
+                      colorfulFileTypes={settings.colorfulFileTypes}
                     >
                       <ShortcutHelpProvider>
                         <OnboardingProvider>

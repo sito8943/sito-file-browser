@@ -85,6 +85,7 @@
   --size-folder-picker-width: 680px;
   --size-folder-picker-source-width: 176px;
   --size-folder-picker-list-height: 340px;
+  --size-folder-picker-search-width: 180px;
   --size-info-panel-width: 300px;
   --size-info-preview-height: 240px;
   /* List-view column template widths (see --list-grid in Directory.css). */
