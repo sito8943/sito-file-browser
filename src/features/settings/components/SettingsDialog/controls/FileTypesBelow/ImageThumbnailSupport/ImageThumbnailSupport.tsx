@@ -9,7 +9,15 @@ import "@/styles/components/ImageThumbnailSupport.css";
 
 const ImageThumbnailSupport = (props: ImageThumbnailSupportProps) => {
   const {
-    capabilities, supported, enabled, busy, sample, error, probe, enable, disable,
+    capabilities,
+    supported,
+    enabled,
+    busy,
+    sample,
+    error,
+    probe,
+    enable,
+    disable,
   } = useThumbnailProbe(props);
 
   if (supported || (!capabilities && !error)) return null;
@@ -32,9 +40,13 @@ const ImageThumbnailSupport = (props: ImageThumbnailSupportProps) => {
         </>
       ) : capabilities?.quickLook ? (
         <Button className="settings_button" onClick={probe} disabled={busy}>
-          {busy ? t.settings.thumbnailTesting : t.settings.thumbnailTryQuickLook}
+          {busy
+            ? t.settings.thumbnailTesting
+            : t.settings.thumbnailTryQuickLook}
         </Button>
-      ) : capabilities && <p>{t.settings.thumbnailQuickLookMacOnly}</p>}
+      ) : (
+        capabilities && <p>{t.settings.thumbnailQuickLookMacOnly}</p>
+      )}
       {enabled && capabilities && !capabilities.quickLook && (
         <p>{t.settings.thumbnailQuickLookMacOnly}</p>
       )}

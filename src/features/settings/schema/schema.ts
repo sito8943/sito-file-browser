@@ -356,7 +356,9 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     reset: (update, defaults) =>
       update({
         fileTypeExtensions: structuredClone(defaults.fileTypeExtensions),
-        quickLookThumbnailExtensions: [...defaults.quickLookThumbnailExtensions],
+        quickLookThumbnailExtensions: [
+          ...defaults.quickLookThumbnailExtensions,
+        ],
       }),
   },
   {

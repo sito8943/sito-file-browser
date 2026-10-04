@@ -79,12 +79,21 @@ export const useThumbnailProbe = ({
 
   const disable = () =>
     update({
-      quickLookThumbnailExtensions: settings.quickLookThumbnailExtensions.filter(
-        (value) => value !== extension,
-      ),
+      quickLookThumbnailExtensions:
+        settings.quickLookThumbnailExtensions.filter(
+          (value) => value !== extension,
+        ),
     });
 
   return {
-    capabilities, supported, enabled, busy, sample, error, probe, enable, disable,
+    capabilities,
+    supported,
+    enabled,
+    busy,
+    sample,
+    error,
+    probe,
+    enable,
+    disable,
   };
 };

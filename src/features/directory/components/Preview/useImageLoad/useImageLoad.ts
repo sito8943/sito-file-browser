@@ -38,7 +38,11 @@ export const useImageLoad = (
       );
       if (signal.aborted) return;
       image.src = convertFileSrc(localPath);
-      await waitForImageOperation(image.decode(), IMAGE_DECODE_TIMEOUT_MS, signal);
+      await waitForImageOperation(
+        image.decode(),
+        IMAGE_DECODE_TIMEOUT_MS,
+        signal,
+      );
       if (!signal.aborted) setResult({ path, failed: false, fallback });
     };
 
@@ -53,7 +57,8 @@ export const useImageLoad = (
           if (nativeOnly) throw new Error("Native image preview failed");
           await load(true);
         } catch {
-          if (!signal.aborted) setResult({ path, failed: true, fallback: false });
+          if (!signal.aborted)
+            setResult({ path, failed: true, fallback: false });
         }
       }
     })();

@@ -460,8 +460,10 @@ export const probeQuickLookThumbnail = (path: string): Promise<string> =>
   invoke("probe_quicklook_thumbnail", { path });
 
 // Authorize the selected local image, or generate a compatible cached representation on macOS.
-export const prepareImagePreview = (path: string, fallback: boolean): Promise<string> =>
-  invoke("prepare_image_preview", { path, fallback });
+export const prepareImagePreview = (
+  path: string,
+  fallback: boolean,
+): Promise<string> => invoke("prepare_image_preview", { path, fallback });
 
 // Open a file with the OS default application. Goes through the Rust `open_file` command so the path
 // is logged to the Tauri terminal; the command returns the error if it fails.

@@ -167,7 +167,7 @@ const PreviewWindow = ({ target }: { target: string }) => {
     const win = getCurrentWindow();
     void win.show();
     void win.setFocus();
-  }, [previewables.length, open, target]);
+  }, [previewables, open, target]);
 
   // Dismissing the preview (Escape / close button / backdrop) closes the whole window — guarded by
   // `opened` so the initial visible=false doesn't close it before it ever opens.

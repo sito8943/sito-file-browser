@@ -149,9 +149,7 @@ const PathPickerDialog = ({
   // change. Deferred a frame so it lands after the Dialog's own initial-focus pass.
   useEffect(() => {
     if (!visible) return;
-    const frame = window.requestAnimationFrame(() =>
-      listRef.current?.focus(),
-    );
+    const frame = window.requestAnimationFrame(() => listRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
   }, [visible, path]);
 

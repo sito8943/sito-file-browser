@@ -187,7 +187,8 @@ export const en = {
     clearRecents: "Clear",
   },
   imagePreview: {
-    compatiblePreview: "Compatible preview via Quick Look (up to 2048 px). The original file is unchanged.",
+    compatiblePreview:
+      "Compatible preview via Quick Look (up to 2048 px). The original file is unchanged.",
     loading: "Loading image…",
     loadError: "Could not load this image.",
     rotateLeft: "Rotate left",
@@ -498,18 +499,23 @@ export const en = {
     thumbnailTryQuickLook: "Try with Quick Look…",
     thumbnailTesting: "Testing sample…",
     thumbnailChooseSample: (ext: string) => `Choose a .${ext} sample file`,
-    thumbnailWrongSample: (ext: string) => `Choose a file with the .${ext} extension.`,
+    thumbnailWrongSample: (ext: string) =>
+      `Choose a file with the .${ext} extension.`,
     thumbnailProbeError:
       "Could not generate a thumbnail for this sample. The file may be unreadable, damaged, or unsupported by Quick Look. No settings were changed.",
-    thumbnailCapabilitiesError: "Could not check thumbnail support. Reopen Settings to try again.",
-    thumbnailQuickLookMacOnly: "The Quick Look alternative is only available on macOS.",
+    thumbnailCapabilitiesError:
+      "Could not check thumbnail support. Reopen Settings to try again.",
+    thumbnailQuickLookMacOnly:
+      "The Quick Look alternative is only available on macOS.",
     thumbnailSampleAlt: (ext: string) => `Quick Look sample for .${ext}`,
     thumbnailConfirmSample:
       "Check that this shows the file content, not just a generic icon. Enable it only if the result looks correct. This affects thumbnails, not full-size preview support.",
     thumbnailEnable: "Use Quick Look for this extension",
     thumbnailDisable: "Disable Quick Look for this extension",
-    thumbnailQuickLookEnabled: (ext: string) => `Quick Look thumbnails enabled for .${ext}.`,
-    thumbnailReopenFolder: "After settings finish saving, reopen the folder to reload its thumbnails.",
+    thumbnailQuickLookEnabled: (ext: string) =>
+      `Quick Look thumbnails enabled for .${ext}.`,
+    thumbnailReopenFolder:
+      "After settings finish saving, reopen the folder to reload its thumbnails.",
     fileTypesHint:
       "Which file type each extension belongs to. The type decides the entry's icon, whether it can be thumbnailed, and whether the built-in preview opens it — so adding opus to Audio gives .opus files the audio icon. An extension can only belong to one type.",
     fileTypesCategoryLabel: "File type",

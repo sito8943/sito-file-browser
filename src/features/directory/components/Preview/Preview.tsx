@@ -14,10 +14,7 @@ import {
 } from "@/shared/components/patterns/ContextMenu";
 import { KEY, SFTP_SCHEME, FILE_CATEGORY } from "@/shared/constants";
 import { ENTRY_KIND } from "@/features/directory/constants";
-import {
-  useFileTypeExtensions,
-  categoryOf,
-} from "@/shared/formats";
+import { useFileTypeExtensions, categoryOf } from "@/shared/formats";
 import {
   useKeymap,
   useHotkey,

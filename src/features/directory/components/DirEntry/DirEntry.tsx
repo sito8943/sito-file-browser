@@ -6,10 +6,7 @@ import {
   formatBytes,
   formatDate,
 } from "@/shared/utils";
-import {
-  useFileTypeExtensions,
-  isCategory,
-} from "@/shared/formats";
+import { useFileTypeExtensions, isCategory } from "@/shared/formats";
 import Tooltip from "@/shared/components/elements/Tooltip";
 import TagDots from "@/shared/components/elements/TagDots";
 import TextInput from "@/shared/components/elements/TextInput";

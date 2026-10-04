@@ -1,10 +1,7 @@
 import { useState } from "react";
 
 import { FILE_CATEGORY_ORDER, type FileCategory } from "@/shared/constants";
-import {
-  conflictingCategory,
-  normalizeExtension,
-} from "@/shared/formats";
+import { conflictingCategory, normalizeExtension } from "@/shared/formats";
 
 import type { CustomControlProps } from "../../../../schema";
 import { DEFAULT_EDITOR_CATEGORY } from "./constants";
@@ -60,9 +57,8 @@ export const useFileTypeEditor = ({ settings, update }: CustomControlProps) => {
 
   const remove = (from: FileCategory, ext: string) =>
     update({
-      quickLookThumbnailExtensions: settings.quickLookThumbnailExtensions.filter(
-        (entry) => entry !== ext,
-      ),
+      quickLookThumbnailExtensions:
+        settings.quickLookThumbnailExtensions.filter((entry) => entry !== ext),
       fileTypeExtensions: {
         ...extensions,
         [from]: extensions[from].filter((entry) => entry !== ext),
