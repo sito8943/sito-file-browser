@@ -19,7 +19,7 @@ use russh::client;
 use russh::client::KeyboardInteractiveAuthResponse;
 use russh::keys::agent::client::AgentClient;
 use russh::keys::agent::AgentIdentity;
-use russh::keys::ssh_key::{self, HashAlg};
+use russh::keys::ssh_key::HashAlg;
 use russh::keys::{load_secret_key, PrivateKeyWithHashAlg};
 use russh_sftp::client::SftpSession;
 use russh_sftp::protocol::OpenFlags;
@@ -239,8 +239,10 @@ impl client::Handler for ClientHandler {
 
     async fn check_server_key(
         &mut self,
-        server_public_key: &ssh_key::PublicKey,
+        server_public_key: &russh::keys::PublicKeyOrCertificate,
     ) -> Result<bool, Self::Error> {
+        // russh 0.63 passes a key-or-certificate; known_hosts only deals in plain public keys.
+        let server_public_key = &server_public_key.public_key();
         match russh::keys::known_hosts::check_known_hosts(&self.host, self.port, server_public_key)
         {
             // Known host, key matches.
