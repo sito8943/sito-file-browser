@@ -216,8 +216,8 @@ Settings are persisted by Rust in `settings.toml`. A settings change normally cr
 
 Do not change only the visible control or only the Rust default.
 
-Per-folder columns, view, sort, and zoom are stored separately through
-`src-tauri/src/functions/folder_columns.rs`.
+Per-folder columns, view, sort, and zoom (one value per view: grid and list are independent) are
+stored separately through `src-tauri/src/functions/folder_columns.rs`.
 
 The Storage section also hosts the cleanup watch list, which is **not** part of that contract: the
 folders the user registered to watch and reclaim live in `cleanup.toml` through

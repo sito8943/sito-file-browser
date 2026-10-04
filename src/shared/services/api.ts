@@ -9,7 +9,7 @@ import { startDrag } from "@crabnebula/tauri-plugin-drag";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
-import type { FileTypeExtensions } from "@/shared/constants";
+import type { FileTypeExtensions, ViewMode } from "@/shared/constants";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,
@@ -328,15 +328,20 @@ export const setFolderSort = async (
   direction: string,
 ): Promise<void> => await invoke("set_folder_sort", { path, key, direction });
 
-// Saved zoom level for a folder (null when the user hasn't zoomed it).
-export const getFolderZoom = async (path: string): Promise<number | null> =>
-  (await invoke("get_folder_zoom", { path })) as number | null;
+// Saved zoom level for a folder in a view (null when the user hasn't zoomed it there). Grid and
+// list zoom are stored independently.
+export const getFolderZoom = async (
+  path: string,
+  view: ViewMode,
+): Promise<number | null> =>
+  (await invoke("get_folder_zoom", { path, view })) as number | null;
 
-// Persist the zoom level for a folder to the central config file.
+// Persist the zoom level for a folder in a view to the central config file.
 export const setFolderZoom = async (
   path: string,
+  view: ViewMode,
   zoom: number,
-): Promise<void> => await invoke("set_folder_zoom", { path, zoom });
+): Promise<void> => await invoke("set_folder_zoom", { path, view, zoom });
 
 // Get the user's disks (volumes)
 export const getVolumes = async (): Promise<Volume[]> =>
