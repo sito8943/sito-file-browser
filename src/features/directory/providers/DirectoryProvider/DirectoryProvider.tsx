@@ -194,9 +194,13 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
     },
     [openPropertiesInWindow, properties],
   );
+  const openManyProperties = useCallback(
+    (targetIds: string[]) => properties.openMany(targetIds),
+    [properties],
+  );
   const propertiesApi = useMemo(
-    () => ({ ...properties, open: openProperties }),
-    [properties, openProperties],
+    () => ({ ...properties, open: openProperties, openMany: openManyProperties }),
+    [properties, openProperties, openManyProperties],
   );
 
   return (
