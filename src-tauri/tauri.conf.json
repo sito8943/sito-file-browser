@@ -6,6 +6,10 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
+    "beforeBundleCommand": {
+      "script": "node scripts/build-finder-sync.mjs",
+      "cwd": "../"
+    },
     "devUrl": "http://localhost:1420",
     "frontendDist": "../dist"
   },
@@ -42,7 +46,10 @@
     "targets": "all",
     "externalBin": ["binaries/sfb"],
     "macOS": {
-      "minimumSystemVersion": "14.0"
+      "minimumSystemVersion": "14.0",
+      "files": {
+        "PlugIns/FinderSync.appex": "target/finder-sync/FinderSync.appex"
+      }
     },
     "resources": ["icons/32x32.png"],
     "icon": [

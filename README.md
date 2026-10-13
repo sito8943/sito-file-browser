@@ -163,3 +163,14 @@ Notes:
 
 - The permission applies per-executable, so the **production build** (installed `.app`) and a `tauri dev` run are treated separately. To test in dev, grant Full Disk Access to the **terminal app** that launches `npm run tauri dev` instead, then restart the terminal.
 - Deleting files always moves them to the Trash (via macOS `NSFileManager`); this permission only affects **listing** the Trash contents inside the app.
+
+## 7. macOS: Open a selected folder from Finder
+
+The macOS app bundle includes a Finder Sync extension. After installing Sito File Browser, enable
+**Sito File Browser** under **System Settings → General → Login Items & Extensions → Extensions →
+Finder**. Then right-click a selected folder in your home folder (including Desktop, Documents,
+Downloads, and their subfolders) and choose **Open in Sito File Browser**.
+
+This prototype monitors the home folder only. Folders on external volumes and elsewhere outside the
+home folder do not show the action. Finder Sync is intended by Apple for file synchronization apps,
+so this integration needs further runtime validation before broadening its scope.
