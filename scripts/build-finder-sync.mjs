@@ -29,7 +29,7 @@ const result = spawnSync(
   [
     "-project",
     project,
-    "-target",
+    "-scheme",
     "FinderSyncExtension",
     "-configuration",
     "Release",
