@@ -199,7 +199,11 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
     [properties],
   );
   const propertiesApi = useMemo(
-    () => ({ ...properties, open: openProperties, openMany: openManyProperties }),
+    () => ({
+      ...properties,
+      open: openProperties,
+      openMany: openManyProperties,
+    }),
     [properties, openProperties, openManyProperties],
   );
 

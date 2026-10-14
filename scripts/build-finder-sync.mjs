@@ -18,7 +18,10 @@ if (!architecture) {
 
 const project = "src-tauri/macos/FinderSync.xcodeproj";
 const derivedData = "src-tauri/target/finder-sync/derived";
-const builtExtension = resolve(derivedData, "Build/Products/Release/FinderSync.appex");
+const builtExtension = resolve(
+  derivedData,
+  "Build/Products/Release/FinderSync.appex",
+);
 const extensionOutput = "src-tauri/target/finder-sync/FinderSync.appex";
 
 const result = spawnSync(

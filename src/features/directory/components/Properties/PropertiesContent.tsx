@@ -51,15 +51,24 @@ export const PropertiesContent = ({
           )}
           <PropertyRow
             label={t.properties.created}
-            value={formatDate(entry.metadata.created.secs_since_epoch, dateFormat)}
+            value={formatDate(
+              entry.metadata.created.secs_since_epoch,
+              dateFormat,
+            )}
           />
           <PropertyRow
             label={t.properties.modified}
-            value={formatDate(entry.metadata.modified.secs_since_epoch, dateFormat)}
+            value={formatDate(
+              entry.metadata.modified.secs_since_epoch,
+              dateFormat,
+            )}
           />
           <PropertyRow
             label={t.properties.accessed}
-            value={formatDate(entry.metadata.accessed.secs_since_epoch, dateFormat)}
+            value={formatDate(
+              entry.metadata.accessed.secs_since_epoch,
+              dateFormat,
+            )}
           />
         </>
       )}

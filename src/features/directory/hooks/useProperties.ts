@@ -20,7 +20,8 @@ export const useProperties = () => {
   const requestId = useRef(0);
 
   const resolveEntry = async (targetId: string) =>
-    dirContent.find((item) => item.path === targetId) ?? (await fs.getEntry(targetId));
+    dirContent.find((item) => item.path === targetId) ??
+    (await fs.getEntry(targetId));
 
   const open = async (targetId: string, isCurrentDirectory: boolean) => {
     requestId.current += 1;
@@ -44,7 +45,9 @@ export const useProperties = () => {
     const currentRequest = requestId.current;
     try {
       const resolved = await Promise.all(targetIds.map(resolveEntry));
-      const entries = resolved.filter((item): item is DirEntry => item !== null);
+      const entries = resolved.filter(
+        (item): item is DirEntry => item !== null,
+      );
       if (
         requestId.current !== currentRequest ||
         entries.length !== targetIds.length ||
@@ -58,7 +61,9 @@ export const useProperties = () => {
       const sizes = await Promise.all(
         entries.map(async (item) => {
           if (!item.metadata.isDir) return item.size;
-          const volume = volumes.find((candidate) => candidate.mountPoint === item.path);
+          const volume = volumes.find(
+            (candidate) => candidate.mountPoint === item.path,
+          );
           if (volume)
             return Math.max(0, volume.totalBytes - volume.availableBytes);
           return fs.getDirSize(item.path).catch(() => 0);

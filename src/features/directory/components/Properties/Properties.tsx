@@ -11,7 +11,12 @@ import { PROPERTIES_TITLE_ID } from "./constants";
 import { PropertiesContent } from "./PropertiesContent";
 import type { PropertiesProps } from "./types";
 
-const Properties = ({ entry, aggregate, visible, onClose }: PropertiesProps) => {
+const Properties = ({
+  entry,
+  aggregate,
+  visible,
+  onClose,
+}: PropertiesProps) => {
   // Confirm with a toast when the user copies selected text from the popup. The native copy
   // does the actual clipboard write; this only surfaces the feedback.
   useEffect(() => {
