@@ -11,6 +11,7 @@ import Tooltip from "@/shared/components/elements/Tooltip";
 import TagDots from "@/shared/components/elements/TagDots";
 import TextInput from "@/shared/components/elements/TextInput";
 import { SFTP_SCHEME, SVG_FORMAT, FILE_CATEGORY } from "@/shared/constants";
+import { isMacPlatform } from "@/shared/keymap";
 import { t } from "@/lang";
 
 import { METADATA_TOOLTIP_DELAY } from "./constants";
@@ -103,9 +104,10 @@ const DirEntryItemComponent = ({
     entry.metadata.isFile && isCategory(fileTypes, ext, FILE_CATEGORY.PDF);
   const isMarkdown =
     entry.metadata.isFile && isCategory(fileTypes, ext, FILE_CATEGORY.MARKDOWN);
+  const isDmg = entry.metadata.isFile && ext === "dmg" && isMacPlatform();
   // SVG draws straight from the file (no backend thumbnail) — the webview rasterises it natively.
   const isSvg = entry.metadata.isFile && ext === SVG_FORMAT;
-  const isThumbnail = isImage || isVideo || isPdf || isMarkdown;
+  const isThumbnail = isImage || isVideo || isPdf || isMarkdown || isDmg;
   // A remote (SFTP) file must be downloaded to make a thumbnail, so only do it when the setting is
   // on. When off, remote entries fall back to the generic type icon (no network hit).
   const remote = entry.path.startsWith(SFTP_SCHEME);

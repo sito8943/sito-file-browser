@@ -301,11 +301,169 @@ fn has_ext(path: &str, exts: &[&str]) -> bool {
 fn thumbnail_source(path: &str, size: u32, tmp_dir: &Path) -> Result<image::DynamicImage, String> {
     if is_text(path) {
         text_thumbnail(path)
+    } else if has_ext(path, &["dmg"]) {
+        dmg_app_icon_thumbnail(path, tmp_dir)
     } else if needs_quicklook(path) {
         quicklook_thumbnail(path, size, tmp_dir)
     } else {
         image::open(path).map_err(|e| e.to_string())
     }
+}
+
+// DMGs are mounted read-only only while asking LaunchServices for the contained app's icon.
+// Scanning is bounded to shallow bundle locations so unrelated disk contents are never walked.
+#[cfg(target_os = "macos")]
+fn dmg_app_icon_thumbnail(path: &str, tmp_dir: &Path) -> Result<image::DynamicImage, String> {
+    use objc2::rc::autoreleasepool;
+    use objc2_app_kit::NSWorkspace;
+    use objc2_foundation::NSString;
+    use std::process::{Command, Stdio};
+
+    fs::create_dir_all(tmp_dir).map_err(|error| error.to_string())?;
+    // Keep the mount path short; it is also unique because each thumbnail request has its own
+    // scratch directory, even when several requests target the same DMG at once.
+    let scratch_name = tmp_dir
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| "Could not create a temporary mount path".to_string())?;
+    let mountpoint = std::env::temp_dir().join(format!("sito-dmg-{scratch_name}"));
+    if let Err(error) = fs::create_dir(&mountpoint) {
+        let _ = fs::remove_dir_all(tmp_dir);
+        return Err(error.to_string());
+    }
+    let mut attach = match Command::new("hdiutil")
+        .args([
+            "attach",
+            "-readonly",
+            "-noverify",
+            "-nobrowse",
+            "-noautoopen",
+            "-mountpoint",
+        ])
+        .arg(&mountpoint)
+        .arg(path)
+        .stdout(Stdio::null())
+        .stderr(Stdio::inherit())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(error) => {
+            eprintln!("[thumbnail] Could not start hdiutil for DMG icon extraction: {error}");
+            let _ = fs::remove_dir(&mountpoint);
+            let _ = fs::remove_dir_all(tmp_dir);
+            return Err(error.to_string());
+        }
+    };
+
+    let result = (|| {
+        const MOUNT_TIMEOUT: Duration = Duration::from_secs(30);
+        match wait_with_timeout(&mut attach, MOUNT_TIMEOUT)? {
+            Some(status) if status.success() => {}
+            Some(_) => return Err("Could not mount this disk image".to_string()),
+            None => return Err("Mounting this disk image timed out".to_string()),
+        }
+
+        let app_path = find_app_bundle(&mountpoint, 3)
+            .ok_or_else(|| "No app bundle found in this disk image".to_string())?;
+        let icon_path = tmp_dir.join("app-icon.tiff");
+        let wrote_icon = autoreleasepool(|_| {
+            let workspace = NSWorkspace::sharedWorkspace();
+            let icon = workspace.iconForFile(&NSString::from_str(&app_path.to_string_lossy()));
+            icon.TIFFRepresentation().map(|data| {
+                data.writeToFile_atomically(&NSString::from_str(&icon_path.to_string_lossy()), true)
+            })
+                .unwrap_or(false)
+        });
+        if !wrote_icon {
+            return Err("Could not read the app icon from this disk image".to_string());
+        }
+        image::open(&icon_path).map_err(|error| error.to_string())
+    })();
+    if let Err(error) = &result {
+        eprintln!("[thumbnail] DMG app icon extraction failed: {error}");
+    }
+
+    // Always detach, including when app discovery or icon decoding fails.
+    let mut detached = false;
+    let mut detach = Command::new("hdiutil")
+        .args(["detach", "-quiet"])
+        .arg(&mountpoint)
+        .stdout(Stdio::null())
+        .stderr(Stdio::inherit())
+        .spawn();
+    if let Ok(ref mut child) = detach {
+        const DETACH_TIMEOUT: Duration = Duration::from_secs(10);
+        detached = matches!(
+            wait_with_timeout(child, DETACH_TIMEOUT),
+            Ok(Some(status)) if status.success()
+        );
+        if !detached {
+            let _ = child.kill();
+            let _ = child.wait();
+            if let Ok(mut force_detach) = Command::new("hdiutil")
+                .args(["detach", "-force", "-quiet"])
+                .arg(&mountpoint)
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+            {
+                const FORCE_DETACH_TIMEOUT: Duration = Duration::from_secs(5);
+                detached = matches!(
+                    wait_with_timeout(&mut force_detach, FORCE_DETACH_TIMEOUT),
+                    Ok(Some(status)) if status.success()
+                );
+                if !detached {
+                    let _ = force_detach.kill();
+                    let _ = force_detach.wait();
+                }
+            }
+        }
+    }
+    if detached || matches!(&result, Err(error) if error == "Could not mount this disk image") {
+        let _ = fs::remove_dir(&mountpoint);
+    }
+    let _ = fs::remove_dir_all(tmp_dir);
+    result.and_then(|thumbnail| {
+        if detached {
+            Ok(thumbnail)
+        } else {
+            Err("Could not detach the disk image after reading its app icon".to_string())
+        }
+    })
+}
+
+#[cfg(not(target_os = "macos"))]
+fn dmg_app_icon_thumbnail(_path: &str, _tmp_dir: &Path) -> Result<image::DynamicImage, String> {
+    Err("DMG app icons are only supported on macOS".to_string())
+}
+
+fn find_app_bundle(root: &Path, max_depth: usize) -> Option<PathBuf> {
+    let mut current = vec![(root.to_path_buf(), 0)];
+    while let Some((directory, depth)) = current.pop() {
+        let Ok(entries) = fs::read_dir(&directory) else {
+            continue;
+        };
+        let mut children: Vec<PathBuf> = entries
+            .flatten()
+            .map(|entry| entry.path())
+            .collect();
+        children.sort();
+        for child in &children {
+            if child.extension().and_then(|extension| extension.to_str()) == Some("app") {
+                return Some(child.clone());
+            }
+        }
+        if depth < max_depth {
+            for child in children.into_iter().rev() {
+                if let Ok(metadata) = child.symlink_metadata() {
+                    if metadata.file_type().is_dir() {
+                        current.push((child, depth + 1));
+                    }
+                }
+            }
+        }
+    }
+    None
 }
 
 // A font for text-document thumbnails, loaded once from a system font (macOS ships these). None

@@ -268,9 +268,10 @@ const Directory = () => {
     [fileOps.clipboard],
   );
 
-  // Show Properties for the single selected entry, or the current folder otherwise.
+  // Show aggregate Properties for a multi-selection, one entry for a single selection, or the current folder.
   const handleProperties = useCallback(() => {
-    if (selectedIDs.length === 1) properties.open(selectedIDs[0], false);
+    if (selectedIDs.length > 1) properties.openMany(selectedIDs);
+    else if (selectedIDs.length === 1) properties.open(selectedIDs[0], false);
     else if (path !== "" && path !== RECENTS && !isTagsPath(path))
       properties.open(path, true);
   }, [selectedIDs, path, properties]);
@@ -489,7 +490,11 @@ const Directory = () => {
         fileOps={fileOps}
         onStartRename={setRenamingID}
         onPreview={preview.open}
-        onProperties={properties.open}
+        onProperties={(id, currentDirectory) => {
+          if (selectedIDs.length > 1 && selectedIDs.includes(id))
+            return properties.openMany(selectedIDs);
+          return properties.open(id, currentDirectory);
+        }}
       />
 
       <TypeaheadPopup query={typeaheadQuery} />
@@ -508,6 +513,7 @@ const Directory = () => {
 
       <Properties
         entry={properties.entry}
+        aggregate={properties.aggregate}
         visible={properties.visible}
         onClose={properties.close}
       />

@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.16.0]
+
+### Added
+
+- Open selected folders from Finder with the **Open in Sito File Browser** action. The Finder Sync extension currently covers the home folder and its descendants (`128d7ea`)
+- Properties for multiple selected files and folders shows the item count and their combined size, including recursive folder sizes (`bc85fcd`)
+- macOS DMG thumbnails can show the icon of an app contained in the disk image, using a temporary read-only mount (`4d9d0c0`)
+
 ## [0.15.0]
 
 ### Added

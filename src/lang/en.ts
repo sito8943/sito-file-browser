@@ -108,6 +108,7 @@ export const en = {
     created: "Created",
     modified: "Modified",
     accessed: "Accessed",
+    items: "Selected items",
   },
   details: {
     title: "Metadata",

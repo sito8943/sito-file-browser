@@ -13,7 +13,10 @@ import { getCachedDirSize, setCachedDirSize } from "../../hooks/dirSizeCache";
 // A volume root is special-cased: walking a whole disk (e.g. a 1 TB drive, slower still on NTFS)
 // would spin forever, so we use the OS-reported used space (total − available) — instant and what
 // Finder shows for a drive.
-export const useEntrySize = (entry: DirEntry): number | null => {
+export const useEntrySize = (
+  entry: DirEntry,
+  enabled = true,
+): number | null => {
   const { fs, volumes } = useStateContext();
   const volume = entry.metadata.isDir
     ? volumes.find((v) => v.mountPoint === entry.path)
@@ -34,7 +37,7 @@ export const useEntrySize = (entry: DirEntry): number | null => {
 
   useEffect(() => {
     // Skip the recursive walk for non-folders and for volume roots (handled via disk stats below).
-    if (!entry.metadata.isDir || volume) return;
+    if (!enabled || !entry.metadata.isDir || volume) return;
     let cancelled = false;
     fs.getDirSize(entry.path)
       .then((size) => {
@@ -45,7 +48,7 @@ export const useEntrySize = (entry: DirEntry): number | null => {
     return () => {
       cancelled = true;
     };
-  }, [fs, entry.path, entry.metadata.isDir, volume]);
+  }, [enabled, fs, entry.path, entry.metadata.isDir, volume]);
 
   if (!entry.metadata.isDir) return entry.size;
   // Volume root: used space straight from the OS, no walk.

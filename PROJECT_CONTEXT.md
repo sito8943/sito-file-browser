@@ -270,7 +270,11 @@ SMB:
 - do not duplicate SMB connection state in `SideBar.tsx`.
 
 macOS-specific behavior includes Finder tags/xattrs, Full Disk Access, Dock menu, Trash semantics,
-native SMB, Keychain secrets, terminal opening, preview generation, and folder-handler integration.
+native SMB, Keychain secrets, terminal opening, preview generation, folder-handler integration, and
+the Finder Sync contextual action. The Finder extension currently monitors the user's home folder
+and its descendants; users enable it under System Settings → General → Login Items & Extensions →
+Extensions → Finder. Its build target is `src-tauri/macos/FinderSync.xcodeproj`, bundled by
+`scripts/build-finder-sync.mjs`; external volumes and paths outside the home folder are not covered.
 Use explicit `cfg`/platform branches and return errors instead of panicking.
 
 ## Rust map
