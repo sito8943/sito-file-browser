@@ -35,7 +35,6 @@
   background-color: rgba(var(--color-surface-modal-rgb), var(--dialog-opacity));
   backdrop-filter: blur(var(--blur-medium));
   border-radius: var(--radius-md);
-  border: var(--border-width-default) solid var(--color-border-default);
   opacity: 0;
   pointer-events: none;
   padding: var(--space-0);

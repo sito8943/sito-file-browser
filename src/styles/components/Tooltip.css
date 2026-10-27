@@ -20,7 +20,6 @@
   max-width: var(--size-toast-max-width);
   padding: var(--space-1) var(--space-2);
   background-color: var(--color-surface-floating);
-  border: var(--border-width-default) solid var(--color-border-default);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-popover);
   color: var(--color-text-primary);

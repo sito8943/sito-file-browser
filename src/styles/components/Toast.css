@@ -9,7 +9,6 @@
   font-weight: 400;
   color: var(--color-text-primary);
   background-color: var(--color-surface-toast);
-  border: var(--border-width-default) solid var(--color-border-toast);
   box-shadow: var(--shadow-toast);
   backdrop-filter: blur(var(--blur-medium));
   cursor: default;
@@ -18,8 +17,10 @@
   animation: toast-enter 0.2s ease-out;
 }
 
-/* A clickable toast (carries an action, e.g. "jump to the moved file"). */
+/* A clickable toast (carries an action, e.g. "jump to the moved file"). Only clickable surfaces
+   get a border; plain toasts are fill-only. */
 .toast.actionable {
+  border: var(--border-width-default) solid var(--color-border-toast);
   cursor: pointer;
 }
 
@@ -40,13 +41,13 @@
    unreadable. White on the solid green/red clears contrast (≈6:1 / 5.8:1). */
 .toast.success {
   background-color: var(--color-success-solid);
-  border: var(--border-width-default) solid var(--color-success-border);
+  border-color: var(--color-success-border);
   color: var(--color-text-on-solid);
 }
 
 .toast.error {
   background-color: var(--color-danger-solid);
-  border: var(--border-width-default) solid var(--color-danger-border);
+  border-color: var(--color-danger-border);
   color: var(--color-text-on-solid);
 }
 

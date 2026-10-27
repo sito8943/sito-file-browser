@@ -5,7 +5,6 @@
   margin-bottom: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  border: var(--border-width-default) solid var(--color-border-default);
   background-color: var(--color-overlay-active);
 }
 

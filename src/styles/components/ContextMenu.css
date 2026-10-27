@@ -12,7 +12,6 @@
   );
   backdrop-filter: blur(var(--blur-medium));
   border-radius: var(--radius-sm);
-  border: var(--border-width-default) solid var(--color-border-default);
   box-shadow: var(--shadow-popover);
   padding: var(--space-1);
   margin: var(--space-0);

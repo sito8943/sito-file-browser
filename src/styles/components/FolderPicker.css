@@ -54,7 +54,7 @@
   text-align: left;
   padding: var(--space-1-5) var(--space-2);
   border-radius: var(--radius-sm);
-  border: none;
+  border: var(--border-width-default) solid transparent;
   background: transparent;
   cursor: pointer;
   color: var(--color-text-secondary);
@@ -63,11 +63,13 @@
 
 .folder_picker .folder_picker_source_item:hover {
   background-color: var(--color-overlay-hover);
+  border-color: var(--color-selection-hover-border);
   color: var(--color-text-primary);
 }
 
 .folder_picker .folder_picker_source_item.active {
   background-color: var(--color-selection-background);
+  border-color: var(--color-selection-border);
   color: var(--color-text-primary);
 }
 

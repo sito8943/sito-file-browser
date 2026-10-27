@@ -92,7 +92,7 @@
 .volumes_page .volumes_list_wrapper {
   width: 100%;
   overflow-x: auto;
-  border: var(--border-width-default) solid var(--color-border-default);
+  background-color: var(--color-surface-row);
   border-radius: var(--radius-sm);
 }
 
