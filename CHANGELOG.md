@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Borders now mark clickable surfaces only: tabs, the new-tab button, settings navigation, folder picker sources and actionable toasts always show one, while dialogs, popups, menus, tooltips, panels, notices and plain toasts are fill-only (`dd3c4ab`)
+- `@sito/ui` updated to 0.9.1 (`4d9f5f1`)
+- Dependencies: `vite` 8.1.6, `browserslist` 4.29.3, `brace-expansion` 5.0.12, `source-map-js` 1.2.2 and `russh` 0.64.1 merged from Dependabot (`1495094`, `6506ed6`, `b3fd695`, `d54248b`, `317289c`)
+
+### Fixed
+
+- Folder sizes could show 16 EiB after freeing space inside a folder: a cached parent size went negative. Re-indexed folders now update their cached parents, watcher updates reach every cached parent, and sizes are clamped at zero (`6a62b9f`)
+
 ## [0.16.0]
 
 ### Added
@@ -9,15 +21,6 @@ All notable changes to this project are documented in this file.
 - Open selected folders from Finder with the **Open in Sito File Browser** action. The Finder Sync extension currently covers the home folder and its descendants (`128d7ea`)
 - Properties for multiple selected files and folders shows the item count and their combined size, including recursive folder sizes (`bc85fcd`)
 - macOS DMG thumbnails can show the icon of an app contained in the disk image, using a temporary read-only mount (`4d9d0c0`)
-
-### Changed
-
-- Borders now mark clickable surfaces only: tabs, the new-tab button, settings navigation, folder picker sources and actionable toasts always show one, while dialogs, popups, menus, tooltips, panels, notices and plain toasts are fill-only (`dd3c4ab`)
-- `@sito/ui` updated to 0.9.1 (`4d9f5f1`)
-
-### Fixed
-
-- Folder sizes could show 16 EiB after freeing space inside a folder: a cached parent size went negative. Re-indexed folders now update their cached parents, watcher updates reach every cached parent, and sizes are clamped at zero (`6a62b9f`)
 
 ## [0.15.0]
 
