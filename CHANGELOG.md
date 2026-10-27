@@ -10,6 +10,15 @@ All notable changes to this project are documented in this file.
 - Properties for multiple selected files and folders shows the item count and their combined size, including recursive folder sizes (`bc85fcd`)
 - macOS DMG thumbnails can show the icon of an app contained in the disk image, using a temporary read-only mount (`4d9d0c0`)
 
+### Changed
+
+- Borders now mark clickable surfaces only: tabs, the new-tab button, settings navigation, folder picker sources and actionable toasts always show one, while dialogs, popups, menus, tooltips, panels, notices and plain toasts are fill-only (`dd3c4ab`)
+- `@sito/ui` updated to 0.9.1 (`4d9f5f1`)
+
+### Fixed
+
+- Folder sizes could show 16 EiB after freeing space inside a folder: a cached parent size went negative. Re-indexed folders now update their cached parents, watcher updates reach every cached parent, and sizes are clamped at zero (`6a62b9f`)
+
 ## [0.15.0]
 
 ### Added
