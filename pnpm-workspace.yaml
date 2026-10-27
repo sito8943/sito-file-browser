@@ -1,2 +1,5 @@
+packages:
+  - "."
+
 minimumReleaseAgeExclude:
   - "@sito/ui@0.9.1"
