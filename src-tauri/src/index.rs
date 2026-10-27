@@ -80,7 +80,7 @@ fn cached_subtree(conn: &Connection, path: &str) -> Option<(u64, i64)> {
     conn.query_row(
         "SELECT subtree_size, mtime FROM dir_size WHERE path = ?1",
         params![path],
-        |row| Ok((row.get::<_, i64>(0)? as u64, row.get::<_, i64>(1)?)),
+        |row| Ok((row.get::<_, i64>(0)?.max(0) as u64, row.get::<_, i64>(1)?)),
     )
     .ok()
 }
@@ -146,7 +146,8 @@ pub fn cached_size(
     let mtime = mtime_of(Path::new(path));
     let mut conn = index.lock().map_err(|e| e.to_string())?;
 
-    if let Some((subtree, cached_mtime)) = cached_subtree(&conn, path) {
+    let previous = cached_subtree(&conn, path);
+    if let Some((subtree, cached_mtime)) = previous {
         if cached_mtime == mtime {
             crate::dlog!("cache hit  {} = {} bytes", path, subtree);
             return Ok(subtree);
@@ -159,6 +160,14 @@ pub fn cached_size(
     // don't linger as orphan rows. Then re-index from scratch.
     delete_subtree(&tx, path);
     let size = index_subtree(&tx, Path::new(path), ignores);
+    // Cached ancestors summed the previous value; shift them by the difference so a later
+    // watcher delta isn't applied to a stale (too small) ancestor.
+    if let Some((old, _)) = previous {
+        let delta = size as i64 - old as i64;
+        if delta != 0 {
+            bubble(&tx, Path::new(path), delta);
+        }
+    }
     tx.commit().map_err(|e| e.to_string())?;
     crate::dlog!(
         "indexed    {} = {} bytes in {:?}",
@@ -258,17 +267,16 @@ pub fn resync_dir(conn: &Connection, path: &Path, ignores: &IgnoreRules) -> Opti
     }
 }
 
-// Add `delta` to the subtree_size of every cached ancestor of `from`, up to and including `root`.
-pub fn bubble(conn: &Connection, from: &Path, root: &Path, delta: i64) {
+// Add `delta` to the subtree_size of every cached ancestor of `from`. Not bounded by the watch
+// root: ancestors above it are cached too, and leaving them stale lets a later negative delta
+// drive them below zero (read back as ~16 EiB). Clamped at 0 as a last guard.
+pub fn bubble(conn: &Connection, from: &Path, delta: i64) {
     let mut current = from.parent();
     while let Some(dir) = current {
         let _ = conn.execute(
-            "UPDATE dir_size SET subtree_size = subtree_size + ?1 WHERE path = ?2",
+            "UPDATE dir_size SET subtree_size = MAX(subtree_size + ?1, 0) WHERE path = ?2",
             params![delta, dir.to_string_lossy()],
         );
-        if dir == root {
-            break;
-        }
         current = dir.parent();
     }
 }

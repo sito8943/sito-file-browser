@@ -10,7 +10,6 @@
   background-color: var(--color-surface-popover);
   backdrop-filter: blur(var(--blur-medium));
   border-radius: var(--radius-sm);
-  border: var(--border-width-default) solid var(--color-border-default);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -40,7 +39,6 @@
   background-color: var(--color-surface-popover);
   backdrop-filter: blur(var(--blur-large));
   border-radius: var(--radius-sm);
-  border: var(--border-width-default) solid var(--color-border-default);
   padding: var(--space-1);
   position: absolute;
   top: var(--space-negative-2-5);

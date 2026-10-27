@@ -97,7 +97,7 @@ fn handle_event(
 
         let container = nearest_dir(path);
         if let Some(delta) = index::resync_dir(&conn, &container, &ignore_list) {
-            index::bubble(&conn, &container, root, delta);
+            index::bubble(&conn, &container, delta);
         }
 
         if let Some(child) = child_of_root(root, &container) {

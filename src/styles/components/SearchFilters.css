@@ -41,7 +41,6 @@
   gap: var(--space-3);
   padding: var(--space-3);
   background-color: var(--color-surface-solid);
-  border: var(--border-width-default) solid var(--color-border-default);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-popover);
 }

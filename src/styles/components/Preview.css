@@ -38,7 +38,6 @@
   height: calc(100% - var(--space-20));
   background-color: var(--color-surface-floating);
   backdrop-filter: blur(var(--blur-medium));
-  border: var(--border-width-default) solid var(--color-border-default);
   border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
@@ -227,7 +226,6 @@
     var(--preview-controls-opacity)
   );
   backdrop-filter: blur(var(--blur-medium));
-  border: var(--border-width-default) solid var(--color-border-default);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-popover);
 }
