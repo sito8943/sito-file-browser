@@ -8,13 +8,15 @@ Plan creado el 1 de noviembre de 2026.
 | --- | --- |
 | 1. sito-auth `/devices` | Hecha y desplegada (PR https://github.com/sito8943/sito-auth-server/pull/2). Contrato en su `readme.md`. |
 | 2. Relay | Hecha y desplegada en `wss://api.remote.sito8943.com/ws` (repo privado https://github.com/sito8943/sito-remote-relay). Contrato del wire en su `readme.md`. |
-| 3. Desktop | Siguiente (planificada para el 2 de noviembre de 2026) |
+| 3. Desktop | Backend Rust hecho en la rama `0.18.0` (sin commitear). Probado el 2 de noviembre de 2026: login en sito-auth, registro del equipo y conexión `online` al relay. Falta el frontend (`src/features/remote`). |
 | 4. Android | Pendiente |
 | 5. Endurecimiento | Pendiente |
 
 Diferencias con el diseño original, ya implementadas en el relay: la sesión WebSocket vive hasta el
 `exp` del access token y el cliente la extiende con `{"t":"auth","token":...}` (cierre `4401` si no);
-esto cubre revocación de dispositivo y "sign out everywhere" sin polling. Un dispositivo solo tiene
+esto cubre revocación de dispositivo y "sign out everywhere" sin polling. El id de dispositivo de
+sito-auth es numérico (`Long`), no UUID; el desktop lo maneja como string. sito-auth rota el refresh
+token en cada `/auth/refresh`, así que los refresh van serializados. Un dispositivo solo tiene
 un socket vivo (el nuevo cierra el viejo con `4000`). Se rechazan handshakes con cabecera `Origin`.
 
 Producción (1 de noviembre de 2026): sito-auth con `/devices` (migración V2 aplicada) y relay en el
@@ -122,15 +124,15 @@ desktop (regla de frontera arriba).
 ## Criptografía E2E
 
 Primitivas iguales a SitoChat para reutilizar código Android (JCA, sin librerías externas):
-**P-256 ECDH + HKDF-SHA256 + AES-256-GCM**. En Rust: crates RustCrypto `p256`, `hkdf`, `sha2`,
-`aes-gcm`.
+**P-256 ECDH + HKDF-SHA256 + AES-256-GCM**. En Rust: `aws-lc-rs` (ya compilado por russh/rustls;
+no añade crates). Especificación exacta en "Protocolo E2E v1" más abajo.
 
 - Cada dispositivo tiene una clave estática P-256. Desktop: privada en el llavero del SO
   (`keyring`). Android: envuelta por una clave AES-GCM del Android Keystore (patrón de
   `AndroidMessageCrypto`).
-- Sesión: cada lado genera una clave efímera. Clave de sesión =
-  `HKDF(ECDH(estática_d, estática_m) ‖ ECDH(efímera_d, efímera_m), transcript)`. Esto da
-  autenticación mutua (solo claves emparejadas derivan la clave) y forward secrecy.
+- Sesión: cada lado genera una clave efímera. Se combinan los cuatro ECDH estilo Noise `KK`
+  (efímera·efímera, efímera·estática en ambos sentidos, estática·estática). Da autenticación mutua,
+  forward secrecy y evita que una sola clave estática filtrada permita suplantar al otro lado.
 - Nonce: contador por dirección + `sid`; se rechazan duplicados y saltos (anti-replay).
 - **Revisión obligatoria** del handshake por alguien con criterio criptográfico antes del release.
   Si se prefiere no diseñar handshake propio, alternativa: Noise `KK` (`snow` en Rust; en Kotlin
@@ -149,6 +151,58 @@ Primitivas iguales a SitoChat para reutilizar código Android (JCA, sin librerí
    móvil en su lista de confianza.
 
 Revocar en el desktop borra la clave de su lista (efecto inmediato) y llama `DELETE /devices/{id}`.
+
+## Protocolo E2E v1 (lo que la app Android implementa byte a byte)
+
+Implementación de referencia: `src-tauri/src/remote/crypto.rs` y `wire.rs`, con tests.
+
+Notación: `‖` concatena; puntos P-256 sin comprimir (65 bytes, `0x04 ‖ X ‖ Y`); claves estáticas
+en el registro y en el QR como SPKI DER base64 (91 bytes = prefijo fijo de 26 bytes + punto);
+ECDH devuelve la coordenada X (32 bytes, igual que `KeyAgreement("ECDH")` de JCA).
+
+**Sobre del relay.** `p` = base64 de un frame binario:
+
+| Frame | Bytes | Sentido | `seq` |
+| --- | --- | --- | --- |
+| `HELLO` | `0x01 ‖ 0x01(versión) ‖ eM(65)` | m→d | 0 |
+| `PAIR_HELLO` | `0x02 ‖ 0x01 ‖ eM(65) ‖ SPKI sM(91)` | m→d | 0 |
+| `HELLO_ACK` | `0x11 ‖ eD(65) ‖ seal(CONFIRM)` | d→m | 0 |
+| `PAIR_ACK` | `0x12 ‖ eD(65) ‖ seal(CONFIRM)` | d→m | 0 |
+| `DATA` | `0x03 ‖ ciphertext‖tag` | ambos | m→d desde 1, d→m desde 1 |
+| `REJECT` | `0x7F ‖ código` (sin autenticar) | d→m | — |
+
+Códigos de `REJECT`: 1 no emparejado, 2 emparejamiento cerrado, 3 el registro no coincide,
+4 versión no soportada, 5 ocupado.
+
+**Derivación.** `sid` lo elige el móvil (≤ 64 bytes ASCII, aleatorio, p. ej. 32 hex).
+
+```text
+LABEL = "sito-remote/v1"
+mode  = 0x01 sesión | 0x02 emparejamiento
+salt  = SHA-256(LABEL ‖ mode ‖ u8(len sid) ‖ sid ‖ sD ‖ sM ‖ eD ‖ eM)
+IKM   = DH(eD,eM) ‖ DH(eD,sM) ‖ DH(sD,eM) ‖ DH(sD,sM) [‖ código QR (16 bytes), solo emparejamiento]
+PRK   = HKDF-Extract(salt, IKM)
+k_m2d = HKDF-Expand(PRK, "sito-remote/v1 m2d", 32)
+k_d2m = HKDF-Expand(PRK, "sito-remote/v1 d2m", 32)
+SAS   = u32_be(HKDF-Expand(PRK, "sito-remote/v1 sas", 4)) mod 1_000_000, en 6 dígitos
+```
+
+**Mensajes.** AES-256-GCM, tag 16 bytes. `nonce = 0x00000000 ‖ u64_be(seq)`.
+`AAD = LABEL ‖ dir ‖ u8(len sid) ‖ sid ‖ u64_be(seq)` con `dir` = `0x01` d→m, `0x02` m→d. El `seq`
+es el del sobre del relay; el receptor exige exactamente el siguiente (ni repetidos ni saltos) y
+cualquier fallo de descifrado termina la sesión. `CONFIRM = "sito-remote/v1 confirm"`, sellado por
+el desktop con `seq` 0; el móvil lo verifica antes de enviar nada.
+
+**Sesión.** Móvil: `HELLO` → desktop busca `from` en su lista de confianza (si no, `REJECT 1`),
+deriva y responde `HELLO_ACK` → el móvil verifica `CONFIRM` y envía requests en `DATA`. Un `HELLO`
+nuevo del mismo dispositivo reemplaza la sesión anterior.
+
+**Emparejamiento.** Móvil: `PAIR_HELLO` → el desktop consume el código (un uso, aunque falle),
+comprueba en sito-auth `GET /devices/{from}` que existe, es `MOBILE` y su `publicKey` es la `sM`
+recibida (si no, `REJECT 3`), deriva con el código y responde `PAIR_ACK`. El primer `DATA` del
+móvil (`{"op":"pair.hello"}`) prueba que conoce el código; solo entonces ambos muestran el SAS
+(el nombre del móvil sale del registro de sito-auth, no de lo que diga el móvil). Si el usuario confirma en el portátil, el desktop guarda la clave y responde
+`{"t":"pair.ok"}`; si no, `{"t":"pair.rejected"}` y cierra.
 
 ## Protocolo dentro del canal cifrado
 
@@ -232,6 +286,14 @@ conexión directa en LAN, explorar archivos locales del móvil, iOS, acceso a SF
 3. **Límite de descarga:** 500 MB por archivo + cuota diaria por usuario en el relay.
 4. **Handshake propio** P-256 alineado con SitoChat, con revisión criptográfica antes del release.
 5. **Application ID** de la app Android: `com.sito8943.fileremote`, en su propio repo.
+
+Cerradas el 2 de noviembre de 2026:
+
+6. **Archivos ocultos:** setting `remoteShowHidden` (default `false`). Apagado, los dotfiles no
+   aparecen en listados ni búsquedas y pedir uno responde `NOT_FOUND`.
+7. **Sistemas de archivos de red bloqueados:** una raíz en SMB/NFS/AFP/WebDAV o unidad de red
+   mapeada se rechaza (`REMOTE_ROOT_NETWORK`), y una ruta que cruce a un montaje de red dentro de
+   una raíz responde `FORBIDDEN`. En Linux, sshfs (FUSE) no se detecta.
 
 ## Impacto en otros consumidores de sito-auth (wallet, notas)
 

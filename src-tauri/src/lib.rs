@@ -23,6 +23,7 @@ pub mod filesystem;
 pub mod functions;
 pub mod ignore;
 pub mod index;
+pub mod remote;
 pub mod tray;
 pub mod utils;
 pub mod watcher;

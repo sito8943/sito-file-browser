@@ -64,7 +64,27 @@ arboard = "3"
 # the cross-platform build clean. russh is fully async; it runs on Tauri's tokio runtime.
 russh = "0.64"
 russh-sftp = "2"
-tokio = { version = "1", features = ["rt", "sync", "macros", "fs", "io-util"] }
+tokio = { version = "1", features = ["rt", "sync", "macros", "fs", "io-util", "net", "time"] }
+# Remote control (plans/REMOTE_CONTROL_PLAN.md): ids for authorized roots in remote.toml.
+uuid = { version = "1", features = ["v4"] }
+# Binary payloads (file chunks, thumbnails) inside the JSON protocol of the encrypted channel.
+base64 = "0.22"
+# statfs() to refuse network filesystems as remote roots (remote/volume.rs). Already in the tree.
+libc = "0.2"
+# HTTPS to sito-auth (sign-in, token refresh, /devices). Already in the tree through tauri; the
+# default features add rustls (its aws-lc-rs provider is already built for russh).
+reqwest = { version = "0.13", features = ["json"] }
+# Outbound WSS to sito-remote-relay (remote/relay_client.rs). rustls with the aws-lc-rs provider
+# (already built for russh), installed explicitly at service start so the TLS backend never depends
+# on which crypto features other crates happen to enable.
+tokio-tungstenite = { version = "0.28", features = ["rustls-tls-webpki-roots"] }
+rustls = { version = "0.23", default-features = false, features = ["aws_lc_rs", "std", "tls12"] }
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+# End-to-end crypto of the remote channel (remote/crypto.rs): P-256 ECDH, HKDF-SHA256, AES-256-GCM.
+# Same primitives as the Android side (JCA). Already built for russh/rustls, so no new C build.
+aws-lc-rs = "1"
+# Wipe handshake key material (concatenated ECDH secrets) from memory after use.
+zeroize = "1"
 
 # Finder tags live in a macOS extended attribute (a binary plist) — only needed there.
 # objc2 crates drive the custom Dock right-click menu (recent folders + quick actions).
@@ -78,6 +98,19 @@ plist = "1"
 objc2 = "0.6"
 objc2-foundation = { version = "0.3", features = ["NSString", "NSURL", "NSArray"] }
 objc2-app-kit = { version = "0.3", features = ["NSApplication", "NSMenu", "NSMenuItem", "NSResponder", "NSRunningApplication", "NSPasteboard", "NSPasteboardItem", "NSWorkspace", "NSImage"] }
+
+# OS credential store on Windows/Linux for the remote-control secrets (device private key, sito-auth
+# refresh token). SFTP secrets stay macOS-only (filesystem/sftp.rs is still cfg-gated); remote
+# control runs on all three desktop platforms (plans/REMOTE_CONTROL_PLAN.md, decision 1).
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }
+# GetDriveTypeW: refuse mapped network drives as remote roots (remote/volume.rs).
+windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem"] }
+
+# Secret Service (GNOME Keyring / KWallet) over D-Bus. `crypto-rust` avoids an OpenSSL dependency
+# and `vendored` builds libdbus so CI/dev machines don't need libdbus-1-dev installed.
+[target.'cfg(target_os = "linux")'.dependencies]
+keyring = { version = "3", features = ["sync-secret-service", "crypto-rust", "vendored"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

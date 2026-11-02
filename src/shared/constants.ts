@@ -345,6 +345,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   fileTypeExtensions: structuredClone(DEFAULT_FILE_TYPE_EXTENSIONS),
   quickLookThumbnailExtensions: [],
   colorfulFileTypes: false,
+  remoteEnabled: false,
+  remoteShowHidden: false,
   showOnboarding: true,
   onboardingSeen: false,
   checkForUpdates: true,

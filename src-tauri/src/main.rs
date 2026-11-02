@@ -6,7 +6,7 @@
 // the `externalBin` sidecar at compile time — lives here, not in the lib, so building the CLI never
 // requires the sidecar to already exist.
 use sito_file_browser_lib::{
-    dock_menu, filesystem, functions, ignore, index, tray, watcher, window,
+    dock_menu, filesystem, functions, ignore, index, remote, tray, watcher, window,
 };
 use tauri::Manager;
 
@@ -84,6 +84,17 @@ fn main() {
                 std::thread::spawn(move || filesystem::fs::prune_thumbnail_cache(&thumbnails));
             }
 
+            // Remote control service (plans/REMOTE_CONTROL_PLAN.md). Off unless remoteEnabled is on
+            // and the user is signed in; `apply` checks both on the async runtime, so a slow
+            // keyring or network never delays startup.
+            match remote::service::RemoteService::new(app.handle().clone()) {
+                Ok(service) => {
+                    app.manage(service);
+                    remote::commands::apply_settings(app.handle());
+                }
+                Err(error) => eprintln!("[remote] service unavailable: {error}"),
+            }
+
             // Apply the main window's native chrome the same way runtime-created windows get it.
             if let Some(main) = app.get_webview_window("main") {
                 window::configure_window(&main);
@@ -149,6 +160,19 @@ fn main() {
             functions::cleanup::remove_cleanup_target,
             functions::cleanup::set_cleanup_target_mode,
             functions::cleanup::clean_cleanup_target,
+            remote::commands::remote_status,
+            remote::commands::remote_account,
+            remote::commands::remote_sign_in,
+            remote::commands::remote_sign_out,
+            remote::commands::remote_get_roots,
+            remote::commands::remote_add_root,
+            remote::commands::remote_remove_root,
+            remote::commands::remote_get_devices,
+            remote::commands::remote_revoke_device,
+            remote::commands::remote_start_pairing,
+            remote::commands::remote_pending_pairing,
+            remote::commands::remote_confirm_pairing,
+            remote::commands::remote_cancel_pairing,
             filesystem::sftp::sftp_list_connections,
             filesystem::sftp::sftp_add_connection,
             filesystem::sftp::sftp_remove_connection,

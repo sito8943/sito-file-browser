@@ -295,6 +295,11 @@ Use explicit `cfg`/platform branches and return errors instead of panicking.
 - `src-tauri/src/functions`: settings, sidebar, keymap, context menu, terminal, control socket,
   storage, cleanup watch list, clipboard, system integration, and folder preferences.
 - `src-tauri/src/window.rs`: normal and detached Tauri windows.
+- `src-tauri/src/remote/`: 0.18.0 remote control (in progress). `service.rs` lifecycle (gated by
+  `remoteEnabled` + sito-auth sign-in), `commands.rs` adapters, `relay_client.rs` WSS, `auth.rs`,
+  `crypto.rs`/`wire.rs`/`session.rs`/`pairing.rs` E2E protocol, `handlers.rs` read-only allowlist
+  over the fs cores, `paths.rs` root confinement, `store.rs` (`remote.toml`). Design and security
+  rules: `plans/REMOTE_CONTROL_PLAN.md`.
 
 The GUI and `sfb` CLI intentionally reuse plain Rust core functions. Put reusable filesystem
 behavior in the core, then keep the Tauri command and CLI as adapters.
