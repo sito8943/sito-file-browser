@@ -20,9 +20,9 @@ use crate::index::SizeIndex;
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DirMetadata {
-    is_dir: bool,
-    is_file: bool,
-    modified: SystemTime,
+    pub(crate) is_dir: bool,
+    pub(crate) is_file: bool,
+    pub(crate) modified: SystemTime,
     accessed: SystemTime,
     created: SystemTime,
 }
@@ -30,13 +30,13 @@ pub struct DirMetadata {
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DirEntry {
-    name: String,
-    path: PathBuf,
-    size: u64,
+    pub(crate) name: String,
+    pub(crate) path: PathBuf,
+    pub(crate) size: u64,
     // Actual space the file occupies on disk (allocated blocks), which differs from `size` due
     // to filesystem block rounding / sparse files.
     size_on_disk: u64,
-    metadata: DirMetadata,
+    pub(crate) metadata: DirMetadata,
 }
 
 pub(crate) fn build_dir_entry(path: PathBuf) -> Result<DirEntry, String> {
@@ -296,11 +296,14 @@ fn has_ext(path: &str, exts: &[&str]) -> bool {
         .unwrap_or(false)
 }
 
-// Decode the source image used to build a thumbnail: a text-document render for markdown, a
-// frame/page rendered by QuickLook for videos and PDFs, or the image file itself.
+// Decode the source image used to build a thumbnail: a text-document render for markdown, an
+// SVG rendered by resvg (external references refused), a frame/page rendered by QuickLook for
+// videos and PDFs, or the image file itself.
 fn thumbnail_source(path: &str, size: u32, tmp_dir: &Path) -> Result<image::DynamicImage, String> {
     if is_text(path) {
         text_thumbnail(path)
+    } else if has_ext(path, &["svg"]) {
+        super::svg::svg_thumbnail(path, size)
     } else if has_ext(path, &["dmg"]) {
         dmg_app_icon_thumbnail(path, tmp_dir)
     } else if needs_quicklook(path) {
@@ -761,6 +764,16 @@ fn save_thumbnail(
 // folder full of screenshots from saturating the compositor with huge bitmaps.
 #[tauri::command]
 pub async fn get_thumbnail(app: AppHandle, path: String, size: u32) -> Result<String, String> {
+    generate_thumbnail(app, path, size, false, ThumbnailKind::Grid).await
+}
+
+// Grid thumbnail for the remote-control `thumb.get` request (remote/handlers.rs). Same pipeline and
+// cache as the UI grid; `path` is a canonical local path already validated against a root.
+pub(crate) async fn remote_thumbnail(
+    app: AppHandle,
+    path: String,
+    size: u32,
+) -> Result<String, String> {
     generate_thumbnail(app, path, size, false, ThumbnailKind::Grid).await
 }
 

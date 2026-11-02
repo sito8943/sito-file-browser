@@ -56,7 +56,7 @@ const CleanupChip = ({
     >
       <Button
         unstyled
-        className="Chip_label settings_cleanup_chip_name"
+        className="Chip_label settings_cleanup_chip_name text_link"
         title={target.path}
         onClick={() => onOpen(target.path)}
       >

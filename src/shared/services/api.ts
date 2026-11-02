@@ -3,7 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { watchImmediate } from "@tauri-apps/plugin-fs";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { resolveResource } from "@tauri-apps/api/path";
+import { appConfigDir, join, resolveResource } from "@tauri-apps/api/path";
 import { startDrag } from "@crabnebula/tauri-plugin-drag";
 
 import { notify, TOAST_TYPE } from "@/shared/toast";
@@ -101,6 +101,11 @@ export type AppSettings = {
   quickLookThumbnailExtensions: string[];
   // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
   colorfulFileTypes: boolean;
+  // Remote control (plans/REMOTE_CONTROL_PLAN.md): connect to the relay so paired phones can
+  // browse the authorized folders. Off by default; while off no connection is opened.
+  remoteEnabled: boolean;
+  // Let paired phones see and open hidden entries (dotfiles) inside authorized folders.
+  remoteShowHidden: boolean;
   // Show the welcome guide (onboarding wizard) on launch until it has been completed. Exposed in
   // Settings so the user can stop it from ever reappearing (or bring it back).
   showOnboarding: boolean;
@@ -700,6 +705,19 @@ export type AppStorageLocation = {
   size: number;
 };
 
+// settings.toml lives directly in the app config dir (see config_path in functions/settings.rs).
+const SETTINGS_FILE_NAME = "settings.toml";
+
+// The live settings.toml and the folder holding it.
+export type SettingsFileLocation = { dir: string; file: string };
+
+// Where settings.toml lives. Path math only: nothing is read, so it is instant.
+export const getSettingsFileLocation =
+  async (): Promise<SettingsFileLocation> => {
+    const dir = await appConfigDir();
+    return { dir, file: await join(dir, SETTINGS_FILE_NAME) };
+  };
+
 // Where the app keeps its files on disk and how much space each location uses (config dir, cache
 // dir). Only existing directories are returned; the walk runs off the UI thread in Rust.
 export const getAppStorage = async (): Promise<AppStorageLocation[]> =>
@@ -762,6 +780,140 @@ export const cleanCleanupTarget = async (
   path: string,
 ): Promise<CleanupResult> =>
   (await invoke("clean_cleanup_target", { path })) as CleanupResult;
+
+// ---- Remote control (src-tauri/src/remote; plans/REMOTE_CONTROL_PLAN.md) ----
+
+// Events pushed by the remote service. Mirror the constants in remote/service.rs.
+const REMOTE_STATUS_EVENT = "remote://status";
+const REMOTE_PAIRING_EVENT = "remote://pairing";
+const REMOTE_SESSION_OPENED_EVENT = "remote://session-opened";
+
+// Service lifecycle. Mirrors RemoteState in remote/service.rs.
+export type RemoteState =
+  "off" | "starting" | "connecting" | "online" | "stopped";
+
+// Mirrors RemoteStatus in remote/service.rs. `reason` is a REMOTE_* error code when stopped.
+export type RemoteStatus = {
+  state: RemoteState;
+  reason: string | null;
+  online: { id: string; name: string }[];
+  sessions: string[];
+};
+
+// The signed-in sito-auth account. Mirrors Account in remote/auth.rs.
+export type RemoteAccount = {
+  userId: number;
+  email: string;
+  username: string | null;
+};
+
+// An authorized folder. `path` stays on the desktop; phones only see id + name.
+export type RemoteRoot = { id: string; name: string; path: string };
+
+// A paired phone. Mirrors PairedDevice in remote/store.rs.
+export type RemotePairedDevice = {
+  id: string;
+  name: string;
+  platform: string;
+  publicKey: string;
+  pairedAt: number;
+};
+
+// A phone that proved the pairing code and waits for the user to type the 6-digit code it shows.
+// The code itself never reaches the UI; the backend checks what the user typed.
+export type RemotePendingDevice = {
+  deviceId: string;
+  name: string;
+  platform: string;
+  publicKey: string;
+};
+
+export type RemoteSessionOpened = { deviceId: string; name: string };
+
+// Current service status (also pushed through onRemoteStatus).
+export const getRemoteStatus = async (): Promise<RemoteStatus> =>
+  (await invoke("remote_status")) as RemoteStatus;
+
+// The signed-in account, or null. Restores the session from the OS keyring on first call.
+export const getRemoteAccount = async (): Promise<RemoteAccount | null> =>
+  (await invoke("remote_account")) as RemoteAccount | null;
+
+// Sign in to sito-auth; starts the service when remoteEnabled is on. Throws REMOTE_AUTH_* codes.
+export const remoteSignIn = async (
+  email: string,
+  password: string,
+): Promise<RemoteAccount> =>
+  (await invoke("remote_sign_in", { email, password })) as RemoteAccount;
+
+// Stop serving and revoke this desktop's sito-auth session.
+export const remoteSignOut = async (): Promise<void> =>
+  await invoke("remote_sign_out");
+
+export const getRemoteRoots = async (): Promise<RemoteRoot[]> =>
+  (await invoke("remote_get_roots")) as RemoteRoot[];
+
+// Authorize a folder. The backend canonicalizes it and refuses the disk root, volumes, home, OS
+// trees, network filesystems and the app config dir (REMOTE_ROOT_* codes).
+export const addRemoteRoot = async (path: string): Promise<RemoteRoot> =>
+  (await invoke("remote_add_root", { path })) as RemoteRoot;
+
+export const removeRemoteRoot = async (id: string): Promise<void> =>
+  await invoke("remote_remove_root", { id });
+
+export const getRemoteDevices = async (): Promise<RemotePairedDevice[]> =>
+  (await invoke("remote_get_devices")) as RemotePairedDevice[];
+
+// Revoke a paired phone: removed from local trust at once, live session dropped, then revoked on
+// sito-auth (best effort).
+export const revokeRemoteDevice = async (id: string): Promise<void> =>
+  await invoke("remote_revoke_device", { id });
+
+// A pairing QR: SVG markup rendered in Rust plus the raw payload. Mirrors PairingCode in
+// remote/commands.rs.
+export type RemotePairingCode = { payload: string; svg: string };
+
+// Open a 2-minute, one-time pairing window and get its QR.
+export const startRemotePairing = async (): Promise<RemotePairingCode> =>
+  (await invoke("remote_start_pairing")) as RemotePairingCode;
+
+export const getRemotePendingPairing =
+  async (): Promise<RemotePendingDevice | null> =>
+    (await invoke("remote_pending_pairing")) as RemotePendingDevice | null;
+
+// The user typed the code the phone shows. A match trusts the phone; a mismatch rejects it
+// (REMOTE_PAIRING_CODE_MISMATCH) and the pairing must start over.
+export const confirmRemotePairing = async (
+  deviceId: string,
+  code: string,
+): Promise<RemotePairedDevice> =>
+  (await invoke("remote_confirm_pairing", {
+    deviceId,
+    code,
+  })) as RemotePairedDevice;
+
+export const cancelRemotePairing = async (): Promise<void> =>
+  await invoke("remote_cancel_pairing");
+
+export const onRemoteStatus = async (
+  onChange: (status: RemoteStatus) => void,
+): Promise<() => void> =>
+  await listen<RemoteStatus>(REMOTE_STATUS_EVENT, (event) =>
+    onChange(event.payload),
+  );
+
+export const onRemotePairing = async (
+  onPending: (device: RemotePendingDevice) => void,
+): Promise<() => void> =>
+  await listen<RemotePendingDevice>(REMOTE_PAIRING_EVENT, (event) =>
+    onPending(event.payload),
+  );
+
+export const onRemoteSessionOpened = async (
+  onOpened: (session: RemoteSessionOpened) => void,
+): Promise<() => void> =>
+  await listen<RemoteSessionOpened>(REMOTE_SESSION_OPENED_EVENT, (event) =>
+    onOpened(event.payload),
+  );
 
 // A saved SSH/SFTP connection. Secrets (password/passphrase) are never sent to the frontend — the
 // backend strips them; the key path is not a secret and rehydrates the edit dialog's auth fields.

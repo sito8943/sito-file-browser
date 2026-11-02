@@ -36,6 +36,20 @@
   color-scheme: light;
 }
 
+/* Path of the live settings.toml, under the search box. Reuses .settings_storage_path for the link
+   look; this row only aligns it with the toolbar and keeps it on one line. */
+.settings_modal .settings_file {
+  padding: var(--space-0) var(--space-4) var(--space-2-5);
+  min-width: 0;
+}
+
+.settings_modal .settings_file .settings_storage_path {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Two-pane body: category rail on the left, scrolling settings panel on the right. Flexes to fill
    the modal's remaining height; min-height:0 lets the panel scroll instead of stretching the modal. */
 .settings_modal .settings_layout {
@@ -568,3 +582,61 @@
 }
 
 /* The pill toggles are the shared <Switcher> element (see styles/components/Switcher.css). */
+
+/* Phone access (remote control). Sign-in form: hint, email, password and the submit button stacked
+   in the full-width area below the account row. */
+.settings_modal .settings_remote_signin {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+}
+
+.settings_modal .settings_remote_signin .settings_input {
+  width: 100%;
+}
+
+.settings_modal .settings_remote_list {
+  padding-left: var(--space-4);
+}
+
+/* Shared-folder name inside its chip: inherits the chip's text, link look on hover. */
+.settings_modal .settings_remote_root_name {
+  padding: var(--space-0);
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.settings_modal .settings_remote_root_name:hover {
+  color: var(--color-selection-indicator);
+  text-decoration: underline;
+}
+
+/* Paired phones: one row each, name first, live state, Revoke at the end. */
+.settings_modal .settings_remote_devices {
+  margin: 0;
+  padding: var(--space-0) var(--space-0) var(--space-0) var(--space-4);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings_modal .settings_remote_device {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.settings_modal .settings_remote_device_name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}

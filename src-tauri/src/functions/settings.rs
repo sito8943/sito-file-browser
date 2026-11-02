@@ -118,6 +118,11 @@ pub struct AppSettings {
     pub quick_look_thumbnail_extensions: Vec<String>,
     // Colour explorer file glyphs by category. Off keeps the existing gray appearance.
     colorful_file_types: bool,
+    // Remote control (plans/REMOTE_CONTROL_PLAN.md): connect to the relay so paired phones can
+    // browse the authorized folders. Off by default; while off no connection is opened.
+    pub remote_enabled: bool,
+    // Let paired phones see and open hidden entries (dotfiles) inside authorized folders.
+    pub remote_show_hidden: bool,
 }
 
 impl AppSettings {
@@ -178,6 +183,8 @@ impl Default for AppSettings {
             file_type_extensions: default_file_type_extensions(),
             quick_look_thumbnail_extensions: Vec::new(),
             colorful_file_types: false,
+            remote_enabled: false,
+            remote_show_hidden: false,
         }
     }
 }
@@ -285,6 +292,8 @@ pub fn set_settings(
         ignore.set_globs(new_globs);
         index::clear(&size_index.0);
     }
+    // Start or stop remote control to match remoteEnabled (async; never blocks this write).
+    crate::remote::commands::apply_settings(&app);
     Ok(())
 }
 

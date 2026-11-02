@@ -31,6 +31,12 @@ import OnboardingReplayControl from "../components/SettingsDialog/controls/Onboa
 import UpdatesControl from "../components/SettingsDialog/controls/UpdatesControl";
 import UpdatesBelow from "../components/SettingsDialog/controls/UpdatesBelow";
 import ChangelogControl from "../components/SettingsDialog/controls/ChangelogControl";
+import RemoteAccountControl from "../components/SettingsDialog/controls/RemoteAccountControl";
+import RemoteAccountBelow from "../components/SettingsDialog/controls/RemoteAccountBelow";
+import RemoteRootsControl from "../components/SettingsDialog/controls/RemoteRootsControl";
+import RemoteRootsBelow from "../components/SettingsDialog/controls/RemoteRootsBelow";
+import RemoteDevicesControl from "../components/SettingsDialog/controls/RemoteDevicesControl";
+import RemoteDevicesBelow from "../components/SettingsDialog/controls/RemoteDevicesBelow";
 
 import { SETTINGS_SECTION } from "./sections";
 import { SETTING_KIND, type SettingDescriptor } from "./types";
@@ -487,6 +493,70 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     section: SETTINGS_SECTION.REMOTE,
     label: () => t.settings.remoteThumbnails,
     hint: () => t.settings.remoteThumbnailsHint,
+  },
+  // Phone access (remote control, plans/REMOTE_CONTROL_PLAN.md). The account, shared folders and
+  // paired phones live in the OS keychain and remote.toml, not settings.toml, so their rows are
+  // never "modified" and have no reset.
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "remoteEnabled",
+    section: SETTINGS_SECTION.REMOTE,
+    subsection: () => t.settings.subsections.remoteControl,
+    label: () => t.settings.remoteEnabled,
+    hint: () => t.settings.remoteEnabledHint,
+    // No reset gutter, so the whole Phone access group lines up (the account, folder and phone
+    // rows have nothing to reset). Both default to off, so the toggle itself is the reset.
+    noReset: true,
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "remoteAccount",
+    section: SETTINGS_SECTION.REMOTE,
+    subsection: () => t.settings.subsections.remoteControl,
+    label: () => t.settings.remoteAccount,
+    hint: () => t.settings.remoteAccountHint,
+    Control: RemoteAccountControl,
+    Below: RemoteAccountBelow,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "remoteRoots",
+    section: SETTINGS_SECTION.REMOTE,
+    subsection: () => t.settings.subsections.remoteControl,
+    label: () => t.settings.remoteRoots,
+    hint: () => t.settings.remoteRootsHint,
+    Control: RemoteRootsControl,
+    Below: RemoteRootsBelow,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
+  },
+  {
+    kind: SETTING_KIND.TOGGLE,
+    key: "remoteShowHidden",
+    section: SETTINGS_SECTION.REMOTE,
+    subsection: () => t.settings.subsections.remoteControl,
+    label: () => t.settings.remoteShowHidden,
+    hint: () => t.settings.remoteShowHiddenHint,
+    // No reset gutter, so the whole Phone access group lines up (the account, folder and phone
+    // rows have nothing to reset). Both default to off, so the toggle itself is the reset.
+    noReset: true,
+  },
+  {
+    kind: SETTING_KIND.CUSTOM,
+    key: "remoteDevices",
+    section: SETTINGS_SECTION.REMOTE,
+    subsection: () => t.settings.subsections.remoteControl,
+    label: () => t.settings.remoteDevices,
+    hint: () => t.settings.remoteDevicesHint,
+    Control: RemoteDevicesControl,
+    Below: RemoteDevicesBelow,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
   },
 
   // ── Notifications ──

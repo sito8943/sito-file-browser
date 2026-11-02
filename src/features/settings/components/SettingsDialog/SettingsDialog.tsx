@@ -27,6 +27,7 @@ import {
 import { SETTINGS_TITLE_ID } from "./constants";
 import { matchesQuery, groupBySubsection } from "./utils";
 import SettingsNav from "./SettingsNav";
+import SettingsFileLink from "./SettingsFileLink";
 import SettingItem from "./SettingItem";
 import type { SettingsDialogProps, SettingsNavigationTarget } from "./types";
 
@@ -215,6 +216,8 @@ const SettingsDialog = ({ visible, onClose }: SettingsDialogProps) => {
           />
         </div>
       </div>
+
+      <SettingsFileLink />
 
       <div className="settings_layout">
         <SettingsNav

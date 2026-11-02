@@ -179,6 +179,9 @@ and prefix matching live in `src/shared/hooks/useTypeahead` (also used by the pa
 - `src/features/directory`: directory domain and views.
 - `src/features/navigation`: path bar, crumbs, and path search.
 - `src/features/quickbar`: directory quick actions.
+- `src/features/remote`: 0.18.0 remote control UI state (`RemoteProvider`/`RemoteManager`), the
+  QR + SAS pairing dialog and the active-session indicator. Its Settings rows ("Phone access" in
+  the Remote section) live in the settings controls and use `useRemote()`.
 - `src/features/settings`: schema-driven Settings UI, provider, and manager.
 - `src/features/shortcuts`: shortcut-help UI/catalog integration.
 - `src/features/sidebar`: sidebar groups, pinned folders, volumes, locations, connections, resize,
@@ -295,6 +298,11 @@ Use explicit `cfg`/platform branches and return errors instead of panicking.
 - `src-tauri/src/functions`: settings, sidebar, keymap, context menu, terminal, control socket,
   storage, cleanup watch list, clipboard, system integration, and folder preferences.
 - `src-tauri/src/window.rs`: normal and detached Tauri windows.
+- `src-tauri/src/remote/`: 0.18.0 remote control (in progress). `service.rs` lifecycle (gated by
+  `remoteEnabled` + sito-auth sign-in), `commands.rs` adapters, `relay_client.rs` WSS, `auth.rs`,
+  `crypto.rs`/`wire.rs`/`session.rs`/`pairing.rs` E2E protocol, `handlers.rs` read-only allowlist
+  over the fs cores, `paths.rs` root confinement, `store.rs` (`remote.toml`). Design and security
+  rules: `plans/REMOTE_CONTROL_PLAN.md`.
 
 The GUI and `sfb` CLI intentionally reuse plain Rust core functions. Put reusable filesystem
 behavior in the core, then keep the Tauri command and CLI as adapters.
@@ -357,6 +365,7 @@ Do not execute `sfb` from an agent session unless the developer explicitly autho
 - `SSH_PLAN.md`: SFTP architecture and remaining remote-edit phases.
 - `plans/SIZE_INDEX_PORT_PLAN.md`: size-index portability work.
 - `plans/SPLIT_SCREEN_PLAN.md`: split-screen proposal.
+- `plans/REMOTE_CONTROL_PLAN.md`: 0.18.0 remote control (Android app + VPS relay + sito-auth).
 - `plans/done`: historical migrations and completed plans; do not read them unless the request is
   specifically about that history.
 - `CHANGELOG.md`: released behavior/history.

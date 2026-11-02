@@ -53,6 +53,14 @@ button:enabled:not([aria-disabled="true"]):active {
   transform: none;
 }
 
+/* Buttons that must not shrink when pressed: link-styled ones (paths, status-bar readouts —
+   inline text would jump) and list rows (no_press, e.g. folder picker rows — a full-width row
+   scaling reads as a glitch). :is() keeps the same specificity as the rule above, so this wins on
+   order. */
+button:is(.text_link, .no_press):enabled:not([aria-disabled="true"]):active {
+  transform: none;
+}
+
 /* Shared header for dialogs and side panels: title on the left, close button on the right. */
 .panel_header {
   flex-shrink: 0;

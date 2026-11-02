@@ -5,7 +5,7 @@ import { t } from "@/lang";
 // descriptors with it in schema.ts. Kept deliberately few — singleton sections were collapsed so
 // the nav doesn't overwhelm: General (behavior + startup + OS integration), Appearance (everything
 // visual), Files (file types, previews, folder sizes, context menu, drag/drop, deletion, import/export), Notifications, Remote (SSH/SFTP
-// behavior — a singleton kept separate so remote-only settings don't read as local behavior), and
+// behavior plus "Phone access", the 0.18.0 remote control), and
 // Storage (the app's disk footprint plus the user's cleanup watch list).
 export const SETTINGS_SECTION = {
   GENERAL: "general",

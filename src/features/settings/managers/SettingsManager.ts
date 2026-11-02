@@ -5,6 +5,7 @@ import type {
   CleanupResult,
   CleanupTarget,
   ExportResult,
+  SettingsFileLocation,
 } from "@/shared/services/api";
 import type { ContextMenuLayout, CustomContextAction } from "@/shared/models";
 import type { CleanupMode } from "@/shared/constants";
@@ -60,6 +61,11 @@ export class SettingsManager {
   // The app's on-disk data locations with their recursively-summed sizes (Storage panel).
   getStorage(): Promise<AppStorageLocation[]> {
     return api.getAppStorage();
+  }
+
+  // Where the live settings.toml is (the link under the settings search box).
+  getSettingsFile(): Promise<SettingsFileLocation> {
+    return api.getSettingsFileLocation();
   }
 
   // Open a folder in a new browser window (the Storage panel's path buttons).

@@ -50,11 +50,12 @@ const ERROR_INVALID_MODE: &str = "CLEANUP_INVALID_MODE";
 // Absolute prefixes that must never be registered or cleaned. These are OS-owned (and largely
 // SIP-protected on macOS, so a trash attempt would fail anyway) — refusing early gives the user a
 // clear message instead of a partial, half-broken delete.
-const PROTECTED_PREFIXES: &[&str] = &["/System", "/usr", "/bin", "/sbin", "/etc", "/dev"];
+pub(crate) const PROTECTED_PREFIXES: &[&str] =
+    &["/System", "/usr", "/bin", "/sbin", "/etc", "/dev"];
 
 // Exact directories that must never be registered even though their children are fair game.
 // Trashing one of these wholesale would take an entire install or user account with it.
-const PROTECTED_EXACT: &[&str] = &["/Applications", "/Library", "/Volumes", "/private"];
+pub(crate) const PROTECTED_EXACT: &[&str] = &["/Applications", "/Library", "/Volumes", "/private"];
 
 // One registered target as the Storage panel sees it: the persisted fields plus the live recursive
 // size, and whether the folder is still on disk. Mirrors CleanupTargetInfo on the frontend.
