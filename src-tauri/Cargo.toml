@@ -87,6 +87,9 @@ aws-lc-rs = "1"
 zeroize = "1"
 # Pairing QR rendered as SVG in Rust, so the webview needs no extra JS dependency.
 qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+# SVG thumbnails in Rust (filesystem/svg.rs) for the phone and SFTP copies; the desktop UI keeps
+# rendering local SVGs in the WebView. External hrefs are refused there.
+resvg = "0.45"
 
 # Finder tags live in a macOS extended attribute (a binary plist) — only needed there.
 # objc2 crates drive the custom Dock right-click menu (recent folders + quick actions).

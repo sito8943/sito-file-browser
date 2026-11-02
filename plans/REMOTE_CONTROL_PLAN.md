@@ -216,7 +216,7 @@ Allowlist cerrada, todo de solo lectura:
 | `dir.list {root, path}` | entradas | `read_directory_local` |
 | `entry.stat {root, path}` | metadata | `get_entry_local` |
 | `search {root, path, query}` | entradas | `search_directory_core` |
-| `thumb.get {root, path, size}` | imagen | pipeline de `get_thumbnail` |
+| `thumb.get {root, path, size}` | imagen | pipeline de `get_thumbnail` (SVG con resvg, sin referencias externas) |
 | `file.read {root, path, offset, len}` | chunk (256 KB) | lectura en bloques nueva, en worker |
 
 - Las rutas viajan **relativas a una raíz** (`root` id + `path`), nunca absolutas: el móvil no

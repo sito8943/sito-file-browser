@@ -296,11 +296,14 @@ fn has_ext(path: &str, exts: &[&str]) -> bool {
         .unwrap_or(false)
 }
 
-// Decode the source image used to build a thumbnail: a text-document render for markdown, a
-// frame/page rendered by QuickLook for videos and PDFs, or the image file itself.
+// Decode the source image used to build a thumbnail: a text-document render for markdown, an
+// SVG rendered by resvg (external references refused), a frame/page rendered by QuickLook for
+// videos and PDFs, or the image file itself.
 fn thumbnail_source(path: &str, size: u32, tmp_dir: &Path) -> Result<image::DynamicImage, String> {
     if is_text(path) {
         text_thumbnail(path)
+    } else if has_ext(path, &["svg"]) {
+        super::svg::svg_thumbnail(path, size)
     } else if has_ext(path, &["dmg"]) {
         dmg_app_icon_thumbnail(path, tmp_dir)
     } else if needs_quicklook(path) {
