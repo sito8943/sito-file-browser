@@ -36,12 +36,8 @@ const RemoteDevicesBelow = () => {
         return (
           <li key={device.id} className="settings_remote_device">
             <span className="settings_remote_device_name">{device.name}</span>
-            {activity && (
-              <span className="settings_row_hint">{activity}</span>
-            )}
-            <SettingsButton
-              onClick={() => void revoke(device.id, device.name)}
-            >
+            {activity && <span className="settings_row_hint">{activity}</span>}
+            <SettingsButton onClick={() => void revoke(device.id, device.name)}>
               {t.remoteControl.deviceRevoke}
             </SettingsButton>
           </li>

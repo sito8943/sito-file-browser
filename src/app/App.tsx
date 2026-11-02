@@ -345,47 +345,53 @@ const App = () => {
                           <ChangelogProvider>
                             {/* Above SettingsProvider: the Phone access controls read it. */}
                             <RemoteProvider>
-                            <SettingsProvider
-                              settings={settings}
-                              update={update}
-                            >
-                              <div
-                                className={classNames(
-                                  "App",
-                                  sidebar.collapsed && "collapsed",
-                                )}
-                                // Expanded-column width; the collapsed rule overrides it (see index.css).
-                                style={
-                                  {
-                                    "--sidebar-width": `${settings.sidebarWidth}px`,
-                                    // Alpha of the context-menu background (see ContextMenu.css); menus are
-                                    // descendants of .App, so they inherit this override.
-                                    "--context-menu-opacity":
-                                      settings.contextMenuOpacity,
-                                    // Alpha of the preview controls pill (see Preview.css); the pill is a
-                                    // descendant of .App, so it inherits this override.
-                                    "--preview-controls-opacity":
-                                      settings.previewControlsOpacity,
-                                  } as CSSProperties
-                                }
+                              <SettingsProvider
+                                settings={settings}
+                                update={update}
                               >
-                                <SideBar
-                                  collapsed={sidebar.collapsed}
-                                  onToggle={sidebar.toggle}
-                                />
-                                {!sidebar.collapsed && <SidebarResizeHandle />}
-                                <AppContent />
-                              </div>
-                              {/* Welcome guide; inside SettingsProvider because its steps reuse the
+                                <div
+                                  className={classNames(
+                                    "App",
+                                    sidebar.collapsed && "collapsed",
+                                  )}
+                                  // Expanded-column width; the collapsed rule overrides it (see index.css).
+                                  style={
+                                    {
+                                      "--sidebar-width": `${settings.sidebarWidth}px`,
+                                      // Alpha of the context-menu background (see ContextMenu.css); menus are
+                                      // descendants of .App, so they inherit this override.
+                                      "--context-menu-opacity":
+                                        settings.contextMenuOpacity,
+                                      // Alpha of the preview controls pill (see Preview.css); the pill is a
+                                      // descendant of .App, so it inherits this override.
+                                      "--preview-controls-opacity":
+                                        settings.previewControlsOpacity,
+                                    } as CSSProperties
+                                  }
+                                >
+                                  <SideBar
+                                    collapsed={sidebar.collapsed}
+                                    onToggle={sidebar.toggle}
+                                  />
+                                  {!sidebar.collapsed && (
+                                    <SidebarResizeHandle />
+                                  )}
+                                  <AppContent />
+                                </div>
+                                {/* Welcome guide; inside SettingsProvider because its steps reuse the
                               settings controls, and it auto-opens once settings are hydrated. */}
-                              <OnboardingDialog settingsReady={settingsReady} />
-                              {/* Post-update "what's new" toast + changelog dialog. */}
-                              <ChangelogDialog settingsReady={settingsReady} />
-                              {/* Remote control: QR + SAS pairing dialog and the "a phone is
+                                <OnboardingDialog
+                                  settingsReady={settingsReady}
+                                />
+                                {/* Post-update "what's new" toast + changelog dialog. */}
+                                <ChangelogDialog
+                                  settingsReady={settingsReady}
+                                />
+                                {/* Remote control: QR + SAS pairing dialog and the "a phone is
                               browsing" notice. */}
-                              <PairDeviceDialog />
-                              <RemoteIndicator />
-                            </SettingsProvider>
+                                <PairDeviceDialog />
+                                <RemoteIndicator />
+                              </SettingsProvider>
                             </RemoteProvider>
                           </ChangelogProvider>
                         </OnboardingProvider>

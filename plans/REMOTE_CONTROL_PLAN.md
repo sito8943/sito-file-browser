@@ -4,13 +4,13 @@ Plan creado el 1 de noviembre de 2026.
 
 ## Estado
 
-| Fase | Estado |
-| --- | --- |
-| 1. sito-auth `/devices` | Hecha y desplegada (PR https://github.com/sito8943/sito-auth-server/pull/2). Contrato en su `readme.md`. |
-| 2. Relay | Hecha y desplegada en `wss://api.remote.sito8943.com/ws` (repo privado https://github.com/sito8943/sito-remote-relay). Contrato del wire en su `readme.md`. |
-| 3. Desktop | Backend Rust hecho en la rama `0.18.0` (sin commitear). Probado el 2 de noviembre de 2026: login en sito-auth, registro del equipo y conexión `online` al relay. Frontend hecho (`src/features/remote` + "Phone access" en Ajustes); probado: lint/tsc, compartir carpetas y QR de emparejamiento. El emparejamiento completo espera a la app Android. |
-| 4. Android | Pendiente |
-| 5. Endurecimiento | Pendiente |
+| Fase                    | Estado                                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. sito-auth `/devices` | Hecha y desplegada (PR https://github.com/sito8943/sito-auth-server/pull/2). Contrato en su `readme.md`.                                                                                                                                                                                                                                               |
+| 2. Relay                | Hecha y desplegada en `wss://api.remote.sito8943.com/ws` (repo privado https://github.com/sito8943/sito-remote-relay). Contrato del wire en su `readme.md`.                                                                                                                                                                                            |
+| 3. Desktop              | Backend Rust hecho en la rama `0.18.0` (sin commitear). Probado el 2 de noviembre de 2026: login en sito-auth, registro del equipo y conexión `online` al relay. Frontend hecho (`src/features/remote` + "Phone access" en Ajustes); probado: lint/tsc, compartir carpetas y QR de emparejamiento. El emparejamiento completo espera a la app Android. |
+| 4. Android              | Pendiente                                                                                                                                                                                                                                                                                                                                              |
+| 5. Endurecimiento       | Pendiente                                                                                                                                                                                                                                                                                                                                              |
 
 Diferencias con el diseño original, ya implementadas en el relay: la sesión WebSocket vive hasta el
 `exp` del access token y el cliente la extiende con `{"t":"auth","token":...}` (cierre `4401` si no);
@@ -71,13 +71,13 @@ el relay, el desktop solo acepta sesiones de claves públicas que él mismo empa
 
 ## Piezas y repositorios
 
-| Pieza | Repo | Estado |
-| --- | --- | --- |
-| Registro de dispositivos | `servers/auth` (sito-auth, Spring Boot 3.5, Java 21, MySQL, Flyway) | Extender |
-| Relay | `servers/sito-remote-relay` (nuevo, Spring Boot 3.5, Java 21) | Nuevo |
-| Proxy | `servers/infra/nginx/conf.d/remote.conf` | Nuevo |
-| Desktop | este repo: `src-tauri/src/remote/` + `src/features/remote` | Nuevo módulo |
-| App Android | `mobile/SitoFileRemote` (nuevo, mismas reglas que `mobile/SitoChat`) | Nuevo |
+| Pieza                    | Repo                                                                 | Estado       |
+| ------------------------ | -------------------------------------------------------------------- | ------------ |
+| Registro de dispositivos | `servers/auth` (sito-auth, Spring Boot 3.5, Java 21, MySQL, Flyway)  | Extender     |
+| Relay                    | `servers/sito-remote-relay` (nuevo, Spring Boot 3.5, Java 21)        | Nuevo        |
+| Proxy                    | `servers/infra/nginx/conf.d/remote.conf`                             | Nuevo        |
+| Desktop                  | este repo: `src-tauri/src/remote/` + `src/features/remote`           | Nuevo módulo |
+| App Android              | `mobile/SitoFileRemote` (nuevo, mismas reglas que `mobile/SitoChat`) | Nuevo        |
 
 Por qué un relay nuevo y no extender `sito-chat-server`: chat es STOMP + MySQL + persistencia de
 mensajes y sus reglas prohíben ampliar el alcance; el relay es transporte efímero sin DB.
@@ -162,14 +162,14 @@ ECDH devuelve la coordenada X (32 bytes, igual que `KeyAgreement("ECDH")` de JCA
 
 **Sobre del relay.** `p` = base64 de un frame binario:
 
-| Frame | Bytes | Sentido | `seq` |
-| --- | --- | --- | --- |
-| `HELLO` | `0x01 ‖ 0x01(versión) ‖ eM(65)` | m→d | 0 |
-| `PAIR_HELLO` | `0x02 ‖ 0x01 ‖ eM(65) ‖ SPKI sM(91)` | m→d | 0 |
-| `HELLO_ACK` | `0x11 ‖ eD(65) ‖ seal(CONFIRM)` | d→m | 0 |
-| `PAIR_ACK` | `0x12 ‖ eD(65) ‖ seal(CONFIRM)` | d→m | 0 |
-| `DATA` | `0x03 ‖ ciphertext‖tag` | ambos | m→d desde 1, d→m desde 1 |
-| `REJECT` | `0x7F ‖ código` (sin autenticar) | d→m | — |
+| Frame        | Bytes                                | Sentido | `seq`                    |
+| ------------ | ------------------------------------ | ------- | ------------------------ |
+| `HELLO`      | `0x01 ‖ 0x01(versión) ‖ eM(65)`      | m→d     | 0                        |
+| `PAIR_HELLO` | `0x02 ‖ 0x01 ‖ eM(65) ‖ SPKI sM(91)` | m→d     | 0                        |
+| `HELLO_ACK`  | `0x11 ‖ eD(65) ‖ seal(CONFIRM)`      | d→m     | 0                        |
+| `PAIR_ACK`   | `0x12 ‖ eD(65) ‖ seal(CONFIRM)`      | d→m     | 0                        |
+| `DATA`       | `0x03 ‖ ciphertext‖tag`              | ambos   | m→d desde 1, d→m desde 1 |
+| `REJECT`     | `0x7F ‖ código` (sin autenticar)     | d→m     | —                        |
 
 Códigos de `REJECT`: 1 no emparejado, 2 emparejamiento cerrado, 3 el registro no coincide,
 4 versión no soportada, 5 ocupado.
@@ -210,14 +210,14 @@ coincide o el usuario rechaza, `{"t":"pair.rejected"}` y cierra.
 
 Allowlist cerrada, todo de solo lectura:
 
-| Request | Respuesta | Core reutilizado |
-| --- | --- | --- |
-| `roots.list` | raíces autorizadas (nombre visible, id) | `remote.toml` |
-| `dir.list {root, path}` | entradas | `read_directory_local` |
-| `entry.stat {root, path}` | metadata | `get_entry_local` |
-| `search {root, path, query}` | entradas | `search_directory_core` |
-| `thumb.get {root, path, size}` | imagen | pipeline de `get_thumbnail` (SVG con resvg, sin referencias externas) |
-| `file.read {root, path, offset, len}` | chunk (256 KB) | lectura en bloques nueva, en worker |
+| Request                               | Respuesta                               | Core reutilizado                                                      |
+| ------------------------------------- | --------------------------------------- | --------------------------------------------------------------------- |
+| `roots.list`                          | raíces autorizadas (nombre visible, id) | `remote.toml`                                                         |
+| `dir.list {root, path}`               | entradas                                | `read_directory_local`                                                |
+| `entry.stat {root, path}`             | metadata                                | `get_entry_local`                                                     |
+| `search {root, path, query}`          | entradas                                | `search_directory_core`                                               |
+| `thumb.get {root, path, size}`        | imagen                                  | pipeline de `get_thumbnail` (SVG con resvg, sin referencias externas) |
+| `file.read {root, path, offset, len}` | chunk (256 KB)                          | lectura en bloques nueva, en worker                                   |
 
 - Las rutas viajan **relativas a una raíz** (`root` id + `path`), nunca absolutas: el móvil no
   conoce ni puede pedir rutas fuera de las raíces.

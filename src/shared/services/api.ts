@@ -790,11 +790,7 @@ const REMOTE_SESSION_OPENED_EVENT = "remote://session-opened";
 
 // Service lifecycle. Mirrors RemoteState in remote/service.rs.
 export type RemoteState =
-  | "off"
-  | "starting"
-  | "connecting"
-  | "online"
-  | "stopped";
+  "off" | "starting" | "connecting" | "online" | "stopped";
 
 // Mirrors RemoteStatus in remote/service.rs. `reason` is a REMOTE_* error code when stopped.
 export type RemoteStatus = {

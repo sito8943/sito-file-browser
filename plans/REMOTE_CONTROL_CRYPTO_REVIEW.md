@@ -36,12 +36,12 @@ Reglas fijas del producto (limitan el daño si algo falla):
 
 ## 2. Modelo de amenazas
 
-| Atacante | Qué puede hacer | Qué debe seguir siendo imposible |
-| --- | --- | --- |
-| El relay o el VPS comprometido | Leer, borrar, reordenar, repetir o inyectar mensajes | Leer contenido, suplantar a un dispositivo, emparejar un móvil propio |
-| Robo de la cuenta del usuario (sito-auth) | Registrar dispositivos nuevos en la cuenta | Acceder al portátil sin pasar por el emparejamiento físico |
-| Alguien que ve el QR (por encima del hombro) | Intentar emparejarse en esos 2 minutos | Emparejarse sin que el usuario lo note (lo frena el código de 6 dígitos que hay que escribir) |
-| Robo posterior de una clave estática | Descifrar tráfico grabado | Descifrar sesiones pasadas (forward secrecy) |
+| Atacante                                     | Qué puede hacer                                      | Qué debe seguir siendo imposible                                                              |
+| -------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| El relay o el VPS comprometido               | Leer, borrar, reordenar, repetir o inyectar mensajes | Leer contenido, suplantar a un dispositivo, emparejar un móvil propio                         |
+| Robo de la cuenta del usuario (sito-auth)    | Registrar dispositivos nuevos en la cuenta           | Acceder al portátil sin pasar por el emparejamiento físico                                    |
+| Alguien que ve el QR (por encima del hombro) | Intentar emparejarse en esos 2 minutos               | Emparejarse sin que el usuario lo note (lo frena el código de 6 dígitos que hay que escribir) |
+| Robo posterior de una clave estática         | Descifrar tráfico grabado                            | Descifrar sesiones pasadas (forward secrecy)                                                  |
 
 Fuera de alcance: un portátil o un móvil ya comprometidos (malware en el propio dispositivo) y la
 denegación de servicio (el relay siempre puede dejar de reenviar).
@@ -110,12 +110,12 @@ código SAS           = HKDF-Expand(PRK, "sito-remote/v1 sas", 4 bytes) mod 1 00
 
 **Por qué cuatro ECDH y no uno:**
 
-| Término | Aporta |
-| --- | --- |
+| Término     | Aporta                                                               |
+| ----------- | -------------------------------------------------------------------- |
 | `DH(eD,eM)` | Forward secrecy: sin las efímeras, el tráfico grabado no se descifra |
-| `DH(eD,sM)` | Solo el dueño real de `sM` puede calcularlo: autentica al móvil |
-| `DH(sD,eM)` | Solo el dueño real de `sD` puede calcularlo: autentica al portátil |
-| `DH(sD,sM)` | Une la sesión a la pareja concreta de dispositivos emparejados |
+| `DH(eD,sM)` | Solo el dueño real de `sM` puede calcularlo: autentica al móvil      |
+| `DH(sD,eM)` | Solo el dueño real de `sD` puede calcularlo: autentica al portátil   |
+| `DH(sD,sM)` | Une la sesión a la pareja concreta de dispositivos emparejados       |
 
 La autenticación es **implícita**: quien no tenga la clave privada correcta obtiene claves
 distintas y su primer mensaje no se descifra. El portátil demuestra explícitamente que derivó lo
@@ -160,13 +160,13 @@ descifrado falla. Revocar un móvil en el portátil borra su clave de la lista c
 El relay ve un sobre JSON con origen, destino, `sid`, número de secuencia y `p` (los datos en
 base64). Dentro de `p` va un frame binario:
 
-| Frame | Contenido |
-| --- | --- |
-| `HELLO` | tipo ‖ versión ‖ eM |
-| `PAIR_HELLO` | tipo ‖ versión ‖ eM ‖ sM |
-| `HELLO_ACK` / `PAIR_ACK` | tipo ‖ eD ‖ "confirm" cifrado |
-| `DATA` | tipo ‖ texto cifrado ‖ tag |
-| `REJECT` | tipo ‖ código de error (sin cifrar ni autenticar; el móvil solo lo usa para mostrar un aviso) |
+| Frame                    | Contenido                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| `HELLO`                  | tipo ‖ versión ‖ eM                                                                           |
+| `PAIR_HELLO`             | tipo ‖ versión ‖ eM ‖ sM                                                                      |
+| `HELLO_ACK` / `PAIR_ACK` | tipo ‖ eD ‖ "confirm" cifrado                                                                 |
+| `DATA`                   | tipo ‖ texto cifrado ‖ tag                                                                    |
+| `REJECT`                 | tipo ‖ código de error (sin cifrar ni autenticar; el móvil solo lo usa para mostrar un aviso) |
 
 Las claves públicas viajan como puntos sin comprimir (65 bytes). El portátil rechaza puntos que no
 estén en la curva.

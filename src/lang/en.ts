@@ -423,7 +423,8 @@ export const en = {
     modified: "Modified",
     importSettings: "Import settings",
     exportSettings: "Export settings",
-    settingsFileOpen: "Open the folder with settings.toml in a new file browser window",
+    settingsFileOpen:
+      "Open the folder with settings.toml in a new file browser window",
     imported: "Settings imported",
     exported: (path: string) => `Settings exported to ${path}`,
     importError: (reason: string) => `Could not import settings: ${reason}`,
@@ -1032,7 +1033,8 @@ export const en = {
     signIn: "Sign in",
     signOut: "Sign out",
     signInHint: "Use your Sito account (the same as Wallet and Notes).",
-    rootsEmpty: "No folders shared yet. Phones only ever see folders listed here.",
+    rootsEmpty:
+      "No folders shared yet. Phones only ever see folders listed here.",
     rootAdd: "Share a folder",
     rootRemove: "Stop sharing",
     rootOpen: "Open in a new file browser window",
@@ -1051,8 +1053,7 @@ export const en = {
     pairExpired: "This code expired.",
     pairNewCode: "New code",
     pairLoading: "Creating a pairing code…",
-    pairEnterCode: (name: string) =>
-      `Type the 6-digit code shown on ${name}.`,
+    pairEnterCode: (name: string) => `Type the 6-digit code shown on ${name}.`,
     pairCodeLabel: "Code from the phone",
     pairCodeHint: "One attempt: a wrong code rejects the phone.",
     pairConfirm: "Pair",
@@ -1067,7 +1068,8 @@ export const en = {
     errors: {
       REMOTE_AUTH_INVALID_CREDENTIALS: "Wrong email or password.",
       REMOTE_AUTH_SIGNED_OUT: "Sign in to use remote control.",
-      REMOTE_AUTH_NETWORK: "Can't reach the Sito account service. Check your connection.",
+      REMOTE_AUTH_NETWORK:
+        "Can't reach the Sito account service. Check your connection.",
       REMOTE_AUTH_RATE_LIMITED: "Too many attempts. Try again in a minute.",
       REMOTE_AUTH_SERVER: "The Sito account service failed. Try again later.",
       REMOTE_DEVICE_CONFLICT:
@@ -1080,7 +1082,8 @@ export const en = {
         "The code didn't match, so the phone was rejected. Start pairing again to retry.",
       REMOTE_PAIRING_QR_FAILED: "Could not create the pairing code.",
       REMOTE_PAIRING_RANDOM_FAILED: "Could not create the pairing code.",
-      REMOTE_REPLACED: "Remote control was started on another copy of this app.",
+      REMOTE_REPLACED:
+        "Remote control was started on another copy of this app.",
       REMOTE_DEVICE_REJECTED:
         "The relay no longer accepts this computer. Sign out and in again.",
       REMOTE_ROOT_NOT_ABSOLUTE: "Choose a full folder path.",
