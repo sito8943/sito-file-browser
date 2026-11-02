@@ -254,6 +254,8 @@ pub fn derive(
         Role::Mobile => (&m2d, &d2m, DIRECTION_M2D),
     };
     let channel = Channel {
+        #[cfg(test)]
+        raw_keys: (*send, *recv),
         send: aead_key(send)?,
         recv: aead_key(recv)?,
         send_direction,
@@ -271,6 +273,9 @@ pub fn derive(
 
 // An established, directional AES-256-GCM channel.
 pub struct Channel {
+    // Raw (send, recv) keys, kept only in test builds for the known-answer vectors.
+    #[cfg(test)]
+    raw_keys: ([u8; KEY_LEN], [u8; KEY_LEN]),
     send: aead::LessSafeKey,
     recv: aead::LessSafeKey,
     send_direction: u8,
@@ -412,6 +417,56 @@ mod tests {
         Pair {
             desktop: derive(Role::Desktop, &ds, &de, &desktop).unwrap(),
             mobile: derive(Role::Mobile, &ms, &me, &mobile).unwrap(),
+        }
+    }
+
+    fn unhex(hex: &str) -> Vec<u8> {
+        (0..hex.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
+            .collect()
+    }
+
+    fn hex(bytes: &[u8]) -> String {
+        bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+    }
+
+    // Known-answer vectors shared with the Android app's tests (same JSON). Computed independently
+    // with openssl ECDH + Python hashlib/hmac, so both implementations are checked against a third
+    // one, not against each other.
+    #[test]
+    fn matches_known_answer_vectors() {
+        let kat: serde_json::Value =
+            serde_json::from_str(include_str!("testdata/remote_kat_v1.json")).unwrap();
+        let key = |name: &str| {
+            let pair = KeyPair::from_der(&unhex(kat["keys"][name]["pkcs8"].as_str().unwrap()))
+                .unwrap();
+            let point = kat["keys"][name]["point"].as_str().unwrap();
+            assert_eq!(hex(pair.point()), point);
+            pair
+        };
+        let (ds, de, ms, me) = (key("sD"), key("eD"), key("sM"), key("eM"));
+        for vector in kat["vectors"].as_array().unwrap() {
+            let psk = vector["psk"].as_str().map(unhex);
+            let mode = if vector["mode"] == 2 { Mode::Pairing } else { Mode::Session };
+            let handshake = Handshake {
+                mode,
+                sid: vector["sid"].as_str().unwrap(),
+                desktop_static: *ds.point(),
+                mobile_static: *ms.point(),
+                desktop_ephemeral: *de.point(),
+                mobile_ephemeral: *me.point(),
+                psk: psk.as_deref(),
+            };
+            let desktop = derive(Role::Desktop, &ds, &de, &handshake).unwrap();
+            let mobile = derive(Role::Mobile, &ms, &me, &handshake).unwrap();
+            let (m2d, d2m) = (vector["m2d"].as_str().unwrap(), vector["d2m"].as_str().unwrap());
+            assert_eq!(hex(&desktop.raw_keys.0), d2m);
+            assert_eq!(hex(&desktop.raw_keys.1), m2d);
+            assert_eq!(hex(&mobile.raw_keys.0), m2d);
+            assert_eq!(hex(&mobile.raw_keys.1), d2m);
+            assert_eq!(desktop.sas(), vector["sas"].as_str().unwrap());
+            assert_eq!(mobile.sas(), vector["sas"].as_str().unwrap());
         }
     }
 
