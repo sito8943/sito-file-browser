@@ -357,6 +357,7 @@ Do not execute `sfb` from an agent session unless the developer explicitly autho
 - `SSH_PLAN.md`: SFTP architecture and remaining remote-edit phases.
 - `plans/SIZE_INDEX_PORT_PLAN.md`: size-index portability work.
 - `plans/SPLIT_SCREEN_PLAN.md`: split-screen proposal.
+- `plans/REMOTE_CONTROL_PLAN.md`: 0.18.0 remote control (Android app + VPS relay + sito-auth).
 - `plans/done`: historical migrations and completed plans; do not read them unless the request is
   specifically about that history.
 - `CHANGELOG.md`: released behavior/history.
