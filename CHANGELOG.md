@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.18.0]
+
+### Added
+
+- Phone access: browse the folders you share and copy files to your Android phone from any network with the companion app Sito File Remote. Off by default; read-only (list, search, thumbnails, download), only folders you authorize, end-to-end encrypted through the Sito relay so the server only sees ciphertext. Settings → Remote → Phone access holds the Sito account, shared folders, paired phones, revocation, and whether phones may see hidden files (off by default) (`aab6c8c`, `7f59e8e`)
+- Pairing each phone by hand: scan a one-time QR code (2 minutes, single use), then type on the computer the 6-digit code the phone shows. One attempt; a wrong code rejects the phone (`7f59e8e`, `3b8e20e`)
+- Shared folders exclude the disk root, volumes, the home folder itself, system and app-config folders, and network filesystems (`aab6c8c`)
+- SVG thumbnails rendered in Rust for the phone and SFTP copies; references to other files inside an SVG are ignored (`e9d27d0`)
+- Settings shows the path to `settings.toml` under its search box (`7c04680`)
+
+### Fixed
+
+- Link-styled buttons and folder picker rows no longer shrink when pressed (`86f7fca`, `d98c79d`)
+
 ## [0.17.0]
 
 ### Changed
