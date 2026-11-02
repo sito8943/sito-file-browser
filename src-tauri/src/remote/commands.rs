@@ -3,6 +3,7 @@
 
 use std::path::PathBuf;
 
+use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
 
 use super::auth::Account;
@@ -114,10 +115,30 @@ pub async fn remote_revoke_device(
     service.revoke_device(&id).await
 }
 
-// Open a pairing window. Returns the exact QR payload (compact JSON) to render.
+// Pixel edge of the rendered QR; the dialog scales the SVG to fit.
+const QR_MIN_SIZE: u32 = 240;
+const ERROR_QR: &str = "REMOTE_PAIRING_QR_FAILED";
+
+// What the pairing dialog shows: the QR as SVG markup plus the raw payload (for debugging/tests).
+#[derive(Serialize)]
+pub struct PairingCode {
+    payload: String,
+    svg: String,
+}
+
+// Open a 2-minute, one-time pairing window and render its QR.
 #[tauri::command]
-pub async fn remote_start_pairing(service: State<'_, RemoteService>) -> Result<String, String> {
-    service.start_pairing().await.map(|qr| qr.to_json())
+pub async fn remote_start_pairing(
+    service: State<'_, RemoteService>,
+) -> Result<PairingCode, String> {
+    let payload = service.start_pairing().await?.to_json();
+    let code = qrcode::QrCode::new(payload.as_bytes()).map_err(|_| ERROR_QR.to_string())?;
+    let svg = code
+        .render::<qrcode::render::svg::Color>()
+        .min_dimensions(QR_MIN_SIZE, QR_MIN_SIZE)
+        .quiet_zone(true)
+        .build();
+    Ok(PairingCode { payload, svg })
 }
 
 // The phone waiting for SAS confirmation, if any (also pushed as the remote://pairing event).

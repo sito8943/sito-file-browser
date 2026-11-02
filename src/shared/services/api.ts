@@ -872,9 +872,13 @@ export const getRemoteDevices = async (): Promise<RemotePairedDevice[]> =>
 export const revokeRemoteDevice = async (id: string): Promise<void> =>
   await invoke("remote_revoke_device", { id });
 
-// Open a 2-minute, one-time pairing window. Returns the exact QR payload to render.
-export const startRemotePairing = async (): Promise<string> =>
-  (await invoke("remote_start_pairing")) as string;
+// A pairing QR: SVG markup rendered in Rust plus the raw payload. Mirrors PairingCode in
+// remote/commands.rs.
+export type RemotePairingCode = { payload: string; svg: string };
+
+// Open a 2-minute, one-time pairing window and get its QR.
+export const startRemotePairing = async (): Promise<RemotePairingCode> =>
+  (await invoke("remote_start_pairing")) as RemotePairingCode;
 
 export const getRemotePendingPairing =
   async (): Promise<RemotePendingDevice | null> =>

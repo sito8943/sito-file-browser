@@ -456,6 +456,7 @@ export const en = {
       theme: "Theme & colour",
       layout: "Layout & format",
       transparency: "Transparency",
+      remoteControl: "Phone access",
       dragDrop: "Drag & drop",
       deletion: "Deletion",
       importExport: "Import & export",
@@ -473,6 +474,20 @@ export const en = {
     remoteThumbnails: "Thumbnails for remote files",
     remoteThumbnailsHint:
       "Generate image thumbnails on SSH/SFTP hosts. Off by default — each one downloads the whole file over the network.",
+    remoteEnabled: "Remote control",
+    remoteEnabledHint:
+      "Let paired phones browse the folders you share and copy files from them, from any network. Read-only; end-to-end encrypted.",
+    remoteAccount: "Sito account",
+    remoteAccountHint: "Remote control connects through your Sito account.",
+    remoteShowHidden: "Show hidden files to phones",
+    remoteShowHiddenHint:
+      "Let paired phones see dotfiles such as .env or .git inside shared folders.",
+    remoteRoots: "Shared folders",
+    remoteRootsHint:
+      "Phones can only open these folders and what's inside them, never the rest of the disk.",
+    remoteDevices: "Paired phones",
+    remoteDevicesHint:
+      "Each phone is paired by hand with a QR code and a 6-digit check. Revoking takes effect at once.",
     showSystemStats: "Show system stats",
     showSystemStatsHint:
       "Display live CPU, memory and disk usage in the status bar. Off by default — it polls the system on an interval.",
@@ -999,6 +1014,82 @@ export const en = {
     noResults: "No results",
     previousMatch: "Previous match",
     nextMatch: "Next match",
+  },
+  // Remote control: paired phones browsing authorized folders (plans/REMOTE_CONTROL_PLAN.md).
+  remoteControl: {
+    states: {
+      off: "Off",
+      starting: "Starting…",
+      connecting: "Connecting…",
+      online: "Online",
+      stopped: "Stopped",
+    },
+    signedInAs: (email: string, state: string) =>
+      `Signed in as ${email} · ${state}`,
+    signedOut: "Not signed in",
+    email: "Email",
+    password: "Password",
+    signIn: "Sign in",
+    signOut: "Sign out",
+    signInHint: "Use your Sito account (the same as Wallet and Notes).",
+    rootsEmpty: "No folders shared yet. Phones only ever see folders listed here.",
+    rootAdd: "Share a folder",
+    rootRemove: "Stop sharing",
+    rootOpen: "Open in a new file browser window",
+    devicesEmpty: "No paired phones.",
+    deviceRevoke: "Revoke",
+    deviceRevokeTitle: "Revoke phone",
+    deviceRevokeMessage: (name: string) =>
+      `${name} will lose access immediately. You can pair it again later.`,
+    deviceOnline: "Online now",
+    deviceConnected: "Browsing now",
+    pairButton: "Pair phone",
+    pairNeedsOnline: "Turn on remote control and sign in first.",
+    pairTitle: "Pair a phone",
+    pairScan: "Open Sito File Remote on your phone and scan this code.",
+    pairExpiry: "The code works once and expires in 2 minutes.",
+    pairExpired: "This code expired.",
+    pairNewCode: "New code",
+    pairLoading: "Creating a pairing code…",
+    pairCompare: (name: string) =>
+      `Check that ${name} shows the same code before confirming.`,
+    pairConfirm: "Codes match",
+    pairReject: "They don't match",
+    pairCancel: "Cancel",
+    paired: (name: string) => `${name} is paired`,
+    sessionOpened: (name: string) => `${name} is browsing your shared folders`,
+    indicator: (count: number) =>
+      count === 1 ? "A phone is browsing" : `${count} phones are browsing`,
+    unknownPhone: "Phone",
+    // Error codes from src-tauri/src/remote (REMOTE_*); unknown codes fall back to `generic`.
+    errors: {
+      REMOTE_AUTH_INVALID_CREDENTIALS: "Wrong email or password.",
+      REMOTE_AUTH_SIGNED_OUT: "Sign in to use remote control.",
+      REMOTE_AUTH_NETWORK: "Can't reach the Sito account service. Check your connection.",
+      REMOTE_AUTH_RATE_LIMITED: "Too many attempts. Try again in a minute.",
+      REMOTE_AUTH_SERVER: "The Sito account service failed. Try again later.",
+      REMOTE_DEVICE_CONFLICT:
+        "This account already has too many devices. Remove one and try again.",
+      REMOTE_KEYRING_UNAVAILABLE: "The system keychain is not available.",
+      REMOTE_IDENTITY_FAILED: "This computer's remote key could not be loaded.",
+      REMOTE_NOT_RUNNING: "Remote control is not running.",
+      REMOTE_NO_PENDING_PAIRING: "No phone is waiting to be paired.",
+      REMOTE_PAIRING_QR_FAILED: "Could not create the pairing code.",
+      REMOTE_PAIRING_RANDOM_FAILED: "Could not create the pairing code.",
+      REMOTE_REPLACED: "Remote control was started on another copy of this app.",
+      REMOTE_DEVICE_REJECTED:
+        "The relay no longer accepts this computer. Sign out and in again.",
+      REMOTE_ROOT_NOT_ABSOLUTE: "Choose a full folder path.",
+      REMOTE_ROOT_NOT_A_DIR: "That folder doesn't exist.",
+      REMOTE_ROOT_PROTECTED:
+        "That folder can't be shared (whole disks, your home folder and system folders are blocked).",
+      REMOTE_ROOT_NETWORK: "Folders on network drives can't be shared.",
+      REMOTE_ROOT_DUPLICATE: "That folder is already shared.",
+      REMOTE_UNKNOWN_ROOT: "That folder is no longer shared.",
+      REMOTE_UNKNOWN_DEVICE: "That phone is no longer paired.",
+      REMOTE_DEVICE_DUPLICATE: "That phone is already paired.",
+    },
+    genericError: (code: string) => `Remote control failed: ${code}`,
   },
 };
 

@@ -8,7 +8,7 @@ Plan creado el 1 de noviembre de 2026.
 | --- | --- |
 | 1. sito-auth `/devices` | Hecha y desplegada (PR https://github.com/sito8943/sito-auth-server/pull/2). Contrato en su `readme.md`. |
 | 2. Relay | Hecha y desplegada en `wss://api.remote.sito8943.com/ws` (repo privado https://github.com/sito8943/sito-remote-relay). Contrato del wire en su `readme.md`. |
-| 3. Desktop | Backend Rust hecho en la rama `0.18.0` (sin commitear). Probado el 2 de noviembre de 2026: login en sito-auth, registro del equipo y conexión `online` al relay. Falta el frontend (`src/features/remote`). |
+| 3. Desktop | Backend Rust hecho en la rama `0.18.0` (sin commitear). Probado el 2 de noviembre de 2026: login en sito-auth, registro del equipo y conexión `online` al relay. Frontend hecho (`src/features/remote` + "Phone access" en Ajustes); probado: lint/tsc, compartir carpetas y QR de emparejamiento. El emparejamiento completo espera a la app Android. |
 | 4. Android | Pendiente |
 | 5. Endurecimiento | Pendiente |
 

@@ -27,6 +27,11 @@ import { OnboardingProvider, OnboardingDialog } from "@/features/onboarding";
 import { ChangelogProvider, ChangelogDialog } from "@/features/changelog";
 import ShortcutsDialog from "@/features/shortcuts";
 import { SettingsProvider } from "@/features/settings";
+import {
+  RemoteProvider,
+  PairDeviceDialog,
+  RemoteIndicator,
+} from "@/features/remote";
 import { useTabs, saveStartupConfig } from "@/features/tabs";
 import ToastStack from "@/shared/components/patterns/ToastStack";
 
@@ -338,6 +343,8 @@ const App = () => {
                       <ShortcutHelpProvider>
                         <OnboardingProvider>
                           <ChangelogProvider>
+                            {/* Above SettingsProvider: the Phone access controls read it. */}
+                            <RemoteProvider>
                             <SettingsProvider
                               settings={settings}
                               update={update}
@@ -374,7 +381,12 @@ const App = () => {
                               <OnboardingDialog settingsReady={settingsReady} />
                               {/* Post-update "what's new" toast + changelog dialog. */}
                               <ChangelogDialog settingsReady={settingsReady} />
+                              {/* Remote control: QR + SAS pairing dialog and the "a phone is
+                              browsing" notice. */}
+                              <PairDeviceDialog />
+                              <RemoteIndicator />
                             </SettingsProvider>
+                            </RemoteProvider>
                           </ChangelogProvider>
                         </OnboardingProvider>
                         <ShortcutsDialog />

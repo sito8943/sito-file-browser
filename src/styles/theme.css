@@ -42,6 +42,8 @@
   --size-onboarding-width: 460px;
   --size-changelog-width: 520px;
   --size-changelog-max-height: 50vh;
+  --size-pair-device-width: 360px;
+  --size-pair-device-qr: 240px;
   --size-connection-port-width: 96px;
   --size-smb-shares-max-height: 192px;
   --size-progress-track: var(--space-1);
@@ -98,6 +100,8 @@
   --size-tab-max-width: 180px;
   --z-index-dialog-backdrop: 1500;
   --z-index-dialog: 1501;
+  /* Remote-session notice: above page content and panels, below dialogs and toasts. */
+  --z-index-remote-indicator: 1400;
   --font-size-tab: 12px;
   --font-size-icon-large: 20px;
   /* Type scale (T-shirt sizes). Every CSS font-size references one of these — no literals. */

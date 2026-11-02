@@ -179,6 +179,9 @@ and prefix matching live in `src/shared/hooks/useTypeahead` (also used by the pa
 - `src/features/directory`: directory domain and views.
 - `src/features/navigation`: path bar, crumbs, and path search.
 - `src/features/quickbar`: directory quick actions.
+- `src/features/remote`: 0.18.0 remote control UI state (`RemoteProvider`/`RemoteManager`), the
+  QR + SAS pairing dialog and the active-session indicator. Its Settings rows ("Phone access" in
+  the Remote section) live in the settings controls and use `useRemote()`.
 - `src/features/settings`: schema-driven Settings UI, provider, and manager.
 - `src/features/shortcuts`: shortcut-help UI/catalog integration.
 - `src/features/sidebar`: sidebar groups, pinned folders, volumes, locations, connections, resize,
