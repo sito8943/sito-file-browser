@@ -35,6 +35,7 @@ pub const SESSION_OPENED_EVENT: &str = "remote://session-opened";
 pub const ERROR_NOT_RUNNING: &str = "REMOTE_NOT_RUNNING";
 const ERROR_IDENTITY: &str = "REMOTE_IDENTITY_FAILED";
 const ERROR_NO_PENDING: &str = "REMOTE_NO_PENDING_PAIRING";
+const ERROR_CODE_MISMATCH: &str = "REMOTE_PAIRING_CODE_MISMATCH";
 
 const DESKTOP_KIND: &str = "DESKTOP";
 const MOBILE_KIND: &str = "MOBILE";
@@ -211,8 +212,13 @@ impl RemoteService {
         )
     }
 
-    // The user confirmed the SAS: trust the phone, then tell it (pair.ok).
-    pub async fn confirm_pairing(&self, device_id: &str) -> Result<PairedDevice, String> {
+    // The user typed the SAS the phone shows. A match trusts the phone and tells it (pair.ok); a
+    // mismatch rejects it (pair.rejected). One attempt either way: the pending device is consumed.
+    pub async fn confirm_pairing(
+        &self,
+        device_id: &str,
+        code: &str,
+    ) -> Result<PairedDevice, String> {
         let pending = self
             .shared
             .lock()
@@ -220,6 +226,16 @@ impl RemoteService {
             .pairing
             .take_pending(device_id)
             .ok_or_else(|| ERROR_NO_PENDING.to_string())?;
+        if !pending.sas_matches(code) {
+            if let Ok(id) = device_id.parse() {
+                self.send(LoopCommand::FinishPairing {
+                    device_id: id,
+                    accepted: false,
+                })
+                .await;
+            }
+            return Err(ERROR_CODE_MISMATCH.to_string());
+        }
         let device = PairedDevice {
             id: pending.device_id.clone(),
             name: pending.name,

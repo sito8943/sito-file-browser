@@ -9,6 +9,9 @@ export const REMOTE_STATE = {
 
 export const PAIR_DEVICE_TITLE_ID = "pair_device_title";
 
+// Digits of the pairing check the phone shows (SAS_MODULUS 1e6 in remote/crypto.rs).
+export const SAS_LENGTH = 6;
+
 // Pairing codes live 2 minutes on the desktop (PAIRING_TTL in remote/pairing.rs).
 export const PAIRING_TTL_MS = 120_000;
 

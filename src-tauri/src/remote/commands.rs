@@ -141,7 +141,8 @@ pub async fn remote_start_pairing(
     Ok(PairingCode { payload, svg })
 }
 
-// The phone waiting for SAS confirmation, if any (also pushed as the remote://pairing event).
+// The phone waiting for the user to type its code, if any (also pushed as the remote://pairing
+// event). The SAS itself never reaches the UI.
 #[tauri::command]
 pub fn remote_pending_pairing(service: State<'_, RemoteService>) -> Option<PendingDevice> {
     service.pending_pairing()
@@ -151,8 +152,9 @@ pub fn remote_pending_pairing(service: State<'_, RemoteService>) -> Option<Pendi
 pub async fn remote_confirm_pairing(
     service: State<'_, RemoteService>,
     device_id: String,
+    code: String,
 ) -> Result<PairedDevice, String> {
-    service.confirm_pairing(&device_id).await
+    service.confirm_pairing(&device_id, &code).await
 }
 
 #[tauri::command]

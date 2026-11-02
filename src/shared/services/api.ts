@@ -823,13 +823,13 @@ export type RemotePairedDevice = {
   pairedAt: number;
 };
 
-// A phone that proved the pairing code and waits for the user to compare the 6-digit SAS.
+// A phone that proved the pairing code and waits for the user to type the 6-digit code it shows.
+// The code itself never reaches the UI; the backend checks what the user typed.
 export type RemotePendingDevice = {
   deviceId: string;
   name: string;
   platform: string;
   publicKey: string;
-  sas: string;
 };
 
 export type RemoteSessionOpened = { deviceId: string; name: string };
@@ -884,12 +884,15 @@ export const getRemotePendingPairing =
   async (): Promise<RemotePendingDevice | null> =>
     (await invoke("remote_pending_pairing")) as RemotePendingDevice | null;
 
-// The user confirmed that both screens show the same SAS: trust the phone.
+// The user typed the code the phone shows. A match trusts the phone; a mismatch rejects it
+// (REMOTE_PAIRING_CODE_MISMATCH) and the pairing must start over.
 export const confirmRemotePairing = async (
   deviceId: string,
+  code: string,
 ): Promise<RemotePairedDevice> =>
   (await invoke("remote_confirm_pairing", {
     deviceId,
+    code,
   })) as RemotePairedDevice;
 
 export const cancelRemotePairing = async (): Promise<void> =>

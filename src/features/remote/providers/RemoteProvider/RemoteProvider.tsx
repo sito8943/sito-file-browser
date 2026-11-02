@@ -176,18 +176,23 @@ export const RemoteProvider = ({ children }: { children: ReactNode }) => {
     void manager.cancelPairing().catch(fail);
   }, [manager, fail]);
 
-  const confirmPairing = useCallback(async () => {
-    if (!pending) return;
-    try {
-      const device = await manager.confirmPairing(pending.deviceId);
-      notify(t.remoteControl.paired(device.name), TOAST_TYPE.SUCCESS);
-      setPending(null);
-      setPairingVisible(false);
-      await loadDevices();
-    } catch (error) {
-      fail(error);
-    }
-  }, [manager, pending, fail, loadDevices]);
+  const confirmPairing = useCallback(
+    async (code: string) => {
+      if (!pending) return;
+      try {
+        const device = await manager.confirmPairing(pending.deviceId, code);
+        notify(t.remoteControl.paired(device.name), TOAST_TYPE.SUCCESS);
+        await loadDevices();
+      } catch (error) {
+        // One attempt: the backend already rejected the phone on a wrong code.
+        fail(error);
+      } finally {
+        setPending(null);
+        setPairingVisible(false);
+      }
+    },
+    [manager, pending, fail, loadDevices],
+  );
 
   const value = useMemo(
     () => ({

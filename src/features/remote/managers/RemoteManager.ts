@@ -57,8 +57,8 @@ export class RemoteManager {
     return api.getRemotePendingPairing();
   }
 
-  confirmPairing(deviceId: string): Promise<RemotePairedDevice> {
-    return api.confirmRemotePairing(deviceId);
+  confirmPairing(deviceId: string, code: string): Promise<RemotePairedDevice> {
+    return api.confirmRemotePairing(deviceId, code);
   }
 
   cancelPairing(): Promise<void> {

@@ -44,6 +44,7 @@
   --size-changelog-max-height: 50vh;
   --size-pair-device-width: 360px;
   --size-pair-device-qr: 240px;
+  --size-pair-device-code: 12ch;
   --size-connection-port-width: 96px;
   --size-smb-shares-max-height: 192px;
   --size-progress-track: var(--space-1);

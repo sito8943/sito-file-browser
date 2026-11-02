@@ -1,6 +1,6 @@
 import { t } from "@/lang";
 
-import { SVG_DATA_URL_PREFIX } from "./constants";
+import { SAS_LENGTH, SVG_DATA_URL_PREFIX } from "./constants";
 
 type RemoteErrorCode = keyof typeof t.remoteControl.errors;
 
@@ -18,6 +18,6 @@ export const remoteErrorMessage = (error: unknown): string => {
 export const svgDataUrl = (svg: string): string =>
   SVG_DATA_URL_PREFIX + encodeURIComponent(svg);
 
-// "123456" → "123 456": two groups read back faster when comparing two screens.
-export const formatSas = (sas: string): string =>
-  sas.length === 6 ? `${sas.slice(0, 3)} ${sas.slice(3)}` : sas;
+// Digits typed for the pairing code (spaces and separators dropped), capped at SAS_LENGTH.
+export const sasDigits = (value: string): string =>
+  value.replace(/\D/g, "").slice(0, SAS_LENGTH);

@@ -4,6 +4,7 @@ import Dialog from "@/shared/components/patterns/Dialog";
 import DialogHeader from "@/shared/components/patterns/DialogHeader";
 import DialogActions from "@/shared/components/patterns/DialogActions";
 import Button, { BUTTON_VARIANT } from "@/shared/components/elements/Button";
+import TextInput from "@/shared/components/elements/TextInput";
 import type { RemotePairingCode } from "@/shared/services/api";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
@@ -11,12 +12,17 @@ import { t } from "@/lang";
 import "@/styles/components/PairDeviceDialog.css";
 
 import { useRemote } from "../../providers/RemoteProvider";
-import { PAIR_DEVICE_TITLE_ID, PAIRING_TTL_MS } from "../../constants";
-import { formatSas, remoteErrorMessage, svgDataUrl } from "../../utils";
+import {
+  PAIR_DEVICE_TITLE_ID,
+  PAIRING_TTL_MS,
+  SAS_LENGTH,
+} from "../../constants";
+import { remoteErrorMessage, sasDigits, svgDataUrl } from "../../utils";
 
-// Pairing (security rule 4): shows a one-time QR for 2 minutes; once the phone proves the code,
-// switches to the 6-digit SAS that both screens must show, and only "Codes match" trusts the
-// phone. Closing at any point cancels the pairing window on the desktop.
+// Pairing (security rule 4): shows a one-time QR for 2 minutes; once the phone proves the code, the
+// phone shows a 6-digit SAS and the user types it here. The backend compares it (the UI never
+// receives the SAS): typing forces a real check, unlike a "codes match" click. One attempt; closing
+// at any point cancels the pairing window on the desktop.
 const PairDeviceDialog = () => {
   const { manager, pairingVisible, pending, closePairing, confirmPairing } =
     useRemote();
@@ -24,6 +30,7 @@ const PairDeviceDialog = () => {
   const [expired, setExpired] = useState(false);
   const [generation, setGeneration] = useState(0);
   const [confirming, setConfirming] = useState(false);
+  const [typed, setTyped] = useState("");
 
   // Every open starts from a clean slate (no stale QR from the previous pairing).
   const [wasVisible, setWasVisible] = useState(pairingVisible);
@@ -33,6 +40,7 @@ const PairDeviceDialog = () => {
       setCode(null);
       setExpired(false);
       setConfirming(false);
+      setTyped("");
     }
   }
 
@@ -66,9 +74,12 @@ const PairDeviceDialog = () => {
     setGeneration((value) => value + 1);
   };
 
+  const complete = typed.length === SAS_LENGTH;
+
   const confirm = async () => {
+    if (!complete || confirming) return;
     setConfirming(true);
-    await confirmPairing();
+    await confirmPairing(typed);
     setConfirming(false);
   };
 
@@ -88,9 +99,27 @@ const PairDeviceDialog = () => {
         {pending ? (
           <>
             <p className="pair_device_text">
-              {t.remoteControl.pairCompare(pending.name)}
+              {t.remoteControl.pairEnterCode(pending.name)}
             </p>
-            <p className="pair_device_sas">{formatSas(pending.sas)}</p>
+            <TextInput
+              className="pair_device_code"
+              value={typed}
+              onChange={(event) => setTyped(sasDigits(event.target.value))}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") void confirm();
+              }}
+              aria-label={t.remoteControl.pairCodeLabel}
+              placeholder="000000"
+              disabled={confirming}
+              autoFocus
+              // eslint-disable-next-line i18next/no-literal-string -- HTML input attribute value
+              inputMode="numeric"
+              // eslint-disable-next-line i18next/no-literal-string -- HTML input attribute value
+              autoComplete="off"
+              spellCheck={false}
+              maxLength={SAS_LENGTH}
+            />
+            <p className="pair_device_hint">{t.remoteControl.pairCodeHint}</p>
           </>
         ) : (
           <>
@@ -126,7 +155,7 @@ const PairDeviceDialog = () => {
               <Button
                 variant={BUTTON_VARIANT.PRIMARY}
                 onClick={() => void confirm()}
-                disabled={confirming}
+                disabled={confirming || !complete}
               >
                 {t.remoteControl.pairConfirm}
               </Button>

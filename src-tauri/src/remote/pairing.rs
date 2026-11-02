@@ -6,9 +6,10 @@
 //!    single use, whatever the outcome) and runs the handshake with it as pre-shared key. A wrong
 //!    or stale code simply yields different keys, so the code is never compared directly.
 //! 3. Once the phone's first sealed message decrypts (proof it knows the code and holds its static
-//!    key), the device becomes `pending` and both screens show the same 6-digit SAS.
-//! 4. Only when the user confirms that the SAS matches does the session layer persist the device
-//!    in remote.toml (`take_pending`). Cancelling or a new `start` discards everything.
+//!    key), the device becomes `pending` and the phone shows the 6-digit SAS.
+//! 4. The user types that SAS on the desktop. Only a match persists the device in remote.toml
+//!    (`take_pending`, one attempt: a wrong code rejects the phone). Cancelling or a new `start`
+//!    discards everything.
 
 use std::time::{Duration, Instant};
 
@@ -45,7 +46,7 @@ impl PairingQr {
     }
 }
 
-// A phone that proved the code and is waiting for the user to compare the SAS.
+// A phone that proved the code and is waiting for the user to type the SAS it shows.
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct PendingDevice {
@@ -54,7 +55,19 @@ pub struct PendingDevice {
     pub platform: String,
     // SPKI DER base64.
     pub public_key: String,
+    // Never sent to the UI: the desktop does not display it, the user types what the phone shows
+    // and `sas_matches` checks it here. Showing it on both screens invited a blind "match" click.
+    #[serde(skip_serializing)]
     pub sas: String,
+}
+
+impl PendingDevice {
+    // Compare what the user typed (spaces and separators ignored) with the derived SAS.
+    pub fn sas_matches(&self, typed: &str) -> bool {
+        let digits: String = typed.chars().filter(char::is_ascii_digit).collect();
+        aws_lc_rs::constant_time::verify_slices_are_equal(digits.as_bytes(), self.sas.as_bytes())
+            .is_ok()
+    }
 }
 
 struct Offer {
@@ -171,5 +184,18 @@ mod tests {
         pairing.set_pending(pending("9"));
         pairing.cancel();
         assert!(pairing.take_pending("9").is_none());
+    }
+
+    #[test]
+    fn typed_sas_must_match_exactly() {
+        let device = pending("9");
+        assert!(device.sas_matches("123456"));
+        assert!(device.sas_matches("123 456"));
+        assert!(!device.sas_matches("123457"));
+        assert!(!device.sas_matches("12345"));
+        assert!(!device.sas_matches(""));
+        // The UI never receives the SAS.
+        let json = serde_json::to_value(&device).unwrap();
+        assert!(json.get("sas").is_none());
     }
 }

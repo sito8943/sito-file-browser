@@ -1051,10 +1051,12 @@ export const en = {
     pairExpired: "This code expired.",
     pairNewCode: "New code",
     pairLoading: "Creating a pairing code…",
-    pairCompare: (name: string) =>
-      `Check that ${name} shows the same code before confirming.`,
-    pairConfirm: "Codes match",
-    pairReject: "They don't match",
+    pairEnterCode: (name: string) =>
+      `Type the 6-digit code shown on ${name}.`,
+    pairCodeLabel: "Code from the phone",
+    pairCodeHint: "One attempt: a wrong code rejects the phone.",
+    pairConfirm: "Pair",
+    pairReject: "Reject",
     pairCancel: "Cancel",
     paired: (name: string) => `${name} is paired`,
     sessionOpened: (name: string) => `${name} is browsing your shared folders`,
@@ -1074,6 +1076,8 @@ export const en = {
       REMOTE_IDENTITY_FAILED: "This computer's remote key could not be loaded.",
       REMOTE_NOT_RUNNING: "Remote control is not running.",
       REMOTE_NO_PENDING_PAIRING: "No phone is waiting to be paired.",
+      REMOTE_PAIRING_CODE_MISMATCH:
+        "The code didn't match, so the phone was rejected. Start pairing again to retry.",
       REMOTE_PAIRING_QR_FAILED: "Could not create the pairing code.",
       REMOTE_PAIRING_RANDOM_FAILED: "Could not create the pairing code.",
       REMOTE_REPLACED: "Remote control was started on another copy of this app.",

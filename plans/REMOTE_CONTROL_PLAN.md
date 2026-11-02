@@ -145,10 +145,10 @@ no añade crates). Especificación exacta en "Protocolo E2E v1" más abajo.
 2. Móvil (con sesión de sito-auth iniciada) escanea el QR, se registra en sito-auth si hace falta y
    envía por el relay `pair.request` cifrado hacia la clave del desktop, con su clave pública y el
    código.
-3. El desktop valida el código (un uso, no expirado, mismo usuario). Ambos muestran un **SAS de 6
-   dígitos** = hash(clave desktop ‖ clave móvil ‖ código).
-4. El usuario confirma en el portátil que coincide. Solo entonces el desktop guarda la clave del
-   móvil en su lista de confianza.
+3. El desktop valida el código (un uso, no expirado, mismo usuario). El móvil muestra un **SAS de
+   6 dígitos** = hash(clave desktop ‖ clave móvil ‖ código); el desktop no lo muestra.
+4. El usuario escribe ese SAS en el portátil (un intento; el backend compara). Solo si coincide el
+   desktop guarda la clave del móvil en su lista de confianza.
 
 Revocar en el desktop borra la clave de su lista (efecto inmediato) y llama `DELETE /devices/{id}`.
 
@@ -200,9 +200,11 @@ nuevo del mismo dispositivo reemplaza la sesión anterior.
 **Emparejamiento.** Móvil: `PAIR_HELLO` → el desktop consume el código (un uso, aunque falle),
 comprueba en sito-auth `GET /devices/{from}` que existe, es `MOBILE` y su `publicKey` es la `sM`
 recibida (si no, `REJECT 3`), deriva con el código y responde `PAIR_ACK`. El primer `DATA` del
-móvil (`{"op":"pair.hello"}`) prueba que conoce el código; solo entonces ambos muestran el SAS
-(el nombre del móvil sale del registro de sito-auth, no de lo que diga el móvil). Si el usuario confirma en el portátil, el desktop guarda la clave y responde
-`{"t":"pair.ok"}`; si no, `{"t":"pair.rejected"}` y cierra.
+móvil (`{"op":"pair.hello"}`) prueba que conoce el código; solo entonces el móvil muestra el SAS
+y el portátil pide escribirlo (el SAS nunca llega a la UI del portátil; el nombre del móvil sale
+del registro de sito-auth, no de lo que diga el móvil). Si lo escrito coincide (comparación en
+tiempo constante, un intento), el desktop guarda la clave y responde `{"t":"pair.ok"}`; si no
+coincide o el usuario rechaza, `{"t":"pair.rejected"}` y cierra.
 
 ## Protocolo dentro del canal cifrado
 
@@ -247,7 +249,7 @@ Frontend, feature nueva `src/features/remote` (expuesta por su `index.ts`):
 - Sección **Remote** en `SETTINGS_SECTIONS` con controles `SETTING_KIND.CUSTOM`: cuenta (login y
   logout), carpetas autorizadas (añadir/quitar, como el cleanup watch list), dispositivos
   emparejados (revocar), botón de emparejar.
-- `PairDeviceDialog` (Dialog estándar) con QR y confirmación del SAS.
+- `PairDeviceDialog` (Dialog estándar) con QR y campo para escribir el SAS que muestra el móvil.
 - Indicador visible cuando hay una sesión remota activa, y toast al conectarse un dispositivo.
 - `RemoteManager` + `RemoteProvider`; textos en `src/lang/en.ts`; CSS con tokens.
 

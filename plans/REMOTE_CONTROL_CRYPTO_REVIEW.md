@@ -30,7 +30,8 @@ Reglas fijas del producto (limitan el daño si algo falla):
    mover ni escribir.
 2. Solo carpetas que el usuario autorizó explícitamente, nunca el disco entero.
 3. Apagado por defecto.
-4. Cada móvil se empareja a mano, con un código QR y una verificación visual de 6 dígitos.
+4. Cada móvil se empareja a mano, con un código QR y un código de 6 dígitos que el usuario
+   escribe en el portátil.
 5. Cifrado de extremo a extremo: el relay solo ve datos cifrados.
 
 ## 2. Modelo de amenazas
@@ -39,7 +40,7 @@ Reglas fijas del producto (limitan el daño si algo falla):
 | --- | --- | --- |
 | El relay o el VPS comprometido | Leer, borrar, reordenar, repetir o inyectar mensajes | Leer contenido, suplantar a un dispositivo, emparejar un móvil propio |
 | Robo de la cuenta del usuario (sito-auth) | Registrar dispositivos nuevos en la cuenta | Acceder al portátil sin pasar por el emparejamiento físico |
-| Alguien que ve el QR (por encima del hombro) | Intentar emparejarse en esos 2 minutos | Emparejarse sin que el usuario lo note (lo frena el código de 6 dígitos) |
+| Alguien que ve el QR (por encima del hombro) | Intentar emparejarse en esos 2 minutos | Emparejarse sin que el usuario lo note (lo frena el código de 6 dígitos que hay que escribir) |
 | Robo posterior de una clave estática | Descifrar tráfico grabado | Descifrar sesiones pasadas (forward secrecy) |
 
 Fuera de alcance: un portátil o un móvil ya comprometidos (malware en el propio dispositivo) y la
@@ -145,9 +146,10 @@ mismo cifrando un texto fijo (`"sito-remote/v1 confirm"`) en su respuesta.
    - responde PAIR_ACK con eD + "confirm" cifrado.
 4. El móvil envía su primer mensaje cifrado. Si se descifra, el portátil sabe que el móvil
    conoce el código y posee la privada de sM.
-5. Ambos muestran el mismo código de 6 dígitos (SAS). El usuario comprueba que coinciden y
-   pulsa "Confirmar" en el portátil.
-6. Solo entonces el portátil guarda sM en su lista de confianza.
+5. El móvil muestra un código de 6 dígitos (SAS). El portátil **no** lo muestra: el usuario
+   tiene que escribirlo en el portátil, y el portátil lo compara (en tiempo constante) con el
+   suyo. Un solo intento: si no coincide, rechaza el móvil y hay que empezar de nuevo.
+6. Solo si coincide, el portátil guarda sM en su lista de confianza.
 ```
 
 El código del QR **nunca se compara**: si es incorrecto, las claves salen distintas y el
@@ -179,7 +181,9 @@ estén en la curva.
 3. **El primer mensaje del móvil no está autenticado** (`HELLO` solo trae eM). Un atacante puede
    enviar HELLO falsos; el portátil gasta 4 ECDH por cada uno, pero nunca llega a descifrar nada.
 4. **El SAS tiene 6 dígitos** (unos 20 bits). Para engañarlo, un atacante tendría que estar activo
-   en ese mismo minuto y haber visto el QR.
+   en ese mismo minuto y haber visto el QR, y acertar con probabilidad 1 entre 1 000 000 en su
+   único intento. Se escribe en vez de compararse porque comparar invita a pulsar "coinciden"
+   sin mirar.
 5. **Metadatos visibles para el relay:** qué dispositivos hablan, cuándo, y el tamaño de cada
    mensaje.
 
@@ -190,8 +194,8 @@ estén en la curva.
 3. ¿Es correcto usar el transcript resumido como `salt` de HKDF, o debería ir en el campo `info`?
 4. ¿Mezclar el código del QR al final del IKM es una forma segura de usarlo como clave
    precompartida? ¿Bastan 128 bits y un solo uso?
-5. ¿El SAS de 6 dígitos derivado del PRK es suficiente para detectar un intermediario durante el
-   emparejamiento?
+5. ¿El SAS de 6 dígitos derivado del PRK, escrito por el usuario en el portátil con un solo
+   intento, es suficiente para detectar un intermediario durante el emparejamiento?
 6. ¿El nonce (contador) + AAD con sentido y `sid` evita reutilizar nonces y reflejar mensajes?
 7. ¿Falta algo en el transcript (versión, ids de dispositivo, roles)?
 8. ¿Recomendaría pasar directamente a Noise `KK` en lugar de este diseño?

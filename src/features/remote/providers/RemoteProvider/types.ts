@@ -27,5 +27,6 @@ export type RemoteContextValue = {
   openPairing: () => void;
   // Closing also cancels the pairing window and any pending phone on the desktop.
   closePairing: () => void;
-  confirmPairing: () => Promise<void>;
+  // The code the user typed from the phone's screen.
+  confirmPairing: (code: string) => Promise<void>;
 };

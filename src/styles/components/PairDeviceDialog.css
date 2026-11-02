@@ -41,15 +41,15 @@
   height: 100%;
 }
 
-/* The 6-digit check both screens must show: large and monospaced so digits line up for
-   comparison. */
-.pair_device_modal .pair_device_sas {
+/* The 6-digit code typed from the phone: large and monospaced so it reads like the phone's. */
+.pair_device_modal .pair_device_code {
+  width: var(--size-pair-device-code);
   margin: var(--space-2) 0;
   font-family: var(--font-mono, monospace);
   font-size: var(--font-size-3xl);
   font-weight: 600;
   letter-spacing: 0.15em;
-  color: var(--color-text-primary);
+  text-align: center;
 }
 
 .pair_device_modal .dialog_actions {
