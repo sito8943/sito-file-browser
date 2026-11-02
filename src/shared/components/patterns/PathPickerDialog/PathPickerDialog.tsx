@@ -530,6 +530,7 @@ const PathPickerDialog = ({
                     tabIndex={-1}
                     className={classNames(
                       "folder_picker_row",
+                      "no_press",
                       isSelected && "selected",
                     )}
                     onClick={() => {

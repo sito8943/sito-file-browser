@@ -53,9 +53,11 @@ button:enabled:not([aria-disabled="true"]):active {
   transform: none;
 }
 
-/* Link-styled buttons (paths, status-bar readouts) behave like text links: no pressed scale, which
-   would make inline text jump. Same selector shape as the rule above so it wins on order. */
-button.text_link:enabled:not([aria-disabled="true"]):active {
+/* Buttons that must not shrink when pressed: link-styled ones (paths, status-bar readouts —
+   inline text would jump) and list rows (no_press, e.g. folder picker rows — a full-width row
+   scaling reads as a glitch). :is() keeps the same specificity as the rule above, so this wins on
+   order. */
+button:is(.text_link, .no_press):enabled:not([aria-disabled="true"]):active {
   transform: none;
 }
 
