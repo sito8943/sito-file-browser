@@ -106,7 +106,7 @@ const StatusBar = ({
         <div className="stats_row">
           <Button
             unstyled
-            className="stat stat_button"
+            className="stat stat_button text_link"
             onClick={showMonitor}
             title={t.directory.openSystemMonitor}
           >
@@ -115,7 +115,7 @@ const StatusBar = ({
           <span aria-hidden="true">{t.directory.statSeparator}</span>
           <Button
             unstyled
-            className="stat stat_button"
+            className="stat stat_button text_link"
             onClick={showMonitor}
             title={t.directory.openSystemMonitor}
           >
@@ -124,7 +124,7 @@ const StatusBar = ({
           <span aria-hidden="true">{t.directory.statSeparator}</span>
           <Button
             unstyled
-            className="stat stat_button"
+            className="stat stat_button text_link"
             onClick={showStorage}
             title={t.storage.title}
           >

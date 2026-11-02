@@ -96,7 +96,7 @@ const StorageBelow = () => {
             </span>
             <Button
               unstyled
-              className="settings_storage_path"
+              className="settings_storage_path text_link"
               title={t.settings.storageOpen}
               onClick={() => void manager.openPath(location.path)}
             >

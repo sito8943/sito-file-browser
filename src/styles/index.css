@@ -53,6 +53,12 @@ button:enabled:not([aria-disabled="true"]):active {
   transform: none;
 }
 
+/* Link-styled buttons (paths, status-bar readouts) behave like text links: no pressed scale, which
+   would make inline text jump. Same selector shape as the rule above so it wins on order. */
+button.text_link:enabled:not([aria-disabled="true"]):active {
+  transform: none;
+}
+
 /* Shared header for dialogs and side panels: title on the left, close button on the right. */
 .panel_header {
   flex-shrink: 0;
