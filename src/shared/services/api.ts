@@ -3,7 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { watchImmediate } from "@tauri-apps/plugin-fs";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
-import { resolveResource } from "@tauri-apps/api/path";
+import { appConfigDir, join, resolveResource } from "@tauri-apps/api/path";
 import { startDrag } from "@crabnebula/tauri-plugin-drag";
 
 import { notify, TOAST_TYPE } from "@/shared/toast";
@@ -704,6 +704,19 @@ export type AppStorageLocation = {
   path: string;
   size: number;
 };
+
+// settings.toml lives directly in the app config dir (see config_path in functions/settings.rs).
+const SETTINGS_FILE_NAME = "settings.toml";
+
+// The live settings.toml and the folder holding it.
+export type SettingsFileLocation = { dir: string; file: string };
+
+// Where settings.toml lives. Path math only: nothing is read, so it is instant.
+export const getSettingsFileLocation =
+  async (): Promise<SettingsFileLocation> => {
+    const dir = await appConfigDir();
+    return { dir, file: await join(dir, SETTINGS_FILE_NAME) };
+  };
 
 // Where the app keeps its files on disk and how much space each location uses (config dir, cache
 // dir). Only existing directories are returned; the walk runs off the UI thread in Rust.

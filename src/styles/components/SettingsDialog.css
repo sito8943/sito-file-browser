@@ -36,6 +36,20 @@
   color-scheme: light;
 }
 
+/* Path of the live settings.toml, under the search box. Reuses .settings_storage_path for the link
+   look; this row only aligns it with the toolbar and keeps it on one line. */
+.settings_modal .settings_file {
+  padding: var(--space-0) var(--space-4) var(--space-2-5);
+  min-width: 0;
+}
+
+.settings_modal .settings_file .settings_storage_path {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Two-pane body: category rail on the left, scrolling settings panel on the right. Flexes to fill
    the modal's remaining height; min-height:0 lets the panel scroll instead of stretching the modal. */
 .settings_modal .settings_layout {

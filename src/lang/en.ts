@@ -423,6 +423,7 @@ export const en = {
     modified: "Modified",
     importSettings: "Import settings",
     exportSettings: "Export settings",
+    settingsFileOpen: "Open the folder with settings.toml in a new file browser window",
     imported: "Settings imported",
     exported: (path: string) => `Settings exported to ${path}`,
     importError: (reason: string) => `Could not import settings: ${reason}`,
