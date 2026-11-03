@@ -290,42 +290,36 @@
 .preview_container .preview_content.markdown h1 {
   font-size: 1.5em;
   font-weight: bold;
-  user-select: none;
   margin-bottom: var(--space-2-5);
 }
 
 .preview_container .preview_content.markdown h2 {
   font-size: 1.3em;
   font-weight: bold;
-  user-select: none;
   margin-bottom: var(--space-2-5);
 }
 
 .preview_container .preview_content.markdown h3 {
   font-size: 1.1em;
   font-weight: bold;
-  user-select: none;
   margin-bottom: var(--space-2-5);
 }
 
 .preview_container .preview_content.markdown h4 {
   font-size: 1em;
   font-weight: bold;
-  user-select: none;
   margin-bottom: var(--space-2-5);
 }
 
 .preview_container .preview_content.markdown h5 {
   font-size: 0.9em;
   font-weight: bold;
-  user-select: none;
   margin-bottom: var(--space-2-5);
 }
 
 .preview_container .preview_content.markdown p {
   font-size: 0.9em;
   font-weight: 300;
-  user-select: none;
   margin-bottom: var(--space-1);
   opacity: 0.8;
 }
@@ -335,7 +329,6 @@
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9em;
-  user-select: none;
 }
 
 .preview_container .preview_content.markdown ul {
@@ -345,7 +338,6 @@
 .preview_container .preview_content.markdown ul li {
   font-size: 0.9em;
   font-weight: 300;
-  user-select: none;
   margin-bottom: var(--space-1);
   opacity: 0.8;
 }
@@ -356,17 +348,11 @@
   border-radius: var(--radius-sm);
 }
 
-/* Rendered markdown is selectable/copyable (the per-element rules above set user-select: none for
-   the chrome-like feel; override here so preview text can be selected and copied). Same specificity
-   as those rules, declared later, so it wins. */
-.preview_container .preview_content.markdown h1,
-.preview_container .preview_content.markdown h2,
-.preview_container .preview_content.markdown h3,
-.preview_container .preview_content.markdown h4,
-.preview_container .preview_content.markdown h5,
-.preview_container .preview_content.markdown p,
-.preview_container .preview_content.markdown a,
-.preview_container .preview_content.markdown li {
+/* Rendered markdown is selectable/copyable. Opt in on the container, not per element: descendants
+   with the default `auto` then resolve to `text`, so lists (incl. nested), blockquotes, code and
+   tables are covered too. A per-element allowlist missed `ul li` (a more specific `none` rule beat
+   it) and every tag it didn't name, inheriting the app chrome's `none` instead. */
+.preview_container .preview_content.markdown {
   user-select: text;
   -webkit-user-select: text;
 }
