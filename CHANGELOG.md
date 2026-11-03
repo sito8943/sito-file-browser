@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.18.1]
+
+### Fixed
+
+- Markdown preview: text in lists, quotes, code blocks and tables can be selected and copied again (`3dee748`)
+
 ## [0.18.0]
 
 ### Added
