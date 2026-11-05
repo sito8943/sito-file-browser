@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.19.0]
+
+### Added
+
+- Optional anonymous usage counts: on first launch a notice asks whether to share daily totals of which screens, menu actions, shortcuts and settings get used, so unused features can be improved or removed. Nothing is sent unless you accept; no files, paths, names or account data are ever included. Change it anytime in Settings → General → Privacy (`ae671d3`, `a310eb6`)
+
 ## [0.18.1]
 
 ### Fixed
