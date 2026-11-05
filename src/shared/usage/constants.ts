@@ -21,4 +21,14 @@ export const USAGE_PREFIX = {
   SETTING: "setting",
 } as const;
 
+// Core browsing interactions that no registry describes, counted where they happen.
+export const USAGE_EVENT = {
+  // A folder is shown (double-click, Enter, sidebar, path bar, Back/Forward).
+  BROWSE_FOLDER: "browse.folder",
+  // A file is opened in its default OS app.
+  OPEN_FILE: "browse.open_file",
+  // A file opens in the in-app preview (overlay or detached window).
+  PREVIEW: "preview.open",
+} as const;
+
 export const DATA_CHOICES_TITLE_ID = "data_choices_title";

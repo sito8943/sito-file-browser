@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { openPreviewWindow, openPropertiesWindow } from "@/shared/services/api";
@@ -10,6 +10,7 @@ import { revealTargetFromUrl } from "@/features/tabs";
 import { opensInAppPreview } from "../../constants";
 import { useFileTypeExtensions } from "@/shared/formats";
 import { DEFAULT_FILTERS } from "@/shared/search/filters";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useDirectoryEntries } from "../../hooks/useDirectoryEntries";
 import { useSelection } from "../../hooks/useSelection";
@@ -123,6 +124,16 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
     revealEntries,
   });
   const preview = usePreview(entries.previewables);
+  const { track } = useUsage();
+
+  // One anonymous count per folder shown, whatever got there (double-click, Enter, sidebar, path
+  // bar, history). The ref skips re-renders and StrictMode's double effect on the same folder.
+  const lastCountedPath = useRef<string | null>(null);
+  useEffect(() => {
+    if (!path || lastCountedPath.current === path) return;
+    lastCountedPath.current = path;
+    track(USAGE_EVENT.BROWSE_FOLDER);
+  }, [path, track]);
   const properties = useProperties();
 
   // The preview opens either in the in-app overlay or, when openPreviewInWindow is on, its own
@@ -131,6 +142,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
   // the setting without each caller re-checking it.
   const openPreview = useCallback(
     (path: string) => {
+      track(USAGE_EVENT.PREVIEW);
       if (openPreviewInWindow) {
         void openPreviewWindow(path).catch((err) =>
           notify(t.errors.open(String(err)), TOAST_TYPE.ERROR),
@@ -139,7 +151,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
       }
       preview.open(path);
     },
-    [openPreviewInWindow, preview],
+    [openPreviewInWindow, preview, track],
   );
   const previewApi = useMemo(
     () => ({ ...preview, open: openPreview }),
@@ -170,12 +182,20 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
         // TODO(SSH_PLAN.md §9): opening a remote file in an external OS app edits only the local
         // cache copy — changes are NOT pushed back to the server. Would need to watch the temp and
         // re-upload on change. The in-app markdown editor does save back (see useMarkdownPreview).
+        track(USAGE_EVENT.OPEN_FILE);
         await fs.open(await fs.materialize(entry.path));
       } catch (err) {
         notify(t.connections.openError(String(err)), TOAST_TYPE.ERROR);
       }
     },
-    [fileTypes, previewImagesInApp, previewMarkdownInApp, openPreview, fs],
+    [
+      fileTypes,
+      previewImagesInApp,
+      previewMarkdownInApp,
+      openPreview,
+      fs,
+      track,
+    ],
   );
 
   // Same branch for properties: in-app dialog, or a detached window when openPropertiesInWindow is

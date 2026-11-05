@@ -1,7 +1,7 @@
 import { ENTRY_ACTION } from "@/features/directory";
 import { settingUsageFeatures } from "@/features/settings";
 import { KEYMAP_ACTION } from "@/shared/keymap";
-import { USAGE_PREFIX, usageFeature } from "@/shared/usage";
+import { USAGE_EVENT, USAGE_PREFIX, usageFeature } from "@/shared/usage";
 
 import { ROUTES } from "../routes";
 
@@ -16,4 +16,5 @@ export const USAGE_FEATURES: readonly string[] = [
     usageFeature(USAGE_PREFIX.HOTKEY, id),
   ),
   ...settingUsageFeatures(),
+  ...Object.values(USAGE_EVENT),
 ];
