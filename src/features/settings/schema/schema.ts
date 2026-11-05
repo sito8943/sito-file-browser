@@ -37,6 +37,7 @@ import RemoteRootsControl from "../components/SettingsDialog/controls/RemoteRoot
 import RemoteRootsBelow from "../components/SettingsDialog/controls/RemoteRootsBelow";
 import RemoteDevicesControl from "../components/SettingsDialog/controls/RemoteDevicesControl";
 import RemoteDevicesBelow from "../components/SettingsDialog/controls/RemoteDevicesBelow";
+import AnonymousUsageControl from "../components/SettingsDialog/controls/AnonymousUsageControl";
 
 import { SETTINGS_SECTION } from "./sections";
 import { SETTING_KIND, type SettingDescriptor } from "./types";
@@ -165,6 +166,19 @@ export const SETTINGS_SCHEMA: readonly SettingDescriptor[] = [
     subsection: () => t.settings.subsections.statusBar,
     label: () => t.settings.showSystemStats,
     hint: () => t.settings.showSystemStatsHint,
+  },
+  {
+    // Consent for anonymous usage counts; binds to no AppSettings key (see AnonymousUsageControl).
+    kind: SETTING_KIND.CUSTOM,
+    key: "anonymousUsage",
+    section: SETTINGS_SECTION.GENERAL,
+    subsection: () => t.settings.subsections.privacy,
+    label: () => t.settings.anonymousUsage,
+    hint: () => t.settings.anonymousUsageHint,
+    Control: AnonymousUsageControl,
+    isModified: () => false,
+    reset: () => {},
+    noReset: true,
   },
   // ── Appearance ── everything visual (theme, accent, zoom, dates, sidebar). Declared in
   // subsection order — Theme & colour, Layout & format, Transparency — because the dialog renders

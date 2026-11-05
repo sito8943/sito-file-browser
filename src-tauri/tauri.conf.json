@@ -34,7 +34,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.github.com; img-src 'self' data: asset: https://asset.localhost; media-src 'self' asset: https://asset.localhost; frame-src 'self' asset: https://asset.localhost; object-src 'self' asset: https://asset.localhost",
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://api.github.com https://api.usage.sito8943.com; img-src 'self' data: asset: https://asset.localhost; media-src 'self' asset: https://asset.localhost; frame-src 'self' asset: https://asset.localhost; object-src 'self' asset: https://asset.localhost",
       "assetProtocol": {
         "enable": true,
         "scope": ["**", "**/*"]

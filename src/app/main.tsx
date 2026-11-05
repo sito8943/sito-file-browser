@@ -5,6 +5,8 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 import App from "./App";
 import { PreviewWindow, PropertiesWindow } from "./panelWindows";
 import { ConnectionsProvider } from "@/features/connections";
+import { UsageProvider } from "@/shared/usage";
+import { USAGE_FEATURES } from "./usage";
 
 // FontAwesome injects its sizing CSS at runtime by default. The production CSP
 // (default-src 'self', no inline styles) blocks that injection, so icons render
@@ -47,7 +49,10 @@ root.render(
     {panelApp ?? (
       <BrowserRouter>
         <ConnectionsProvider>
-          <App />
+          {/* Main windows only: detached panels neither count usage nor ask for consent. */}
+          <UsageProvider features={USAGE_FEATURES}>
+            <App />
+          </UsageProvider>
         </ConnectionsProvider>
       </BrowserRouter>
     )}

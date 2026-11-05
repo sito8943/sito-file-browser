@@ -8,6 +8,7 @@ import { extension } from "@/shared/utils";
 import { RECENTS } from "@/shared/constants";
 import { useKeymap, formatBinding, isMacPlatform } from "@/shared/keymap";
 import { customActionIcon } from "@/shared/contextActions";
+import { USAGE_PREFIX, usageFeature, useUsage } from "@/shared/usage";
 
 import { TagPicker } from "./TagPicker";
 
@@ -65,6 +66,7 @@ const EntryContextMenu = ({
   const sevenzipAvailable = useSevenzipAvailable();
   const { sort, handleSort, searchActive, focusCreatedEntry } = useDirectory();
   const { keymap } = useKeymap();
+  const { track } = useUsage();
   const layout = useContextMenuLayout();
   const fileTypes = useFileTypeExtensions();
 
@@ -161,6 +163,7 @@ const EntryContextMenu = ({
           isSeparator: sub.isSeparator,
           onClick: sub.onClick
             ? () => {
+                track(usageFeature(USAGE_PREFIX.ACTION, action.id));
                 sub.onClick?.();
                 onClose();
               }
@@ -180,7 +183,10 @@ const EntryContextMenu = ({
               submenu
                 ? undefined
                 : enabled && action.run
-                  ? () => action.run?.(ctx)
+                  ? () => {
+                      track(usageFeature(USAGE_PREFIX.ACTION, action.id));
+                      void action.run?.(ctx);
+                    }
                   : undefined
             }
           />

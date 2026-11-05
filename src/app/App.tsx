@@ -34,6 +34,7 @@ import {
 } from "@/features/remote";
 import { useTabs, saveStartupConfig } from "@/features/tabs";
 import ToastStack from "@/shared/components/patterns/ToastStack";
+import { DataChoices } from "@/shared/usage";
 
 import AppContent from "./AppContent";
 import { useToasts } from "./hooks/useToasts";
@@ -49,6 +50,7 @@ import { useFileTypes } from "./hooks/useFileTypes";
 import { useAccent } from "./hooks/useAccent";
 import { useControlBridge } from "./hooks/useControlBridge";
 import { useControlProbe } from "./hooks/useControlProbe";
+import { usePageUsage } from "./hooks/usePageUsage";
 
 import { notify, setToastsEnabled, TOAST_TYPE } from "@/shared/toast";
 import { prewarmDragIcon } from "@/shared/services/api";
@@ -68,6 +70,7 @@ import {
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  usePageUsage(location.pathname);
 
   // Single domain manager instance for the whole app, provided through context.
   const fs = useMemo(() => new FileSystemManager(), []);
@@ -397,6 +400,7 @@ const App = () => {
                         </OnboardingProvider>
                         <ShortcutsDialog />
                         <ToastStack toasts={toasts} onDismiss={dismissToast} />
+                        <DataChoices />
                       </ShortcutHelpProvider>
                     </FilePickerProvider>
                   </FolderPickerProvider>

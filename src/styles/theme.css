@@ -76,6 +76,7 @@
   --size-audio-progress: 180px;
   --size-audio-volume: 100px;
   --size-toast-max-width: 320px;
+  --size-data-choices-width: 360px;
   --size-properties-width: 400px;
   --size-shortcuts-width: 560px;
   /* Settings dialog fills 80% of the window (width + height), centred, capped so it never exceeds
@@ -103,6 +104,8 @@
   --z-index-dialog: 1501;
   /* Remote-session notice: above page content and panels, below dialogs and toasts. */
   --z-index-remote-indicator: 1400;
+  /* Anonymous-usage notice: same layer as the remote notice, below dialogs and toasts. */
+  --z-index-data-choices: 1400;
   --font-size-tab: 12px;
   --font-size-icon-large: 20px;
   /* Type scale (T-shirt sizes). Every CSS font-size references one of these — no literals. */
