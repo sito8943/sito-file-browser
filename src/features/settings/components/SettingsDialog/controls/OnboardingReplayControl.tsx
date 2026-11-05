@@ -1,5 +1,6 @@
 import { useOnboarding } from "@/features/onboarding";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useSettings } from "../../../providers/SettingsProvider";
 import SettingsButton from "../SettingsButton";
@@ -10,7 +11,10 @@ import SettingsButton from "../SettingsButton";
 const OnboardingReplayControl = () => {
   const { close } = useSettings();
   const { open } = useOnboarding();
+  // Counted here rather than in the provider's open, which the first-launch auto-open also calls.
+  const { track } = useUsage();
   const onClick = () => {
+    track(USAGE_EVENT.APP.ONBOARDING_OPEN);
     close();
     open();
   };

@@ -29,6 +29,7 @@ import {
 import { classNames } from "@/shared/utils";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import AudioPreview from "../AudioPreview";
 import PreviewControls from "../PreviewControls/PreviewControls";
@@ -77,6 +78,7 @@ const Preview = ({
 }: PreviewProps) => {
   const { fs } = useStateContext();
   const { keymap } = useKeymap();
+  const { track } = useUsage();
   const fileTypes = useFileTypeExtensions();
   const {
     ref: imageMenuRef,
@@ -206,6 +208,7 @@ const Preview = ({
     setImageMenuVisible(false);
     try {
       await fs.copyImage(localPath, currentState ? rotation : undefined);
+      track(USAGE_EVENT.PREVIEW.IMAGE_COPY);
       notify(t.common.copied, TOAST_TYPE.SUCCESS);
     } catch (err) {
       notify(t.errors.copyImage(String(err)), TOAST_TYPE.ERROR);
@@ -230,12 +233,17 @@ const Preview = ({
   const requestClose = useCallback(async () => {
     if (await confirmDiscard()) setPreviewVisible(false);
   }, [confirmDiscard, setPreviewVisible]);
+  // Counted only when there is a file to move to: the arrow hotkeys still fire at either end.
   const navPrev = useCallback(async () => {
-    if (await confirmDiscard()) goPrev();
-  }, [confirmDiscard, goPrev]);
+    if (!(await confirmDiscard())) return;
+    if (hasPrev) track(USAGE_EVENT.PREVIEW.PREV);
+    goPrev();
+  }, [confirmDiscard, goPrev, hasPrev, track]);
   const navNext = useCallback(async () => {
-    if (await confirmDiscard()) goNext();
-  }, [confirmDiscard, goNext]);
+    if (!(await confirmDiscard())) return;
+    if (hasNext) track(USAGE_EVENT.PREVIEW.NEXT);
+    goNext();
+  }, [confirmDiscard, goNext, hasNext, track]);
 
   // Keyboard control while the preview is open: arrows navigate, Escape closes. PREVIEW scope sits
   // below MENU/MODAL, so an open image context menu or a dialog consumes Escape first.

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { FileSystemManager } from "@/shared/managers/FileSystemManager";
 import { ZOOM_DEFAULT, ZOOM_STEP, type ViewMode } from "@/shared/constants";
+import { USAGE_EVENT, useTrackBurst } from "@/shared/usage";
 
 import { clampZoom } from "./utils";
 
@@ -17,6 +18,8 @@ export const useZoom = (
   defaultZoom: number,
 ) => {
   const [zoom, setZoom] = useState<number>(ZOOM_DEFAULT);
+  // Once per burst: a pinch or slider drag sends many zoom steps for one use of the feature.
+  const countZoom = useTrackBurst(USAGE_EVENT.VIEW.ZOOM);
 
   // Load the saved zoom on navigation or view change, falling back to the configurable default.
   useEffect(() => {
@@ -46,25 +49,27 @@ export const useZoom = (
   const setZoomTo = useCallback(
     (value: number) => {
       if (path === "") return;
+      countZoom();
       setZoom((current) => {
         const next = clampZoom(value);
         persistZoom(next, current);
         return next;
       });
     },
-    [path, persistZoom],
+    [path, persistZoom, countZoom],
   );
 
   const stepZoom = useCallback(
     (delta: number) => {
       if (path === "") return;
+      countZoom();
       setZoom((current) => {
         const next = clampZoom(current + delta);
         persistZoom(next, current);
         return next;
       });
     },
-    [path, persistZoom],
+    [path, persistZoom, countZoom],
   );
 
   const zoomIn = useCallback(() => stepZoom(ZOOM_STEP), [stepZoom]);

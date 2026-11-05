@@ -2,6 +2,7 @@ import { useCallback, useRef, useState, type ReactNode } from "react";
 
 import PathPickerDialog from "@/shared/components/patterns/PathPickerDialog";
 import { pickFolder as nativePickFolder } from "@/shared/services/api";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { FolderPickerContext } from "./FolderPickerContext";
 import { FOLDER_PICKER_CONFIG } from "./constants";
@@ -21,16 +22,20 @@ export const FolderPickerProvider = ({
   const [startPath, setStartPath] = useState<string | null>(null);
   // Held in a ref so settling doesn't depend on a stale render and survives the fade-out.
   const resolverRef = useRef<((result: string | null) => void) | null>(null);
+  const { track } = useUsage();
 
+  // Counted only when the app's own picker is shown: that is the feature; the native Finder
+  // dialog is the OS's, used when the custom picker is turned off.
   const pickFolder = useCallback(
     (options?: PickFolderOptions) => {
       if (!useCustom) return nativePickFolder();
+      track(USAGE_EVENT.APP.PICKER_FOLDER);
       return new Promise<string | null>((resolve) => {
         resolverRef.current = resolve;
         setStartPath(options?.startPath ?? "");
       });
     },
-    [useCustom],
+    [useCustom, track],
   );
 
   const settle = useCallback((result: string | null) => {

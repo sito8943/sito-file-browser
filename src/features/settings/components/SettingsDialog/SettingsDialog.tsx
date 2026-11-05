@@ -14,6 +14,12 @@ import { useFilePicker } from "@/shared/providers/FilePickerProvider";
 import { useFolderPicker } from "@/shared/providers/FolderPickerProvider";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import {
+  USAGE_EVENT,
+  USAGE_PREFIX,
+  usageFeature,
+  useUsage,
+} from "@/shared/usage";
 
 import "@/styles/components/SettingsDialog.css";
 
@@ -36,6 +42,7 @@ import type { SettingsDialogProps, SettingsNavigationTarget } from "./types";
 // gets its control, a modified indicator, and reset-to-default — all driven by the descriptor.
 const SettingsDialog = ({ visible, onClose }: SettingsDialogProps) => {
   const { settings, update, defaults, manager } = useSettings();
+  const { track } = useUsage();
   const [rawQuery, setRawQuery] = useState("");
   const [navigation, setNavigation] = useState<SettingsNavigationTarget>({
     section: SETTINGS_SECTION.GENERAL,
@@ -107,6 +114,9 @@ const SettingsDialog = ({ visible, onClose }: SettingsDialogProps) => {
   }, [searching, query]);
 
   const selectSection = (id: SettingsSectionId, subsectionKey?: string) => {
+    // A subsection link inside the section already shown is not a visit to another section.
+    if (id !== activeSection || searching)
+      track(usageFeature(USAGE_PREFIX.SETTINGS_SECTION, id));
     setRawQuery("");
     setNavigation({ section: id, subsectionKey });
   };
@@ -123,11 +133,12 @@ const SettingsDialog = ({ visible, onClose }: SettingsDialogProps) => {
     if (!file) return;
     try {
       update(await manager.importSettings(file));
+      track(USAGE_EVENT.APP.SETTINGS_IMPORT);
       notify(t.settings.imported, TOAST_TYPE.SUCCESS);
     } catch (err) {
       notify(t.settings.importError(String(err)), TOAST_TYPE.ERROR);
     }
-  }, [pickFile, update, manager]);
+  }, [pickFile, update, manager, track]);
 
   // Export: pick a destination folder, write the current settings there as settings.toml.
   // With "confirm before overwriting" on, a pre-existing settings.toml prompts a confirmation
@@ -137,8 +148,11 @@ const SettingsDialog = ({ visible, onClose }: SettingsDialogProps) => {
   const handleExport = useCallback(async () => {
     const dir = await pickFolder();
     if (!dir) return;
-    const reveal = (path: string) =>
+    // Every successful branch ends here, so it is also where the export is counted.
+    const reveal = (path: string) => {
+      track(USAGE_EVENT.APP.SETTINGS_EXPORT);
       notify(t.settings.exported(path), TOAST_TYPE.SUCCESS, () => setPath(dir));
+    };
     try {
       if (settings.confirmExportOverwrite) {
         const first = await manager.exportSettings(dir, settings, false, false);
@@ -172,7 +186,7 @@ const SettingsDialog = ({ visible, onClose }: SettingsDialogProps) => {
     } catch (err) {
       notify(t.settings.exportError(String(err)), TOAST_TYPE.ERROR);
     }
-  }, [pickFolder, settings, setPath, confirm, manager]);
+  }, [pickFolder, settings, setPath, confirm, manager, track]);
 
   return (
     <Dialog

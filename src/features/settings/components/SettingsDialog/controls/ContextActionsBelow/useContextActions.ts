@@ -7,6 +7,7 @@ import { useFilePicker } from "@/shared/providers/FilePickerProvider";
 import { useFolderPicker } from "@/shared/providers/FolderPickerProvider";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useSettings } from "../../../../providers/SettingsProvider";
 
@@ -17,6 +18,7 @@ export const useContextActions = () => {
   const { confirm } = useConfirm();
   const [layout, setLayout] = useState<ContextMenuLayout | null>(null);
   const [saving, setSaving] = useState(false);
+  const { track } = useUsage();
 
   useEffect(() => {
     let cancelled = false;
@@ -36,7 +38,9 @@ export const useContextActions = () => {
     };
   }, [manager]);
 
-  const save = useCallback(
+  // Uncounted writer shared by the editor's save and the import, so an import is counted as
+  // custom_action.import only, not also as a save.
+  const writeActions = useCallback(
     async (actions: CustomContextAction[]): Promise<boolean> => {
       if (!layout || saving) return false;
       setSaving(true);
@@ -59,6 +63,15 @@ export const useContextActions = () => {
       }
     },
     [layout, manager, saving],
+  );
+
+  const save = useCallback(
+    async (actions: CustomContextAction[]): Promise<boolean> => {
+      const saved = await writeActions(actions);
+      if (saved) track(USAGE_EVENT.APP.CUSTOM_ACTION_SAVE);
+      return saved;
+    },
+    [writeActions, track],
   );
 
   const actions = layout?.custom_action ?? null;
@@ -86,6 +99,7 @@ export const useContextActions = () => {
         if (!accepted) return;
         await manager.exportContextActions(dir, actions, true);
       }
+      track(USAGE_EVENT.APP.CUSTOM_ACTION_EXPORT);
       notify(t.settings.contextActionsExported(first.path), TOAST_TYPE.SUCCESS);
     } catch (error) {
       notify(
@@ -93,7 +107,7 @@ export const useContextActions = () => {
         TOAST_TYPE.ERROR,
       );
     }
-  }, [actions, saving, pickFolder, manager, confirm]);
+  }, [actions, saving, pickFolder, manager, confirm, track]);
 
   // Import: pick a bundle, validate it, and append its actions to the current list. Ids are
   // regenerated on parse, so importing never overwrites an action the user already has — a
@@ -109,11 +123,13 @@ export const useContextActions = () => {
         invalid: t.settings.contextActionsImportInvalid,
         empty: t.settings.contextActionsImportEmpty,
       });
-      if (await save([...actions, ...imported]))
+      if (await writeActions([...actions, ...imported])) {
+        track(USAGE_EVENT.APP.CUSTOM_ACTION_IMPORT);
         notify(
           t.settings.contextActionsImported(imported.length),
           TOAST_TYPE.SUCCESS,
         );
+      }
     } catch (error) {
       notify(
         t.settings.contextActionsImportError(
@@ -122,7 +138,7 @@ export const useContextActions = () => {
         TOAST_TYPE.ERROR,
       );
     }
-  }, [actions, saving, pickFile, manager, save]);
+  }, [actions, saving, pickFile, manager, writeActions, track]);
 
   return {
     actions,

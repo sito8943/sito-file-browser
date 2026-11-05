@@ -10,6 +10,7 @@ import Icon from "@/shared/components/elements/Icon";
 import TextInput from "@/shared/components/elements/TextInput";
 import { useRecentSearches } from "@/shared/search/recentSearches";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import "@/styles/components/PathSearch.css";
 
@@ -29,6 +30,11 @@ const PathSearch = ({
   const [coords, setCoords] = useState<DropdownCoords | null>(null);
 
   const { recents, clearRecents } = useRecentSearches();
+  const { track } = useUsage();
+  const clearRecentSearches = () => {
+    track(USAGE_EVENT.SEARCH.RECENT_CLEAR);
+    clearRecents();
+  };
   const showRecents = focused && !value && recents.length > 0;
 
   // Measure and position the dropdown under the box when it opens (portal renders only while
@@ -60,6 +66,7 @@ const PathSearch = ({
 
   // Fill the field from a recent search; keep focus so the search runs immediately.
   const selectRecent = (query: string) => {
+    track(USAGE_EVENT.SEARCH.RECENT_PICK);
     onChange(query);
     inputRef.current?.focus();
   };
@@ -99,7 +106,7 @@ const PathSearch = ({
                 unstyled
                 className="path_recents_clear"
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={clearRecents}
+                onClick={clearRecentSearches}
               >
                 {t.pathbar.clearRecents}
               </Button>

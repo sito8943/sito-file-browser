@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useCloseOnEscape } from "@/shared/hooks/useCloseOnEscape";
 import { useModal } from "@/shared/providers/ModalProvider";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 // Sidebar-wide edit mode: while on, groups expose their "add item" affordances and render with
 // dashed outlines. Toggled from the sidebar header; exits on Escape or a press outside the
@@ -12,7 +13,12 @@ export const useSidebarEditMode = () => {
   const { anyOpen: anyModalOpen } = useModal();
 
   const exit = useCallback(() => setEditing(false), []);
-  const toggle = useCallback(() => setEditing((prev) => !prev), []);
+  const { track } = useUsage();
+  // Counted on entering edit mode only; leaving it (button, Escape, outside press) is not a use.
+  const toggle = useCallback(() => {
+    if (!editing) track(USAGE_EVENT.SIDEBAR.EDIT_MODE);
+    setEditing((prev) => !prev);
+  }, [editing, track]);
 
   // A dialog owns Escape and outside presses until it closes; keep sidebar editing underneath.
   useCloseOnEscape(editing && !anyModalOpen, exit);

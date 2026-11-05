@@ -8,7 +8,7 @@ import type { DirEntry } from "@/shared/models";
 import { t } from "@/lang";
 import { revealTargetFromUrl } from "@/features/tabs";
 import { opensInAppPreview } from "../../constants";
-import { useFileTypeExtensions } from "@/shared/formats";
+import { categoryOf, useFileTypeExtensions } from "@/shared/formats";
 import { DEFAULT_FILTERS } from "@/shared/search/filters";
 import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
@@ -19,6 +19,8 @@ import { usePreview } from "../../hooks/usePreview";
 import { useProperties } from "../../hooks/useProperties";
 
 import { DirectoryContext } from "./DirectoryContext";
+import { PREVIEW_KIND_USAGE } from "./constants";
+import { browseUsageFeature } from "./utils";
 import type { DirectoryProviderProps } from "./types";
 
 // Owns the directory's domain state (entries, selection, clipboard ops, preview/properties,
@@ -132,18 +134,22 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
   useEffect(() => {
     if (!path || lastCountedPath.current === path) return;
     lastCountedPath.current = path;
-    track(USAGE_EVENT.BROWSE_FOLDER);
+    track(browseUsageFeature(path));
   }, [path, track]);
   const properties = useProperties();
 
   // The preview opens either in the in-app overlay or, when openPreviewInWindow is on, its own
   // detached window (a fresh window per open). Branch here — in the one place `preview.open` is
   // created — so every trigger (Open/Preview in the context menu, the quick bar, keyboard) honours
-  // the setting without each caller re-checking it.
+  // the setting without each caller re-checking it. Usage counts the kind shown either way, and
+  // the detached window as a feature of its own.
   const openPreview = useCallback(
     (path: string) => {
-      track(USAGE_EVENT.PREVIEW);
+      const category = categoryOf(fileTypes, extension(path));
+      const kindFeature = category && PREVIEW_KIND_USAGE[category];
+      if (kindFeature) track(kindFeature);
       if (openPreviewInWindow) {
+        track(USAGE_EVENT.PREVIEW.WINDOW);
         void openPreviewWindow(path).catch((err) =>
           notify(t.errors.open(String(err)), TOAST_TYPE.ERROR),
         );
@@ -151,7 +157,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
       }
       preview.open(path);
     },
-    [openPreviewInWindow, preview, track],
+    [fileTypes, openPreviewInWindow, preview, track],
   );
   const previewApi = useMemo(
     () => ({ ...preview, open: openPreview }),
@@ -182,7 +188,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
         // TODO(SSH_PLAN.md §9): opening a remote file in an external OS app edits only the local
         // cache copy — changes are NOT pushed back to the server. Would need to watch the temp and
         // re-upload on change. The in-app markdown editor does save back (see useMarkdownPreview).
-        track(USAGE_EVENT.OPEN_FILE);
+        track(USAGE_EVENT.BROWSE.OPEN_FILE);
         await fs.open(await fs.materialize(entry.path));
       } catch (err) {
         notify(t.connections.openError(String(err)), TOAST_TYPE.ERROR);
@@ -203,6 +209,7 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
   const openProperties = useCallback(
     async (targetId: string, isCurrentDirectory: boolean) => {
       if (openPropertiesInWindow) {
+        track(USAGE_EVENT.PROPERTIES.WINDOW);
         try {
           await openPropertiesWindow(targetId);
         } catch (err) {
@@ -210,13 +217,18 @@ export const DirectoryProvider = ({ children }: DirectoryProviderProps) => {
         }
         return;
       }
+      track(USAGE_EVENT.PROPERTIES.DIALOG);
       await properties.open(targetId, isCurrentDirectory);
     },
-    [openPropertiesInWindow, properties],
+    [openPropertiesInWindow, properties, track],
   );
+  // A multi-selection always opens the in-app dialog (no window branch).
   const openManyProperties = useCallback(
-    (targetIds: string[]) => properties.openMany(targetIds),
-    [properties],
+    (targetIds: string[]) => {
+      track(USAGE_EVENT.PROPERTIES.DIALOG);
+      return properties.openMany(targetIds);
+    },
+    [properties, track],
   );
   const propertiesApi = useMemo(
     () => ({

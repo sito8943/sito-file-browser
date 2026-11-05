@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Switcher from "@/shared/components/elements/Switcher";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useSettings } from "../../../providers/SettingsProvider";
 
@@ -13,6 +14,8 @@ import { useSettings } from "../../../providers/SettingsProvider";
 const FolderHandlerControl = () => {
   const { manager } = useSettings();
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  // Not a settings.toml key, so SettingsProvider.update never sees it: counted here instead.
+  const { track } = useUsage();
 
   useEffect(() => {
     let active = true;
@@ -29,6 +32,7 @@ const FolderHandlerControl = () => {
     const next = !enabled;
     try {
       await manager.setDefaultFolderHandler(next);
+      track(USAGE_EVENT.APP.FOLDER_HANDLER);
       // Re-read: Launch Services is the source of truth, so confirm the change actually took.
       const now = await manager.isDefaultFolderHandler();
       setEnabled(now);

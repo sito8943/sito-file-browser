@@ -22,6 +22,7 @@ import {
 import { classNames, isTagsPath, basename, dirname } from "@/shared/utils";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 import { DirEntry } from "@/shared/models";
 
 import { COLUMN_KEYS, buildListGrid, type ColumnWidths } from "./columns";
@@ -82,6 +83,7 @@ const Directory = () => {
   } = useStateContext();
 
   const [typeaheadQuery, setTypeaheadQuery] = useState("");
+  const { track } = useUsage();
 
   // Warn when the current folder is on a read-only NTFS volume (no native write support on macOS).
   const { isNtfsReadOnly, recheck: recheckWritability } = useWritability();
@@ -149,13 +151,16 @@ const Directory = () => {
           !dest.startsWith(`${src}/`),
       );
       if (!targets.length) return;
+      // Counted at the drop gesture (before the optional confirm): the feature was used even if
+      // the user then cancels the transfer.
+      track(external ? USAGE_EVENT.FILES.IMPORT : USAGE_EVENT.FILES.DROP);
       const copy = external || settingIsCopy;
       if (confirmDragDrop) {
         setDontAskAgain(false);
         setPendingDrop({ sources: targets, dest, copy });
       } else performDrop(targets, dest, copy);
     },
-    [confirmDragDrop, performDrop, settingIsCopy],
+    [confirmDragDrop, performDrop, settingIsCopy, track],
   );
 
   // Start the native OS drag (files can be dropped into other apps and back into ours). `icon` is
@@ -163,8 +168,11 @@ const Directory = () => {
   // to "move" makes external apps (e.g. WhatsApp) reject the drop, so we let each target choose the
   // operation. The in-app move/copy is still decided by handleDrop per the drag-and-drop setting.
   const handleDragOut = useCallback(
-    (sources: string[], icon?: string) => fs.startNativeDrag(sources, icon),
-    [fs],
+    (sources: string[], icon?: string) => {
+      track(USAGE_EVENT.FILES.DRAG_OUT);
+      return fs.startNativeDrag(sources, icon);
+    },
+    [fs, track],
   );
 
   // Drag entries onto a folder row (the whole selection if the dragged entry is part of it).
@@ -394,10 +402,23 @@ const Directory = () => {
         {accessDenied && <AccessDeniedNotice />}
 
         {showLoadError && (
-          <RemoteErrorNotice error={loadError!} retry={refreshDir} />
+          <RemoteErrorNotice
+            error={loadError!}
+            retry={() => {
+              track(USAGE_EVENT.APP.NOTICE_REMOTE_RETRY);
+              refreshDir();
+            }}
+          />
         )}
 
-        {showStalled && <StalledNotice onLeave={() => setPath("")} />}
+        {showStalled && (
+          <StalledNotice
+            onLeave={() => {
+              track(USAGE_EVENT.APP.NOTICE_STALLED_LEAVE);
+              setPath("");
+            }}
+          />
+        )}
 
         {!accessDenied && !showStalled && isNtfsReadOnly && (
           <NtfsNotice recheck={recheckWritability} />

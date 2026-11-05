@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, type ReactNode } from "react";
 
 import { basename, dirname } from "@/shared/utils";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { lazyWhen } from "@/shared/components/patterns/Deferred";
 import type { CompressDialogProps, PasswordDialogProps } from "./types";
@@ -31,6 +32,8 @@ export const CompressProvider = ({ children }: { children: ReactNode }) => {
 
   // Extraction password prompt — same promise + resolver-ref pattern as the compress dialog.
   const [passwordVisible, setPasswordVisible] = useState(false);
+  // Counted when the user confirms a dialog (a cancel is not a use of the feature).
+  const { track } = useUsage();
   const passwordResolverRef = useRef<((value: string | null) => void) | null>(
     null,
   );
@@ -54,11 +57,15 @@ export const CompressProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
-  const settle = useCallback((value: CompressValues | null) => {
-    setDefaultName(null);
-    resolverRef.current?.(value);
-    resolverRef.current = null;
-  }, []);
+  const settle = useCallback(
+    (value: CompressValues | null) => {
+      if (value) track(USAGE_EVENT.FILES.COMPRESS);
+      setDefaultName(null);
+      resolverRef.current?.(value);
+      resolverRef.current = null;
+    },
+    [track],
+  );
 
   const requestPassword = useCallback(
     () =>
@@ -69,11 +76,15 @@ export const CompressProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
-  const settlePassword = useCallback((value: string | null) => {
-    setPasswordVisible(false);
-    passwordResolverRef.current?.(value);
-    passwordResolverRef.current = null;
-  }, []);
+  const settlePassword = useCallback(
+    (value: string | null) => {
+      if (value) track(USAGE_EVENT.FILES.EXTRACT_PASSWORD);
+      setPasswordVisible(false);
+      passwordResolverRef.current?.(value);
+      passwordResolverRef.current = null;
+    },
+    [track],
+  );
 
   return (
     <CompressContext.Provider value={{ requestOptions, requestPassword }}>

@@ -5,6 +5,7 @@ import { useConfirm } from "@/shared/providers/ConfirmProvider";
 import { KEY } from "@/shared/constants";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { MARKDOWN_MODE, type MarkdownMode } from "./constants";
 import { highlightMatches } from "./utils";
@@ -29,6 +30,7 @@ export const useMarkdownPreview = ({
 }) => {
   const { fs } = useStateContext();
   const { confirm } = useConfirm();
+  const { track } = useUsage();
 
   const [doc, setDoc] = useState<MarkdownDoc | null>(null);
   const [markdownMode, setMarkdownMode] = useState<MarkdownMode>(
@@ -136,9 +138,10 @@ export const useMarkdownPreview = ({
 
   // Enter edit mode (from the pill toggle); reset the active match so find re-anchors to the draft.
   const enterEdit = useCallback(() => {
+    track(USAGE_EVENT.PREVIEW.MARKDOWN_EDIT);
     setMarkdownMode(MARKDOWN_MODE.EDIT);
     setMatchIndex(0);
-  }, []);
+  }, [track]);
 
   const save = useCallback(async () => {
     if (!doc || !dirty || saving) return;
@@ -149,20 +152,22 @@ export const useMarkdownPreview = ({
       // For a remote file, keep the local cache copy (doc.path) in sync so a re-open isn't stale.
       if (savePath !== doc.path) await fs.writeText(doc.path, doc.draft);
       setDoc((d) => (d && d.path === doc.path ? { ...d, source: d.draft } : d));
+      track(USAGE_EVENT.PREVIEW.MARKDOWN_SAVE);
       notify(t.common.saved, TOAST_TYPE.SUCCESS);
     } catch (err) {
       notify(t.errors.save(String(err)), TOAST_TYPE.ERROR);
     } finally {
       setSaving(false);
     }
-  }, [doc, dirty, saving, fs, savePath]);
+  }, [doc, dirty, saving, fs, savePath, track]);
 
   const openFind = useCallback(() => {
+    track(USAGE_EVENT.PREVIEW.MARKDOWN_FIND);
     setFindOpen(true);
     setMatchIndex(0);
     // Focus + select any existing query so the user can type over it immediately.
     requestAnimationFrame(() => findInputRef.current?.select());
-  }, []);
+  }, [track]);
 
   const closeFind = useCallback(() => {
     setFindOpen(false);

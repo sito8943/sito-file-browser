@@ -6,4 +6,5 @@ export {
   tabPath,
   tabLabel,
   revealTargetFromUrl,
+  openedAtPathFromUrl,
 } from "./utils";

@@ -6,6 +6,7 @@ import {
   findTypeaheadMatch,
   typeaheadStartIndex,
 } from "@/shared/hooks/useTypeahead";
+import { USAGE_EVENT, useTrackBurst } from "@/shared/usage";
 
 import type { UseKeyboardNavArgs } from "./types";
 
@@ -27,6 +28,8 @@ export const useKeyboardNav = ({
     clear: clearTypeahead,
     isActive: typeaheadActive,
   } = useTypeahead({ onChange: onTypeaheadChange });
+  // One count per typed prefix, not per character.
+  const countTypeahead = useTrackBurst(USAGE_EVENT.FILES.TYPEAHEAD);
 
   // Latest selection, read inside the keydown handler without re-subscribing on every change.
   const selectedRef = useRef(selectedIDs);
@@ -124,6 +127,7 @@ export const useKeyboardNav = ({
     // Type-to-find: a single-char query starts after the current entry so repeated presses cycle
     // through matches; longer queries match from the top.
     const typeahead = (char: string) => {
+      countTypeahead();
       const query = pushTypeahead(char);
       setSelectedIDs((prev) => {
         if (!items.length) return prev;
@@ -229,5 +233,6 @@ export const useKeyboardNav = ({
     popTypeahead,
     clearTypeahead,
     typeaheadActive,
+    countTypeahead,
   ]);
 };

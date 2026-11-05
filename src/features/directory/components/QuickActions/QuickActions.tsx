@@ -6,7 +6,12 @@ import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
 import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { customActionIcon } from "@/shared/contextActions";
-import { USAGE_PREFIX, usageFeature, useUsage } from "@/shared/usage";
+import {
+  USAGE_EVENT,
+  USAGE_PREFIX,
+  usageFeature,
+  useUsage,
+} from "@/shared/usage";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
 import { useFileTypeExtensions } from "@/shared/formats";
 
@@ -163,9 +168,10 @@ const QuickActions = () => {
       key={`custom-${action.id}`}
       icon={customActionIcon(action.icon)}
       tooltip={action.label}
-      onClick={() =>
-        void fs.runContextAction(action.id, elementId, ctx.targets)
-      }
+      onClick={() => {
+        track(USAGE_EVENT.FILES.CUSTOM_ACTION_RUN);
+        void fs.runContextAction(action.id, elementId, ctx.targets);
+      }}
     />
   ));
 

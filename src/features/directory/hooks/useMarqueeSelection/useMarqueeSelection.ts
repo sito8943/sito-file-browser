@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
+
 import { DRAG_THRESHOLD, MARQUEE_ACTIVE_CLASS } from "./constants";
 import type { MarqueeRect, UseMarqueeSelectionArgs } from "./types";
 
@@ -12,6 +14,7 @@ export const useMarqueeSelection = ({
   setSelectedIDs,
 }: UseMarqueeSelectionArgs) => {
   const [marquee, setMarquee] = useState<MarqueeRect | null>(null);
+  const { track } = useUsage();
 
   const onMouseDown = useCallback(
     (e: ReactMouseEvent) => {
@@ -30,6 +33,8 @@ export const useMarqueeSelection = ({
       const startY = e.clientY;
       let active = false;
       let dragged = false;
+      // Whether the box ever caught an entry: an empty sweep is not a use of the feature.
+      let selectedAny = false;
 
       const selectWithin = (curX: number, curY: number) => {
         const x1 = Math.min(startX, curX);
@@ -56,6 +61,7 @@ export const useMarqueeSelection = ({
               b.left < x2 && b.right > x1 && b.top < y2 && b.bottom > y1;
             if (hit && item.id) ids.push(item.id);
           });
+        if (ids.length) selectedAny = true;
         setSelectedIDs(ids);
       };
 
@@ -83,6 +89,7 @@ export const useMarqueeSelection = ({
         document.body.style.webkitUserSelect = "";
         document.body.classList.remove(MARQUEE_ACTIVE_CLASS);
         setMarquee(null);
+        if (selectedAny) track(USAGE_EVENT.FILES.MARQUEE);
 
         // Swallow the click that follows a drag so the empty-area onClick does
         // not immediately clear the selection we just built.
@@ -100,7 +107,7 @@ export const useMarqueeSelection = ({
       document.addEventListener("mousemove", onMove);
       document.addEventListener("mouseup", onUp);
     },
-    [containerRef, setSelectedIDs],
+    [containerRef, setSelectedIDs, track],
   );
 
   return { marquee, onMouseDown };

@@ -5,11 +5,12 @@ import IconButton, {
   ICON_BUTTON_SIZE,
   ICON_BUTTON_VARIANT,
 } from "@/shared/components/elements/IconButton";
-import { VIEW_MODE, RECENTS } from "@/shared/constants";
+import { VIEW_MODE, RECENTS, type ViewMode } from "@/shared/constants";
 import { useKeymap, formatBinding, KEYMAP_ACTION } from "@/shared/keymap";
 import { classNames, isTagsPath, tagFromPath, dirname } from "@/shared/utils";
 import { useDirectory } from "@/features/directory";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { usePathBarShortcuts } from "./hooks/usePathBarShortcuts";
 import PathField from "./components/PathField";
@@ -45,6 +46,7 @@ const PathBar = () => {
     setSearch,
   } = useStateContext();
 
+  const { track } = useUsage();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchFocused, setSearchFocused] = useState(false);
 
@@ -79,19 +81,33 @@ const PathBar = () => {
     [fs, setPath, revealEntries],
   );
 
-  const goHome = () => setPath("");
+  const goHome = () => {
+    track(USAGE_EVENT.NAV.HOME);
+    setPath("");
+  };
 
   // Go up one level to the parent directory. Uses the POSIX separator since paths come from the backend as '/'.
   const goUp = () => {
     if (path === RECENTS || isTagsPath(path)) return; // Virtual views have no parent.
+    // The hotkey fires at the Volumes root too, where there is nothing above to go to.
+    if (path !== "") track(USAGE_EVENT.NAV.UP);
     if (path === "" || path === "/") return setPath("");
     const trimmed = path.replace(/\/+$/, "");
     const idx = trimmed.lastIndexOf("/");
     setPath(idx <= 0 ? "/" : trimmed.slice(0, idx));
   };
 
+  // User-initiated view changes only (buttons, hotkey); the per-folder view restored on load
+  // calls setView directly and is not a use of the feature. Re-pressing the active one is no change.
+  const chooseView = (next: ViewMode) => {
+    if (next === view) return;
+    track(
+      next === VIEW_MODE.GRID ? USAGE_EVENT.VIEW.GRID : USAGE_EVENT.VIEW.LIST,
+    );
+    setView(next);
+  };
   const switchView = () =>
-    setView(view === VIEW_MODE.GRID ? VIEW_MODE.LIST : VIEW_MODE.GRID);
+    chooseView(view === VIEW_MODE.GRID ? VIEW_MODE.LIST : VIEW_MODE.GRID);
 
   const { keymap } = useKeymap();
   usePathBarShortcuts({
@@ -175,7 +191,7 @@ const PathBar = () => {
         <IconButton
           key={value}
           icon={icon}
-          onClick={() => setView(value)}
+          onClick={() => chooseView(value)}
           variant={ICON_BUTTON_VARIANT.BOXED}
           size={ICON_BUTTON_SIZE.LG}
           tooltip={label()}

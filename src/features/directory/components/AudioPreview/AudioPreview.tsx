@@ -12,6 +12,7 @@ import {
 import { classNames } from "@/shared/utils";
 import { KEY } from "@/shared/constants";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import {
   faPause,
@@ -45,9 +46,17 @@ const AudioPreview = ({
   const playedFraction =
     duration > 0 ? Math.min(1, Math.max(0, progress / duration)) : 0;
 
+  // Play is counted on the first play of each file only: pause/resume on the same track is the
+  // same listen, not another use of the feature.
+  const { track } = useUsage();
+  const playCountedFor = useRef<string | null>(null);
   const togglePlay = useCallback(() => {
+    if (!isPlaying && playCountedFor.current !== filePath) {
+      playCountedFor.current = filePath;
+      track(USAGE_EVENT.PREVIEW.AUDIO_PLAY);
+    }
     setIsPlaying((prev) => !prev);
-  }, []);
+  }, [isPlaying, filePath, track]);
 
   const handleProgress = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!audioRef.current) return;

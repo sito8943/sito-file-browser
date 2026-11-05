@@ -11,6 +11,7 @@ import { TAG_PICKER_COLORS } from "@/features/directory/constants";
 import { useTags } from "@/shared/providers/TagsProvider";
 import type { Tag } from "@/shared/models";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { TAG_COVERAGE, type TagCoverage } from "./constants";
 import type { TagPickerProps } from "./types";
@@ -23,6 +24,7 @@ import "@/styles/components/TagPicker.css";
 export const TagPicker = ({ targets, onClose }: TagPickerProps) => {
   const { tags, loadTags, setEntryTags, allTags } = useTags();
   const [draft, setDraft] = useState("");
+  const { track } = useUsage();
 
   const key = targets.join("\n");
   useEffect(() => {
@@ -48,6 +50,7 @@ export const TagPicker = ({ targets, onClose }: TagPickerProps) => {
     cover: TagCoverage,
     make: () => Tag,
   ) => {
+    track(USAGE_EVENT.FILES.TAGS_TOGGLE);
     await apply((current) =>
       cover === TAG_COVERAGE.ALL
         ? current.filter((tag) => !has(tag))
@@ -75,6 +78,8 @@ export const TagPicker = ({ targets, onClose }: TagPickerProps) => {
   const addDraft = async () => {
     const name = draft.trim();
     if (!name) return;
+    // Creating a tag applies it to the selection: the same feature as toggling one on.
+    track(USAGE_EVENT.FILES.TAGS_TOGGLE);
     setDraft("");
     await apply((current) =>
       current.some((tag) => tag.name === name)

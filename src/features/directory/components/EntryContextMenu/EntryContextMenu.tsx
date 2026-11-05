@@ -8,7 +8,12 @@ import { extension } from "@/shared/utils";
 import { RECENTS } from "@/shared/constants";
 import { useKeymap, formatBinding, isMacPlatform } from "@/shared/keymap";
 import { customActionIcon } from "@/shared/contextActions";
-import { USAGE_PREFIX, usageFeature, useUsage } from "@/shared/usage";
+import {
+  USAGE_EVENT,
+  USAGE_PREFIX,
+  usageFeature,
+  useUsage,
+} from "@/shared/usage";
 
 import { TagPicker } from "./TagPicker";
 
@@ -201,6 +206,7 @@ const EntryContextMenu = ({
           text={action.label}
           icon={<Icon icon={customActionIcon(action.icon)} />}
           onClick={() => {
+            track(USAGE_EVENT.FILES.CUSTOM_ACTION_RUN);
             onClose();
             void fs.runContextAction(action.id, elementId, targets);
           }}

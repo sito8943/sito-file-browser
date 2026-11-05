@@ -13,6 +13,7 @@ import {
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { basename } from "@/shared/utils";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { DEFAULT_GROUP_ORDER, type SidebarGroupId } from "../../constants";
 
@@ -21,6 +22,10 @@ import { DEFAULT_GROUP_ORDER, type SidebarGroupId } from "../../constants";
 // this hook is its in-memory mirror plus the write-back, surfacing a toast on success/failure.
 export const useSidebarGroups = () => {
   const [groups, setGroups] = useState<SidebarGroups>({});
+  // Group edits are counted here: each one is a single user gesture (drop, rename commit, add,
+  // confirmed delete). Item edits are counted at the sidebar's call sites instead, because the
+  // Network group reuses these item writers for SMB locations, which count as smb.* features.
+  const { track } = useUsage();
 
   useEffect(() => {
     getSidebarGroups()
@@ -49,36 +54,44 @@ export const useSidebarGroups = () => {
 
   // Persist a new top-to-bottom group order, reflecting it immediately. Reverts from disk on a
   // write failure so the UI never shows an order that wasn't saved.
-  const reorder = useCallback((ids: string[]) => {
-    setGroups((prev) => {
-      const next = { ...prev };
-      ids.forEach((id, index) => {
-        next[id] = { ...next[id], order: index };
+  const reorder = useCallback(
+    (ids: string[]) => {
+      track(USAGE_EVENT.SIDEBAR.GROUP_REORDER);
+      setGroups((prev) => {
+        const next = { ...prev };
+        ids.forEach((id, index) => {
+          next[id] = { ...next[id], order: index };
+        });
+        return next;
       });
-      return next;
-    });
-    setSidebarOrder(ids).catch((error) => {
-      console.error("Failed to reorder sidebar groups:\n" + error);
-      getSidebarGroups()
-        .then(setGroups)
-        .catch(() => {});
-    });
-  }, []);
-
-  // Persist a renamed group, reflecting it immediately and toasting the outcome. On a write
-  // failure we revert so the UI never shows a name that isn't on disk.
-  const rename = useCallback((id: string, newName: string) => {
-    setGroups((prev) => ({ ...prev, [id]: { ...prev[id], name: newName } }));
-    setSidebarGroupName(id, newName)
-      .then(() => notify(t.sidebar.groupRenamed(newName), TOAST_TYPE.SUCCESS))
-      .catch((error) => {
-        console.error("Failed to rename sidebar group:\n" + error);
-        notify(t.sidebar.groupRenameFailed, TOAST_TYPE.ERROR);
+      setSidebarOrder(ids).catch((error) => {
+        console.error("Failed to reorder sidebar groups:\n" + error);
         getSidebarGroups()
           .then(setGroups)
           .catch(() => {});
       });
-  }, []);
+    },
+    [track],
+  );
+
+  // Persist a renamed group, reflecting it immediately and toasting the outcome. On a write
+  // failure we revert so the UI never shows a name that isn't on disk.
+  const rename = useCallback(
+    (id: string, newName: string) => {
+      track(USAGE_EVENT.SIDEBAR.GROUP_RENAME);
+      setGroups((prev) => ({ ...prev, [id]: { ...prev[id], name: newName } }));
+      setSidebarGroupName(id, newName)
+        .then(() => notify(t.sidebar.groupRenamed(newName), TOAST_TYPE.SUCCESS))
+        .catch((error) => {
+          console.error("Failed to rename sidebar group:\n" + error);
+          notify(t.sidebar.groupRenameFailed, TOAST_TYPE.ERROR);
+          getSidebarGroups()
+            .then(setGroups)
+            .catch(() => {});
+        });
+    },
+    [track],
+  );
 
   // The user-added item paths for a group, in display order.
   const items = useCallback((id: string) => groups[id]?.items ?? [], [groups]);
@@ -190,6 +203,7 @@ export const useSidebarGroups = () => {
   // immediately; reverts from disk on a write failure.
   const addGroup = useCallback(
     (groupName: string) => {
+      track(USAGE_EVENT.SIDEBAR.GROUP_ADD);
       const id = crypto.randomUUID();
       const nextOrder = order.length;
       setGroups((prev) => ({
@@ -207,13 +221,14 @@ export const useSidebarGroups = () => {
         });
       return id;
     },
-    [order],
+    [order, track],
   );
 
   // Delete a custom group and everything in it, reflecting it immediately. Reverts from disk on a
   // write failure.
   const deleteGroup = useCallback(
     (id: string) => {
+      track(USAGE_EVENT.SIDEBAR.GROUP_DELETE);
       const removed = groups[id]?.name ?? "";
       setGroups((prev) => {
         const next = { ...prev };
@@ -230,7 +245,7 @@ export const useSidebarGroups = () => {
             .catch(() => {});
         });
     },
-    [groups],
+    [groups, track],
   );
 
   return {

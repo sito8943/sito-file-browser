@@ -19,6 +19,7 @@ import {
   type FileKind,
 } from "@/shared/search/filters";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { KIND_ORDER, DATE_ORDER, SIZE_ORDER, PANEL_GAP } from "./constants";
 
@@ -29,6 +30,7 @@ import "@/styles/components/SearchFilters.css";
 // `filters` from context. Rendered by the PathBar only while a search is active.
 const SearchFilters = () => {
   const { filters, setFilters } = useStateContext();
+  const { track } = useUsage();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -66,13 +68,15 @@ const SearchFilters = () => {
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
-  const toggleKind = (kind: FileKind) =>
+  const toggleKind = (kind: FileKind) => {
+    track(USAGE_EVENT.SEARCH.FILTER_KIND);
     setFilters({
       ...filters,
       kinds: filters.kinds.includes(kind)
         ? filters.kinds.filter((k) => k !== kind)
         : [...filters.kinds, kind],
     });
+  };
 
   return (
     <div ref={anchorRef} className="SearchFilters">
@@ -101,7 +105,10 @@ const SearchFilters = () => {
                 <Button
                   unstyled
                   className="filters_clear"
-                  onClick={() => setFilters(DEFAULT_FILTERS)}
+                  onClick={() => {
+                    track(USAGE_EVENT.SEARCH.FILTER_RESET);
+                    setFilters(DEFAULT_FILTERS);
+                  }}
                 >
                   {t.filters.clear}
                 </Button>
@@ -132,7 +139,10 @@ const SearchFilters = () => {
                     key={range}
                     size={CHIP_SIZE.SM}
                     active={filters.date === range}
-                    onClick={() => setFilters({ ...filters, date: range })}
+                    onClick={() => {
+                      track(USAGE_EVENT.SEARCH.FILTER_DATE);
+                      setFilters({ ...filters, date: range });
+                    }}
                   >
                     {t.filters.dates[range]}
                   </ToggleableChip>
@@ -148,7 +158,10 @@ const SearchFilters = () => {
                     key={bucket}
                     size={CHIP_SIZE.SM}
                     active={filters.size === bucket}
-                    onClick={() => setFilters({ ...filters, size: bucket })}
+                    onClick={() => {
+                      track(USAGE_EVENT.SEARCH.FILTER_SIZE);
+                      setFilters({ ...filters, size: bucket });
+                    }}
                   >
                     {t.filters.sizes[bucket]}
                   </ToggleableChip>
