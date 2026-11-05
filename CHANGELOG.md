@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.19.1]
+
+### Fixed
+
+- Anonymous usage counts (when shared) now include everyday browsing: folders opened, files opened in their app and in-app previews. The screen you are on also counts right after you accept (`95710e7`)
+
 ## [0.19.0]
 
 ### Added
