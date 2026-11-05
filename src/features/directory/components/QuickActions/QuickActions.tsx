@@ -6,6 +6,7 @@ import IconButton from "@/shared/components/elements/IconButton";
 import { extension } from "@/shared/utils";
 import { RECENTS, TRASH_DIR_NAME } from "@/shared/constants";
 import { customActionIcon } from "@/shared/contextActions";
+import { USAGE_PREFIX, usageFeature, useUsage } from "@/shared/usage";
 import { ENTRY_KIND, opensInAppPreview } from "@/features/directory/constants";
 import { useFileTypeExtensions } from "@/shared/formats";
 
@@ -43,6 +44,7 @@ const QuickActions = () => {
     previewMarkdownInApp,
   } = useStateContext();
   const { keymap } = useKeymap();
+  const { track } = useUsage();
   const layout = useContextMenuLayout();
   const fileTypes = useFileTypeExtensions();
   const {
@@ -213,7 +215,10 @@ const QuickActions = () => {
               tooltip={action.label()}
               hotkey={hotkey}
               disabled={!enabled}
-              onClick={() => action.run?.(ctx)}
+              onClick={() => {
+                track(usageFeature(USAGE_PREFIX.ACTION, action.id));
+                void action.run?.(ctx);
+              }}
               className={action.color ? `qa_${action.color}` : undefined}
             />
             {id === ENTRY_ACTION.PROPERTIES && customActionGroup}

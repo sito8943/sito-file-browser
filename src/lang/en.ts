@@ -463,6 +463,7 @@ export const en = {
       importExport: "Import & export",
       contextMenu: "Context menu",
       toasts: "Toasts",
+      privacy: "Privacy",
     },
     showHidden: "Show hidden files",
     showHiddenHint: "Display dotfiles and other hidden entries in folders.",
@@ -492,6 +493,9 @@ export const en = {
     showSystemStats: "Show system stats",
     showSystemStatsHint:
       "Display live CPU, memory and disk usage in the status bar. Off by default — it polls the system on an interval.",
+    anonymousUsage: "Share anonymous usage counts",
+    anonymousUsageHint:
+      "Daily totals of which screens, actions, shortcuts and settings get used, so unused features can be improved or removed. No files, paths, names or account data are ever sent.",
     showFolderSizes: "Show folder sizes",
     showFolderSizesHint:
       "Compute recursive folder sizes for the list-view Size column. Off by default — walking large folders is costly (results are cached).",
@@ -1097,6 +1101,14 @@ export const en = {
       REMOTE_DEVICE_DUPLICATE: "That phone is already paired.",
     },
     genericError: (code: string) => `Remote control failed: ${code}`,
+  },
+  privacy: {
+    notice: {
+      title: "Help improve Sito File Browser",
+      body: "Share anonymous daily counts of which features get used? No files, paths, names or account data are sent. You can change this anytime in Settings → General.",
+      accept: "Share",
+      decline: "Don't share",
+    },
   },
 };
 

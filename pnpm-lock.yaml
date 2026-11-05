@@ -26,6 +26,9 @@ importers:
       '@sito/commands':
         specifier: github:sito8943/sito-commands#v0.1.0-alpha.1
         version: https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)
+      '@sito/feature-usage':
+        specifier: github:sito8943/sito-feature-usage-js#v0.1.0-alpha.4
+        version: https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00(react@19.2.7)
       '@sito/ui':
         specifier: 0.9.1
         version: 0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -391,6 +394,15 @@ packages:
     version: 0.1.0-alpha.1
     peerDependencies:
       react: ^19.0.0
+
+  '@sito/feature-usage@https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00':
+    resolution: {gitHosted: true, integrity: sha512-E8pakVYs0JtnstP68CX48nvkpsaRrm/QprTt+MBUCC0TLEF5huOsNFfh2NGC1M+Qre4h8VOzhQPOVJReVyzDJg==, tarball: https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00}
+    version: 0.1.0-alpha.4
+    peerDependencies:
+      react: ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@sito/ui@0.9.1':
     resolution: {integrity: sha512-wHno1hgGgXlnSIn9jNU6bn0hSYngRp9gbNTKnkz5c8SvfR/dA8P+9igQOw9LW2f6EaWsjUkfBKjqU00Px6RwEA==}
@@ -1414,6 +1426,10 @@ snapshots:
 
   '@sito/commands@https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)':
     dependencies:
+      react: 19.2.7
+
+  '@sito/feature-usage@https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00(react@19.2.7)':
+    optionalDependencies:
       react: 19.2.7
 
   '@sito/ui@0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':

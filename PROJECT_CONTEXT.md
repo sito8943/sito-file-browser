@@ -199,6 +199,10 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 - `shared/managers/FileSystemManager.ts`: filesystem domain boundary;
 - `shared/providers`: modal, confirm, picker, tags, archive, and app-state providers;
 - `shared/services/api.ts`: the frontend/Tauri boundary;
+- `shared/usage`: opt-in anonymous usage counts (`@sito/feature-usage`, fetch transport): consent
+  notice + `UsageProvider` (main windows only), counted at the action menus/quick bar, the
+  `useHotkey(s)` wrappers, `SettingsProvider.update` and route changes; the catalogue is built
+  from those registries in `src/app/usage`;
 - `shared/models`, `shared/search`, `shared/utils`, and `shared/constants.ts`.
 
 Context-menu layout and user-defined process actions are persisted separately from app settings in

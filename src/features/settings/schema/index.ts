@@ -17,3 +17,4 @@ export {
   type SelectOption,
   type CustomControlProps,
 } from "./types";
+export { settingUsageFeatures, settingUsageFeaturesOf } from "./utils";

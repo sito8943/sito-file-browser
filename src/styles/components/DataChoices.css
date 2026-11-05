@@ -1,0 +1,37 @@
+/* Bottom-left so it never covers the toast stack (bottom-right). Below dialogs: a modal opened
+   while the notice is up stays on top of it. */
+.DataChoices {
+  position: fixed;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  z-index: var(--z-index-data-choices);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: var(--size-data-choices-width);
+  padding: var(--space-3-5);
+  border: var(--border-width-default) solid var(--color-border-toast);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-toast);
+  box-shadow: var(--shadow-toast);
+  backdrop-filter: blur(var(--blur-medium));
+}
+
+.DataChoices .data_choices_title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.DataChoices .data_choices_body {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.DataChoices .data_choices_actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
