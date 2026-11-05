@@ -20,7 +20,9 @@ jobs:
     # Apple Silicon runner, pinned to macos-14 like the arm build: the Intel macos-13 runner is being
     # retired, and macos-latest queued so long that GitHub cancelled the job unacquired (v0.19.0).
     # We cross-compile to x86_64 via --target below, so the .dmg is Intel.
-    runs-on: macos-14
+    # macos-15: from 2026-11-05 GitHub rejects macos-14 jobs ("The configuration
+    # 'macos-14-arm64-us-default' is not supported").
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
