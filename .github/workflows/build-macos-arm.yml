@@ -20,7 +20,9 @@ jobs:
   build:
     # Sonoma Apple Silicon runner. Building on the OLDER supported OS maximises forward
     # compatibility: the resulting arm64 binary also runs on Sequoia.
-    runs-on: macos-14
+    # macos-15: from 2026-11-05 GitHub rejects macos-14 jobs ("The configuration
+    # 'macos-14-arm64-us-default' is not supported").
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
