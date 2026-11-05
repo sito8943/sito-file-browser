@@ -5,4 +5,4 @@ export { default as AccentControl } from "./components/SettingsDialog/controls/A
 export { default as FolderHandlerControl } from "./components/SettingsDialog/controls/FolderHandlerControl";
 export type { CustomControlProps } from "./schema";
 // Usage catalogue entries for the settings rows (anonymous usage, see shared/usage).
-export { settingUsageFeatures } from "./schema";
+export { settingUsageFeatures, SETTINGS_SECTION } from "./schema";

@@ -2,6 +2,7 @@ import { useStateContext } from "@/shared/providers/StateProvider";
 import Icon from "@/shared/components/elements/Icon";
 import Button from "@/shared/components/elements/Button";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { faLock } from "@fortawesome/free-solid-svg-icons";
 
@@ -11,6 +12,7 @@ import "@/styles/components/AccessDeniedNotice.css";
 // permission (macOS Full Disk Access, e.g. the Trash). Offers a shortcut to the settings pane.
 const AccessDeniedNotice = () => {
   const { fs } = useStateContext();
+  const { track } = useUsage();
 
   return (
     <div className="AccessDeniedNotice">
@@ -19,7 +21,12 @@ const AccessDeniedNotice = () => {
       <p className="access_denied_description">
         {t.directory.accessDenied.description}
       </p>
-      <Button onClick={() => fs.openFullDiskAccessSettings()}>
+      <Button
+        onClick={() => {
+          track(USAGE_EVENT.APP.NOTICE_FULL_DISK_ACCESS);
+          fs.openFullDiskAccessSettings();
+        }}
+      >
         {t.directory.accessDenied.grant}
       </Button>
       <p className="access_denied_hint">{t.directory.accessDenied.hint}</p>

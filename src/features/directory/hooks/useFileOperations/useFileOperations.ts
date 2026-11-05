@@ -13,6 +13,7 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import { basename, dirname } from "@/shared/utils";
 import { TRASH_DIR_NAME, SFTP_SCHEME } from "@/shared/constants";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 import { CLIPBOARD_MODE } from "@/features/directory/constants";
 
 import { useHistory } from "../useHistory";
@@ -41,6 +42,7 @@ export const useFileOperations = ({
   revealEntries,
 }: UseFileOperationsArgs) => {
   const { fs, clickableToasts, confirmDelete } = useStateContext();
+  const { track } = useUsage();
   const { confirm } = useConfirm();
   const { pickFolder } = useFolderPicker();
   const [clipboard, setClipboard] = useState<Clipboard>(null);
@@ -449,6 +451,7 @@ export const useFileOperations = ({
     async (targetPath: string, newName: string) => {
       try {
         await fs.rename(targetPath, newName);
+        track(USAGE_EVENT.FILES.RENAME);
         notify(t.directory.renamed(newName), TOAST_TYPE.SUCCESS);
         record(
           renameHistoryEntry(
@@ -467,7 +470,7 @@ export const useFileOperations = ({
       }
       refreshDir();
     },
-    [fs, refreshDir, setSelectedIDs, record],
+    [fs, refreshDir, setSelectedIDs, record, track],
   );
 
   // Reverse / replay the last reversible action (Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z). The history

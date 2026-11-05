@@ -4,6 +4,7 @@ import {
 } from "@/shared/components/patterns/ContextMenu";
 import Icon from "@/shared/components/elements/Icon";
 import { useStateContext } from "@/shared/providers/StateProvider";
+import { USAGE_PREFIX, usageFeature, useUsage } from "@/shared/usage";
 
 import {
   SIDEBAR_ACTIONS,
@@ -28,6 +29,7 @@ const SidebarContextMenu = ({
   removeConnection,
 }: SidebarContextMenuProps) => {
   const { fs, path, newTab, refreshDir, setVolumes } = useStateContext();
+  const { track } = useUsage();
 
   const actionIds = target ? resolveSidebarActions(target.kind) : [];
 
@@ -65,7 +67,10 @@ const SidebarContextMenu = ({
               text={action.label()}
               icon={<Icon icon={action.icon} />}
               color={action.color}
-              onClick={() => action.run(ctx)}
+              onClick={() => {
+                track(usageFeature(USAGE_PREFIX.SIDEBAR_MENU, action.id));
+                action.run(ctx);
+              }}
             />
           );
         })}

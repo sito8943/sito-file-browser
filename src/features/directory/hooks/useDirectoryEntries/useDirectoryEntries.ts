@@ -11,6 +11,7 @@ import * as api from "@/shared/services/api";
 import { extension } from "@/shared/utils";
 import { useSettings } from "@/features/settings";
 import { hasActiveFilters } from "@/shared/search/filters";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 import { sortEntries, type Sort } from "../../sort";
 import { applyFilters } from "../../filters";
 import { useDirSizes } from "../useDirSizes";
@@ -22,6 +23,7 @@ import { defaultSortFor, isValidSort } from "./utils";
 export const useDirectoryEntries = (view: ViewMode) => {
   const { dirContent, showHidden, path, filters } = useStateContext();
   const { settings } = useSettings();
+  const { track } = useUsage();
 
   // While a search is active, the recursive results replace the folder's own entries (the
   // directory content is hidden in favor of the results); otherwise show the folder as usual.
@@ -84,6 +86,7 @@ export const useDirectoryEntries = (view: ViewMode) => {
   // Click a header: toggle direction if it's the active column, else sort asc by it. The new
   // sort is persisted for this folder.
   const handleSort = (key: SortKey) => {
+    track(USAGE_EVENT.VIEW.SORT);
     const next: Sort =
       sort.key === key
         ? {

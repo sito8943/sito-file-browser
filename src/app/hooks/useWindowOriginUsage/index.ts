@@ -1,0 +1,1 @@
+export { useWindowOriginUsage } from "./useWindowOriginUsage";

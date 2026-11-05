@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useStateContext } from "@/shared/providers/StateProvider";
 import { recentSearchesStore } from "@/shared/search/recentSearches";
 import { DirEntry } from "@/shared/models";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 // Wait this long after the last keystroke before hitting the (recursive, IO-bound) backend search.
 const SEARCH_DEBOUNCE_MS = 300;
@@ -14,6 +15,7 @@ export const useDirectorySearch = () => {
   const { fs, path, search } = useStateContext();
   const query = search.trim();
   const searchActive = query.length > 0;
+  const { track } = useUsage();
 
   const [results, setResults] = useState<DirEntry[]>([]);
   const [searching, setSearching] = useState(false);
@@ -23,6 +25,9 @@ export const useDirectorySearch = () => {
 
     let cancelled = false;
     const timer = window.setTimeout(() => {
+      // Counted here, once the query has settled past the debounce: one count per search run,
+      // not per keystroke typed into the field.
+      track(USAGE_EVENT.SEARCH.RUN);
       setSearching(true);
       fs.searchDirectory(path, query)
         .then((found) => {
@@ -42,7 +47,7 @@ export const useDirectorySearch = () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [fs, path, query, searchActive]);
+  }, [fs, path, query, searchActive, track]);
 
   // When no query is active the directory shows its own entries, so report empty/idle here.
   return {

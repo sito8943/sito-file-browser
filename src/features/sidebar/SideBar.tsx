@@ -37,6 +37,7 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import type { Connection } from "@/shared/services/api";
 import { Properties } from "@/features/directory";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useState } from "react";
 import type { CSSProperties, MouseEvent, ReactNode } from "react";
@@ -114,6 +115,9 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
   // The connection whose auth failed, showing the interactive re-auth dialog (null = hidden).
   const [authConnection, setAuthConnection] = useState<Connection | null>(null);
   const { confirm } = useConfirm();
+  // Connection features are counted here, not in ConnectionsProvider: that provider sits above
+  // UsageProvider (main.tsx), where nothing can be counted.
+  const { track } = useUsage();
 
   // The connection id embedded in a row's `sftp://<id>` path.
   const connectionId = (path: string) =>
@@ -137,6 +141,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
     if (!ok) return;
     try {
       await connectionsManager.remove(conn.id);
+      track(USAGE_EVENT.CONNECTIONS.SFTP_REMOVE);
       reloadConnections();
       notify(t.connections.removed, TOAST_TYPE.SUCCESS);
     } catch (err) {
@@ -210,7 +215,9 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
       const folder = await pickFolder({
         startPath: path.startsWith("/") ? path : "",
       });
-      if (folder) groups.addItem(id, folder, Math.max(0, index - builtinCount));
+      if (!folder) return;
+      track(USAGE_EVENT.SIDEBAR.ITEM_ADD);
+      groups.addItem(id, folder, Math.max(0, index - builtinCount));
     };
 
   // Content for a user-created group: its custom rows, or an empty-state hint when not editing.
@@ -228,6 +235,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
   // opens the interactive re-auth dialog; any other error falls back to the root path (whose load
   // then surfaces the error toast).
   const openConnection = (connection: Connection) => {
+    track(USAGE_EVENT.CONNECTIONS.SFTP_CONNECT);
     connectionsManager
       .home(connection.id)
       .then(setPath)
@@ -242,6 +250,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
 
   // Open a connection in a new tab, landing on its home dir (falls back to the root on lookup fail).
   const openConnectionInNewTab = (connection: Connection) => {
+    track(USAGE_EVENT.CONNECTIONS.SFTP_CONNECT);
     connectionsManager
       .home(connection.id)
       .then(newTab)
@@ -283,6 +292,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
     location: SmbLocation,
     open: (path: string) => void = setPath,
   ) => {
+    track(USAGE_EVENT.CONNECTIONS.SMB_OPEN);
     const result = await openSmbLocation(location, open);
     if (result === SMB_OPEN_RESULT.NEEDS_EDIT) setSmbEditTarget(location);
   };
@@ -295,7 +305,9 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
       message: t.smb.confirmRemove(location.name),
       destructive: true,
     });
-    if (ok) groups.removeItem(SIDEBAR_GROUP.NETWORK, location.path);
+    if (!ok) return;
+    track(USAGE_EVENT.CONNECTIONS.SMB_REMOVE);
+    groups.removeItem(SIDEBAR_GROUP.NETWORK, location.path);
   };
 
   // The Network group's saved SMB shares (its custom items, each an `smb://host/share[#name]` path).
@@ -371,11 +383,15 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
           hidden={!!item.presetId && hiddenPinnedPresets.has(item.presetId)}
           onToggleHidden={
             editingSidebar && item.presetId
-              ? () =>
+              ? () => {
+                  // Counted when hiding; showing a hidden preset again undoes it.
+                  if (!hiddenPinnedPresets.has(item.presetId!))
+                    track(USAGE_EVENT.SIDEBAR.PRESET_HIDE);
                   groups.toggleHiddenPreset(
                     SIDEBAR_GROUP.PINNED,
                     item.presetId!,
-                  )
+                  );
+                }
               : undefined
           }
           onContextMenu={onRowContextMenu(item.path, item.kind)}
@@ -398,10 +414,12 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
         )}
         onEject={
           !collapsed && volume.isEjectable
-            ? () =>
+            ? () => {
+                track(USAGE_EVENT.SIDEBAR.EJECT_BUTTON);
                 ejectVolume(fs, volume.mountPoint, () =>
                   fs.listVolumes().then(setVolumes),
-                )
+                );
+              }
             : undefined
         }
       />
@@ -577,8 +595,10 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
         confirmLabel={t.sidebar.removeItem}
         destructive
         onConfirm={() => {
-          if (pendingRemoval)
+          if (pendingRemoval) {
+            track(USAGE_EVENT.SIDEBAR.ITEM_REMOVE);
             groups.removeItem(pendingRemoval.id, pendingRemoval.path);
+          }
           setPendingRemoval(null);
         }}
         onClose={() => setPendingRemoval(null)}
@@ -629,6 +649,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
         onSubmit={async (host, share, name) => {
           const itemPath = smbManager.path(host, share, name);
           if (smbEditTarget) {
+            track(USAGE_EVENT.CONNECTIONS.SMB_EDIT);
             // Reconnect: swap the stale path for the new one (keeping its slot), then open it — the
             // usual diagnose → mount flow runs against the updated address.
             groups.replaceItem(
@@ -640,6 +661,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
             const updated = smbManager.parse(itemPath);
             if (updated) void openSavedSmbLocation(updated);
           } else {
+            track(USAGE_EVENT.CONNECTIONS.SMB_ADD);
             groups.addItem(
               SIDEBAR_GROUP.NETWORK,
               itemPath,
@@ -659,6 +681,11 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
         onSubmit={async (connection) => {
           const isEdit = editConnectionTarget !== null;
           await connectionsManager.add(connection);
+          track(
+            isEdit
+              ? USAGE_EVENT.CONNECTIONS.SFTP_EDIT
+              : USAGE_EVENT.CONNECTIONS.SFTP_ADD,
+          );
           reloadConnections();
           setConnectionFormOpen(false);
           setEditConnectionTarget(null);
@@ -684,6 +711,7 @@ const SideBar = ({ collapsed, onToggle }: SideBarProps) => {
             });
           }
           const home = await connectionsManager.home(conn.id);
+          track(USAGE_EVENT.CONNECTIONS.SFTP_REAUTH);
           setPath(home);
           setAuthConnection(null);
         }}

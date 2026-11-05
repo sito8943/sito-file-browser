@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.19.1]
+
+### Fixed
+
+- Anonymous usage counts (when shared) now cover the whole app, not only menus, shortcuts and settings: browsing (folders, Recents, Tags, Trash, SFTP), previews by type and their controls, Properties, tabs and history, search and filters, sort, columns, view and zoom, the sidebar and its menus, volumes, drag & drop, rename, selection, archives, tags, custom actions, SFTP/SMB, phone access, onboarding, changelog, updates and the notices. The screen you are on also counts right after you accept. Nothing about your files is ever included
+
 ## [0.19.0]
 
 ### Added

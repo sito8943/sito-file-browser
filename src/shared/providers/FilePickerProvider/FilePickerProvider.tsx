@@ -4,6 +4,7 @@ import PathPickerDialog, {
   type PickerConfig,
 } from "@/shared/components/patterns/PathPickerDialog";
 import { pickFile as nativePickFile } from "@/shared/services/api";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { FilePickerContext } from "./FilePickerContext";
 import { FILE_PICKER_CONFIG } from "./constants";
@@ -27,10 +28,13 @@ export const FilePickerProvider = ({
   const [pending, setPending] = useState<PendingFilePick | null>(null);
   // Held in a ref so settling doesn't depend on a stale render and survives the fade-out.
   const resolverRef = useRef<((result: string | null) => void) | null>(null);
+  const { track } = useUsage();
 
+  // Counted only when the app's own picker is shown (see FolderPickerProvider).
   const pickFile = useCallback(
     (options?: PickFileOptions) => {
       if (!useCustom) return nativePickFile(options?.extensions);
+      track(USAGE_EVENT.APP.PICKER_FILE);
       return new Promise<string | null>((resolve) => {
         resolverRef.current = resolve;
         setPending({
@@ -39,7 +43,7 @@ export const FilePickerProvider = ({
         });
       });
     },
-    [useCustom],
+    [useCustom, track],
   );
 
   const settle = useCallback((result: string | null) => {

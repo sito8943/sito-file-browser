@@ -3,6 +3,7 @@ import Icon from "@/shared/components/elements/Icon";
 import Button from "@/shared/components/elements/Button";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
@@ -15,11 +16,16 @@ import type { NtfsNoticeProps } from "./types";
 // without a driver). Guides the user to install FUSE-T + ntfs-3g, then re-probe writability.
 const NtfsNotice = ({ recheck }: NtfsNoticeProps) => {
   const { fs } = useStateContext();
+  // One feature for the banner: any of its three buttons means the user acted on it.
+  const { track } = useUsage();
+  const countUse = () => track(USAGE_EVENT.APP.NOTICE_NTFS);
 
-  const copyCommand = () =>
-    navigator.clipboard
+  const copyCommand = () => {
+    countUse();
+    void navigator.clipboard
       .writeText(NTFS_INSTALL_COMMAND)
       .then(() => notify(t.common.copied, TOAST_TYPE.SUCCESS));
+  };
 
   return (
     <div className="NtfsNotice">
@@ -30,11 +36,23 @@ const NtfsNotice = ({ recheck }: NtfsNoticeProps) => {
         <p className="ntfs_hint">{t.directory.ntfs.steps}</p>
       </div>
       <div className="ntfs_actions">
-        <Button onClick={() => fs.openExternalUrl(MACFUSE_URL)}>
+        <Button
+          onClick={() => {
+            countUse();
+            fs.openExternalUrl(MACFUSE_URL);
+          }}
+        >
           {t.directory.ntfs.download}
         </Button>
         <Button onClick={copyCommand}>{t.directory.ntfs.copyCommand}</Button>
-        <Button onClick={recheck}>{t.directory.ntfs.recheck}</Button>
+        <Button
+          onClick={() => {
+            countUse();
+            recheck();
+          }}
+        >
+          {t.directory.ntfs.recheck}
+        </Button>
       </div>
     </div>
   );

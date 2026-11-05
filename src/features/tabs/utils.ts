@@ -214,6 +214,10 @@ const startPathFromUrl = (): string | null => {
   }
 };
 
+// Whether this window was opened on a given path (a `startPath`, which reveal windows carry too)
+// rather than following the startup preference. Read by the usage count of window origins.
+export const openedAtPathFromUrl = (): boolean => startPathFromUrl() !== null;
+
 // A window opened to reveal a file (see window.rs create_reveal_window / `sfb <file>`) carries the
 // file as a `reveal` query param alongside its parent as `startPath`. Returns a one-shot selection
 // request — `{ path: parent, paths: [file] }` — that DirectoryProvider applies once the parent

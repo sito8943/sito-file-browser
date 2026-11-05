@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 
 import { pushRecentFolder } from "@/shared/services/api";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { DOCK_ACTION } from "./constants";
 
@@ -20,6 +21,8 @@ type UseDockMenuArgs = {
 //   • handles clicks on Dock menu items (recent folder → open it; quick action → run it).
 // On non-macOS platforms the backend commands/events are inert, so this is a harmless no-op.
 export const useDockMenu = ({ path, newTab, homePath }: UseDockMenuArgs) => {
+  const { track } = useUsage();
+
   // Record every real folder visit. Empty path is the Volumes view — not a folder, so skip it.
   useEffect(() => {
     if (path) void pushRecentFolder(path);
@@ -27,17 +30,19 @@ export const useDockMenu = ({ path, newTab, homePath }: UseDockMenuArgs) => {
 
   // A recent-folder click opens that folder in a new tab (so the current one isn't lost).
   useEffect(() => {
-    const unlisten = listen<string>("dock://navigate", (event) =>
-      newTab(event.payload),
-    );
+    const unlisten = listen<string>("dock://navigate", (event) => {
+      track(USAGE_EVENT.APP.DOCK_RECENT_FOLDER);
+      newTab(event.payload);
+    });
     return () => {
       void unlisten.then((off) => off());
     };
-  }, [newTab]);
+  }, [newTab, track]);
 
   // A quick action opens the corresponding location in a new tab.
   useEffect(() => {
     const unlisten = listen<string>("dock://action", (event) => {
+      track(USAGE_EVENT.APP.DOCK_ACTION);
       switch (event.payload) {
         case DOCK_ACTION.NEW_TAB:
           newTab();
@@ -53,5 +58,5 @@ export const useDockMenu = ({ path, newTab, homePath }: UseDockMenuArgs) => {
     return () => {
       void unlisten.then((off) => off());
     };
-  }, [newTab, homePath]);
+  }, [newTab, homePath, track]);
 };

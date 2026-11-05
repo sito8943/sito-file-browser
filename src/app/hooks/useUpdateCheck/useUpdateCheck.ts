@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   checkForUpdates,
@@ -8,6 +8,7 @@ import {
 import { openExternalUrl } from "@/shared/services/api";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 // Module flag (not a ref) so an HMR remount / StrictMode double-run doesn't re-notify.
 let notifiedVersion: string | null = null;
@@ -17,6 +18,14 @@ let notifiedVersion: string | null = null;
 // clickable toast that opens the release page. Fire-and-forget; failures stay silent (the Settings
 // row shows the error state on a manual check).
 export const useUpdateCheck = (enabled: boolean, ready: boolean) => {
+  // Read through a ref so a consent change (new `track`) doesn't restart the check effect and hit
+  // GitHub again; the toast's click callback always reaches the current tracker.
+  const { track } = useUsage();
+  const trackRef = useRef(track);
+  useEffect(() => {
+    trackRef.current = track;
+  });
+
   useEffect(() => {
     if (!enabled || !ready) return;
     const timer = window.setTimeout(async () => {
@@ -29,11 +38,10 @@ export const useUpdateCheck = (enabled: boolean, ready: boolean) => {
         return;
       notifiedVersion = result.latest.version;
       const { url, version } = result.latest;
-      notify(
-        t.updates.availableToast(version),
-        TOAST_TYPE.INFO,
-        () => void openExternalUrl(url),
-      );
+      notify(t.updates.availableToast(version), TOAST_TYPE.INFO, () => {
+        trackRef.current(USAGE_EVENT.APP.UPDATE_TOAST);
+        void openExternalUrl(url);
+      });
     }, UPDATE_CHECK_STARTUP_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [enabled, ready]);

@@ -4,6 +4,7 @@ import { useStateContext } from "@/shared/providers/StateProvider";
 import { useFilePicker } from "@/shared/providers/FilePickerProvider";
 import type { ThumbnailCapabilities } from "@/shared/services/api";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import type { ImageThumbnailSupportProps } from "../types";
 
@@ -14,6 +15,7 @@ export const useThumbnailProbe = ({
 }: ImageThumbnailSupportProps) => {
   const { fs } = useStateContext();
   const { pickFile } = useFilePicker();
+  const { track } = useUsage();
   const [capabilities, setCapabilities] =
     useState<ThumbnailCapabilities | null>(null);
   const [busy, setBusy] = useState(false);
@@ -56,6 +58,8 @@ export const useThumbnailProbe = ({
         setError(t.settings.thumbnailWrongSample(extension));
         return;
       }
+      // Counted once a sample is actually tested (not when the picker is dismissed).
+      track(USAGE_EVENT.APP.THUMBNAIL_PROBE);
       const thumbnail = await fs.probeQuickLookThumbnail(path);
       if (active.current) setSample(thumbnail);
     } catch {

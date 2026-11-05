@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { DEFAULT_SETTINGS } from "@/shared/constants";
-import { useUsage } from "@/shared/usage";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 import type { AppSettings } from "@/shared/services/api";
 
 import { SettingsContextProvider } from "./SettingsContext";
@@ -21,14 +21,18 @@ export const SettingsProvider = ({
   const [visible, setVisible] = useState(false);
   const manager = useMemo(() => new SettingsManager(), []);
 
-  const open = useCallback(() => setVisible(true), []);
-  const close = useCallback(() => setVisible(false), []);
-
-  useSettingsShortcut(open);
-
   // Every settings write made through this context comes from the user (dialog rows, onboarding
   // steps), so it doubles as the anonymous "which settings get changed" count.
   const { track } = useUsage();
+
+  // Every way into Settings (gear, shortcut, status links, onboarding) goes through open.
+  const open = useCallback(() => {
+    track(USAGE_EVENT.APP.SETTINGS_OPEN);
+    setVisible(true);
+  }, [track]);
+  const close = useCallback(() => setVisible(false), []);
+
+  useSettingsShortcut(open);
   const trackedUpdate = useCallback(
     (patch: Partial<AppSettings>) => {
       settingUsageFeaturesOf(patch).forEach(track);

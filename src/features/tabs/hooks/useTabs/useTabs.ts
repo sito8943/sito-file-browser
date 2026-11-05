@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { Tab } from "@/shared/models";
 import { MAIN_WINDOW_LABEL } from "@/shared/constants";
 import { DEFAULT_FILTERS, type SearchFilters } from "@/shared/search/filters";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import {
   makeTab,
@@ -39,6 +40,9 @@ export const useTabs = (
   const path = tabPath(activeTab);
   const infoPanelOpen = activeTab.infoPanelOpen;
   const liveScrollPosition = useRef(tabScrollPosition(activeTab));
+  // Tab and history features are counted here, the one place every trigger (buttons, hotkeys,
+  // Dock menu, mouse back/forward) goes through.
+  const { track } = useUsage();
 
   // Apply a transform to the active tab only.
   const updateActiveTab = useCallback(
@@ -69,7 +73,9 @@ export const useTabs = (
     [updateActiveTab, activeTab, path, rememberScrollOnUp],
   );
 
-  const goBack = useCallback(() => {
+  // The history step itself, uncounted: the app also steps back on its own (leaving a folder it
+  // was denied access to), which is not the user's Back feature.
+  const stepBack = useCallback(() => {
     const outgoingScrollPosition = liveScrollPosition.current;
     const preview = backTab(
       setTabScrollPosition(activeTab, outgoingScrollPosition),
@@ -80,7 +86,14 @@ export const useTabs = (
     );
   }, [updateActiveTab, activeTab]);
 
+  const goBack = useCallback(() => {
+    // The hotkeys fire with no history too; count only a step that happens.
+    if (canGoBack(activeTab)) track(USAGE_EVENT.NAV.BACK);
+    stepBack();
+  }, [activeTab, stepBack, track]);
+
   const goForward = useCallback(() => {
+    if (canGoForward(activeTab)) track(USAGE_EVENT.NAV.FORWARD);
     const outgoingScrollPosition = liveScrollPosition.current;
     const preview = forwardTab(
       setTabScrollPosition(activeTab, outgoingScrollPosition),
@@ -89,7 +102,7 @@ export const useTabs = (
     updateActiveTab((tab) =>
       forwardTab(setTabScrollPosition(tab, outgoingScrollPosition)),
     );
-  }, [updateActiveTab, activeTab]);
+  }, [updateActiveTab, activeTab, track]);
 
   // Directory reports its live scroll into this ref. It is committed to the tab model only when
   // leaving the history entry, avoiding an app-wide render and localStorage write on every pixel.
@@ -109,11 +122,10 @@ export const useTabs = (
     [updateActiveTab],
   );
 
-  const toggleInfoPanel = useCallback(
-    () =>
-      updateActiveTab((tab) => ({ ...tab, infoPanelOpen: !tab.infoPanelOpen })),
-    [updateActiveTab],
-  );
+  const toggleInfoPanel = useCallback(() => {
+    track(USAGE_EVENT.PANEL.INFO_PANEL);
+    updateActiveTab((tab) => ({ ...tab, infoPanelOpen: !tab.infoPanelOpen }));
+  }, [updateActiveTab, track]);
 
   // Open a new tab. An explicit New Tab command (no path) always focuses it; opening a folder or
   // location in a new tab follows the user's activation preference. Panel state is inherited.
@@ -122,6 +134,7 @@ export const useTabs = (
       // Guard against being wired straight to an event handler (onClick / useHotkey), which would
       // otherwise pass the DOM event as `nextPath` and make the tab's path a non-string → crash.
       const start = typeof nextPath === "string" ? nextPath : path;
+      track(USAGE_EVENT.TABS.NEW);
       const tab = makeTab(start, infoPanelOpen);
       const activate = typeof nextPath !== "string" || activateNewTabs;
       const outgoingScrollPosition = liveScrollPosition.current;
@@ -138,7 +151,7 @@ export const useTabs = (
         setActiveTabId(tab.id);
       }
     },
-    [path, infoPanelOpen, activateNewTabs, activeTabId],
+    [path, infoPanelOpen, activateNewTabs, activeTabId, track],
   );
 
   // Close a tab; always keep at least one open. When closing the active tab, activate the
@@ -146,6 +159,7 @@ export const useTabs = (
   const closeTab = useCallback(
     (id: string) => {
       if (tabs.length <= 1) return;
+      track(USAGE_EVENT.TABS.CLOSE);
       const index = tabs.findIndex((tab) => tab.id === id);
       const remaining = tabs.filter((tab) => tab.id !== id);
       setTabs(remaining);
@@ -155,7 +169,7 @@ export const useTabs = (
         setActiveTabId(next.id);
       }
     },
-    [tabs, activeTabId],
+    [tabs, activeTabId, track],
   );
 
   const selectTab = useCallback(
@@ -163,6 +177,7 @@ export const useTabs = (
       if (id === activeTabId) return;
       const next = tabs.find((tab) => tab.id === id);
       if (!next) return;
+      track(USAGE_EVENT.TABS.SWITCH);
       const outgoingScrollPosition = liveScrollPosition.current;
       setTabs((prev) =>
         prev.map((tab) =>
@@ -174,27 +189,39 @@ export const useTabs = (
       liveScrollPosition.current = tabScrollPosition(next);
       setActiveTabId(id);
     },
-    [tabs, activeTabId],
+    [tabs, activeTabId, track],
   );
 
   // Move the tab at `from` to position `to` (drag-to-reorder). Bounds-checked; a no-op move
   // leaves the array reference unchanged so React skips the re-render.
-  const reorderTab = useCallback((from: number, to: number) => {
-    setTabs((prev) => {
+  // Counted outside the updater (React may run it twice), with the same bounds check up front.
+  const reorderTab = useCallback(
+    (from: number, to: number) => {
       if (
-        from === to ||
-        from < 0 ||
-        to < 0 ||
-        from >= prev.length ||
-        to >= prev.length
+        from !== to &&
+        from >= 0 &&
+        to >= 0 &&
+        from < tabs.length &&
+        to < tabs.length
       )
-        return prev;
-      const next = [...prev];
-      const [moved] = next.splice(from, 1);
-      next.splice(to, 0, moved);
-      return next;
-    });
-  }, []);
+        track(USAGE_EVENT.TABS.REORDER);
+      setTabs((prev) => {
+        if (
+          from === to ||
+          from < 0 ||
+          to < 0 ||
+          from >= prev.length ||
+          to >= prev.length
+        )
+          return prev;
+        const next = [...prev];
+        const [moved] = next.splice(from, 1);
+        next.splice(to, 0, moved);
+        return next;
+      });
+    },
+    [tabs.length, track],
+  );
 
   // Persist the tab session whenever it changes.
   useEffect(() => {
@@ -222,6 +249,7 @@ export const useTabs = (
     canGoForward: canGoForward(activeTab),
     setPath,
     goBack,
+    stepBack,
     goForward,
     reportScrollPosition,
     setSearch,

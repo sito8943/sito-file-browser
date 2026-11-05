@@ -7,6 +7,7 @@ import Button from "@/shared/components/elements/Button";
 import { classNames } from "@/shared/utils";
 import { useSettings } from "@/features/settings";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import "@/styles/components/OnboardingDialog.css";
 
@@ -37,6 +38,18 @@ const OnboardingDialog = () => {
   const dismiss = () => {
     if (!settings.onboardingSeen) update({ onboardingSeen: true });
     close();
+  };
+
+  // Skip and Finish are counted apart from the other exits (Escape, backdrop, header close),
+  // which say nothing about whether the guide was read.
+  const { track } = useUsage();
+  const skip = () => {
+    track(USAGE_EVENT.APP.ONBOARDING_SKIP);
+    dismiss();
+  };
+  const finish = () => {
+    track(USAGE_EVENT.APP.ONBOARDING_FINISH);
+    dismiss();
   };
 
   const Body = step.Body;
@@ -77,7 +90,7 @@ const OnboardingDialog = () => {
         </div>
         <DialogActions>
           {!last && (
-            <Button className="onboarding_skip" onClick={dismiss}>
+            <Button className="onboarding_skip" onClick={skip}>
               {t.onboarding.skip}
             </Button>
           )}
@@ -87,7 +100,7 @@ const OnboardingDialog = () => {
             </Button>
           )}
           {last ? (
-            <Button className="onboarding_primary" onClick={dismiss}>
+            <Button className="onboarding_primary" onClick={finish}>
               {t.onboarding.finish}
             </Button>
           ) : (

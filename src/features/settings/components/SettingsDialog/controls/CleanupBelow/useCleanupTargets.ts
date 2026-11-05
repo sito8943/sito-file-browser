@@ -6,6 +6,7 @@ import { useConfirm } from "@/shared/providers/ConfirmProvider";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { formatBytes } from "@/shared/utils";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useSettings } from "../../../../providers/SettingsProvider";
 
@@ -26,6 +27,8 @@ export const useCleanupTargets = (): CleanupTargetsState => {
   const { confirm } = useConfirm();
   const [targets, setTargets] = useState<CleanupTarget[] | null>(null);
   const [busyPath, setBusyPath] = useState<string | null>(null);
+  // Each change counts once the backend accepted it; a rejected path or a failed write is not a use.
+  const { track } = useUsage();
 
   // `signal` lets the mount effect drop a late response after unmount; direct callers omit it.
   const load = useCallback(
@@ -64,6 +67,7 @@ export const useCleanupTargets = (): CleanupTargetsState => {
         // New targets start in the safer mode: emptying contents never removes a directory another
         // tool expects to exist. The chip's mode toggle switches it.
         await manager.addCleanupTarget(path, CLEANUP_MODE.CONTENTS);
+        track(USAGE_EVENT.APP.CLEANUP_ADD);
         await load();
         return true;
       } catch (error) {
@@ -73,7 +77,7 @@ export const useCleanupTargets = (): CleanupTargetsState => {
         setBusyPath(null);
       }
     },
-    [manager, load],
+    [manager, load, track],
   );
 
   const remove = useCallback(
@@ -81,6 +85,7 @@ export const useCleanupTargets = (): CleanupTargetsState => {
       setBusyPath(path);
       try {
         await manager.removeCleanupTarget(path);
+        track(USAGE_EVENT.APP.CLEANUP_REMOVE);
         await load();
       } catch (error) {
         notify(cleanupErrorMessage(error), TOAST_TYPE.ERROR);
@@ -88,7 +93,7 @@ export const useCleanupTargets = (): CleanupTargetsState => {
         setBusyPath(null);
       }
     },
-    [manager, load],
+    [manager, load, track],
   );
 
   const setMode = useCallback(
@@ -103,12 +108,13 @@ export const useCleanupTargets = (): CleanupTargetsState => {
       );
       try {
         await manager.setCleanupTargetMode(path, mode);
+        track(USAGE_EVENT.APP.CLEANUP_MODE);
       } catch (error) {
         notify(cleanupErrorMessage(error), TOAST_TYPE.ERROR);
         await load();
       }
     },
-    [manager, load],
+    [manager, load, track],
   );
 
   const clean = useCallback(
@@ -133,6 +139,7 @@ export const useCleanupTargets = (): CleanupTargetsState => {
       setBusyPath(target.path);
       try {
         const result = await manager.cleanCleanupTarget(target.path);
+        track(USAGE_EVENT.APP.CLEANUP_CLEAN);
         if (result.removed === 0 && result.failed === 0)
           notify(t.settings.cleanupAlreadyEmpty, TOAST_TYPE.INFO);
         else if (result.failed > 0)
@@ -156,7 +163,7 @@ export const useCleanupTargets = (): CleanupTargetsState => {
         setBusyPath(null);
       }
     },
-    [confirm, manager, load],
+    [confirm, manager, load, track],
   );
 
   const total = (targets ?? []).reduce((sum, target) => sum + target.size, 0);

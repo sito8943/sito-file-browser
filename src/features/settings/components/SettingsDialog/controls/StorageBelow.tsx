@@ -12,6 +12,7 @@ import { notify, TOAST_TYPE } from "@/shared/toast";
 import { formatBytes } from "@/shared/utils";
 import { STORAGE_KIND } from "@/shared/constants";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useSettings } from "../../../providers/SettingsProvider";
 
@@ -33,6 +34,7 @@ const kindLabel = (kind: string): string => {
 const StorageBelow = () => {
   const { manager } = useSettings();
   const { confirm } = useConfirm();
+  const { track } = useUsage();
   const [locations, setLocations] = useState<AppStorageLocation[] | null>(null);
 
   const load = useCallback(
@@ -66,12 +68,13 @@ const StorageBelow = () => {
     if (!ok) return;
     try {
       await manager.clearCache();
+      track(USAGE_EVENT.APP.STORAGE_CLEAR_CACHE);
       await load();
       notify(t.settings.storageCleared, TOAST_TYPE.SUCCESS);
     } catch (err) {
       notify(t.settings.storageClearError(String(err)), TOAST_TYPE.ERROR);
     }
-  }, [confirm, manager, load]);
+  }, [confirm, manager, load, track]);
 
   if (locations === null)
     return (

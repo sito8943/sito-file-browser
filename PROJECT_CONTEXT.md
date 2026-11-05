@@ -201,8 +201,11 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 - `shared/services/api.ts`: the frontend/Tauri boundary;
 - `shared/usage`: opt-in anonymous usage counts (`@sito/feature-usage`, fetch transport): consent
   notice + `UsageProvider` (main windows only), counted at the action menus/quick bar, the
-  `useHotkey(s)` wrappers, `SettingsProvider.update` and route changes; the catalogue is built
-  from those registries in `src/app/usage`;
+  `useHotkey(s)` wrappers, `SettingsProvider.update`, route changes, and the named `USAGE_EVENT`
+  features (grouped per area in `shared/usage/constants.ts`) at each feature's choke point; the
+  catalogue is built from those registries (plus sidebar/volume menus and settings sections) in
+  `src/app/usage`. `ConnectionsProvider` sits above `UsageProvider`, so connection features count
+  in `SideBar.tsx`;
 - `shared/models`, `shared/search`, `shared/utils`, and `shared/constants.ts`.
 
 Context-menu layout and user-defined process actions are persisted separately from app settings in

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useDrag } from "@use-gesture/react";
 
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
+
 import { PANEL_MARGIN, PANEL_MIN_W, PANEL_MIN_H } from "./constants";
 import { clampNum } from "./utils";
 import type { Geom, ResizeDir } from "./types";
@@ -16,6 +18,7 @@ export const usePanelGeometry = ({
   previewVisible: boolean;
   isBig: boolean;
 }) => {
+  const { track } = useUsage();
   // Default resting geometry for the current file type (anchored top-right like the old layout).
   const defaultGeom = useCallback((): Geom => {
     const vw = window.innerWidth;
@@ -149,6 +152,8 @@ export const usePanelGeometry = ({
         setGeom(restoreGeom.current ?? defaultGeom());
         setMaximized(false);
       } else {
+        // Counted on maximizing only; restoring is the same feature being undone.
+        track(USAGE_EVENT.PREVIEW.MAXIMIZE);
         restoreGeom.current = geom;
         setGeom({
           left: PANEL_MARGIN,
@@ -159,7 +164,7 @@ export const usePanelGeometry = ({
         setMaximized(true);
       }
     },
-    [maximized, geom, defaultGeom],
+    [maximized, geom, defaultGeom, track],
   );
 
   const style: CSSProperties = {

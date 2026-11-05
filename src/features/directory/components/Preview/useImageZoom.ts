@@ -1,4 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import {
   IMAGE_ZOOM_MIN,
@@ -19,6 +21,17 @@ export const useImageZoom = (filePath: string, visible: boolean) => {
   const [pan, setPan] = useState(NO_PAN);
   const [rotation, setRotation] = useState(0);
   const [session, setSession] = useState({ filePath, visible });
+  const { track } = useUsage();
+
+  // Zoom is counted once per preview session (file shown), not per wheel tick or button press:
+  // one wheel gesture fires dozens of zoom steps, which would drown the count. `session` gets a
+  // new identity whenever the file or visibility changes, so comparing identities is the reset.
+  const zoomCountedFor = useRef<typeof session | null>(null);
+  const countZoom = useCallback(() => {
+    if (zoomCountedFor.current === session) return;
+    zoomCountedFor.current = session;
+    track(USAGE_EVENT.PREVIEW.IMAGE_ZOOM);
+  }, [session, track]);
 
   // File changes also come from deletion or reopening, not just the navigation buttons.
   if (session.filePath !== filePath || session.visible !== visible) {
@@ -28,29 +41,39 @@ export const useImageZoom = (filePath: string, visible: boolean) => {
     setRotation(0);
   }
 
-  const rotate = useCallback((direction: number) => {
-    setRotation(
-      (current) =>
-        (current + direction * IMAGE_ROTATION_STEP + IMAGE_ROTATION_FULL) %
-        IMAGE_ROTATION_FULL,
-    );
-    setPan(NO_PAN);
-  }, []);
+  const rotate = useCallback(
+    (direction: number) => {
+      track(USAGE_EVENT.PREVIEW.IMAGE_ROTATE);
+      setRotation(
+        (current) =>
+          (current + direction * IMAGE_ROTATION_STEP + IMAGE_ROTATION_FULL) %
+          IMAGE_ROTATION_FULL,
+      );
+      setPan(NO_PAN);
+    },
+    [track],
+  );
 
-  const zoomTo = useCallback((value: number) => {
-    const next = clamp(value);
-    setZoom(next);
-    if (next <= IMAGE_ZOOM_MIN) setPan(NO_PAN);
-  }, []);
+  const zoomTo = useCallback(
+    (value: number) => {
+      countZoom();
+      const next = clamp(value);
+      setZoom(next);
+      if (next <= IMAGE_ZOOM_MIN) setPan(NO_PAN);
+    },
+    [countZoom],
+  );
 
   const stepZoom = useCallback(
-    (delta: number) =>
+    (delta: number) => {
+      countZoom();
       setZoom((current) => {
         const next = clamp(current + delta);
         if (next <= IMAGE_ZOOM_MIN) setPan(NO_PAN);
         return next;
-      }),
-    [],
+      });
+    },
+    [countZoom],
   );
 
   const reset = useCallback(() => {

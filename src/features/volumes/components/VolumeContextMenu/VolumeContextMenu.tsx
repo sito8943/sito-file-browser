@@ -4,6 +4,7 @@ import {
 } from "@/shared/components/patterns/ContextMenu";
 import Icon from "@/shared/components/elements/Icon";
 import { useStateContext } from "@/shared/providers/StateProvider";
+import { USAGE_PREFIX, usageFeature, useUsage } from "@/shared/usage";
 
 import {
   VOLUME_ACTIONS,
@@ -26,6 +27,7 @@ const VolumeContextMenu = ({
   openProperties,
 }: VolumeContextMenuProps) => {
   const { fs, setPath, newTab, setVolumes } = useStateContext();
+  const { track } = useUsage();
 
   const ctx: VolumeActionContext | null = volume
     ? {
@@ -59,7 +61,10 @@ const VolumeContextMenu = ({
               key={action.id}
               text={action.label()}
               icon={<Icon icon={action.icon} />}
-              onClick={() => action.run(ctx)}
+              onClick={() => {
+                track(usageFeature(USAGE_PREFIX.VOLUMES_MENU, action.id));
+                action.run(ctx);
+              }}
             />
           );
         })}

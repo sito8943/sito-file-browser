@@ -15,6 +15,7 @@ import TextInput from "@/shared/components/elements/TextInput";
 import { TOOLTIP_PLACEMENT } from "@/shared/components/elements/Tooltip";
 import { classNames } from "@/shared/utils";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import {
   faChevronDown,
@@ -58,7 +59,11 @@ const SidebarSection = forwardRef<HTMLElement, SidebarSectionProps>(
       handleKeyDown: handleRenameKeyDown,
     } = useSectionRename(title, onRename);
 
-    const toggle = () => setOpen((prev) => !prev);
+    const { track } = useUsage();
+    const toggle = () => {
+      track(USAGE_EVENT.SIDEBAR.SECTION_TOGGLE);
+      setOpen((prev) => !prev);
+    };
 
     // An "add item" affordance for the gap at `index`; only rendered in edit mode. Full-width
     // button with a centered plus flanked by dashed rules (----- + -----), revealed on hover.

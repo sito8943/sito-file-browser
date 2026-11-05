@@ -10,6 +10,7 @@ import { openSystemMonitor, openStorageSettings } from "@/shared/services/api";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { useSettings } from "@/features/settings";
 import { t } from "@/lang";
+import { USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import { useImagePreviewLoading } from "../../hooks/useImagePreviewLoading";
 import { useSystemStats } from "../../hooks/useSystemStats";
@@ -35,12 +36,15 @@ const StatusBar = ({
   const { settings } = useSettings();
   const stats = useSystemStats(settings.showSystemStats);
   const searching = search.length > 0;
+  const { track } = useUsage();
 
   const showStorage = () => {
+    track(USAGE_EVENT.PANEL.STATUS_STORAGE);
     openStorageSettings().catch((err) => notify(String(err), TOAST_TYPE.ERROR));
   };
 
   const showMonitor = () => {
+    track(USAGE_EVENT.PANEL.STATUS_SYSTEM_MONITOR);
     openSystemMonitor().catch((err) =>
       notify(t.errors.openSystemMonitor(String(err)), TOAST_TYPE.ERROR),
     );

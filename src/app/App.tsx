@@ -34,7 +34,7 @@ import {
 } from "@/features/remote";
 import { useTabs, saveStartupConfig } from "@/features/tabs";
 import ToastStack from "@/shared/components/patterns/ToastStack";
-import { DataChoices } from "@/shared/usage";
+import { DataChoices, USAGE_EVENT, useUsage } from "@/shared/usage";
 
 import AppContent from "./AppContent";
 import { useToasts } from "./hooks/useToasts";
@@ -51,6 +51,7 @@ import { useAccent } from "./hooks/useAccent";
 import { useControlBridge } from "./hooks/useControlBridge";
 import { useControlProbe } from "./hooks/useControlProbe";
 import { usePageUsage } from "./hooks/usePageUsage";
+import { useWindowOriginUsage } from "./hooks/useWindowOriginUsage";
 
 import { notify, setToastsEnabled, TOAST_TYPE } from "@/shared/toast";
 import { prewarmDragIcon } from "@/shared/services/api";
@@ -71,6 +72,8 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   usePageUsage(location.pathname);
+  useWindowOriginUsage();
+  const { track } = useUsage();
 
   // Single domain manager instance for the whole app, provided through context.
   const fs = useMemo(() => new FileSystemManager(), []);
@@ -89,14 +92,16 @@ const App = () => {
   // so Back/Forward semantics stay intact; a restored/direct path has no previous entry, so the
   // Volumes view is its safe fallback. The bounce must never be silent — the toast says why and
   // clicking it opens the Full Disk Access pane (always clickable: it's the fix, not a nicety).
-  const { canGoBack, goBack, setPath } = tabs;
+  // stepBack, not goBack: this bounce is automatic and must not count as the user's Back.
+  const { canGoBack, stepBack, setPath } = tabs;
   const leaveAccessDeniedPath = useCallback(() => {
-    if (canGoBack) goBack();
+    if (canGoBack) stepBack();
     else setPath("");
-    notify(t.directory.accessDenied.bounced, TOAST_TYPE.ERROR, () =>
-      fs.openFullDiskAccessSettings(),
-    );
-  }, [canGoBack, goBack, setPath, fs]);
+    notify(t.directory.accessDenied.bounced, TOAST_TYPE.ERROR, () => {
+      track(USAGE_EVENT.APP.NOTICE_FULL_DISK_ACCESS);
+      fs.openFullDiskAccessSettings();
+    });
+  }, [canGoBack, stepBack, setPath, fs, track]);
   const directory = useDirectoryContents({
     fs,
     path: tabs.path,
