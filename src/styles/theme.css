@@ -248,6 +248,20 @@
   --color-tag-red: rgb(245, 93, 93);
   --color-tag-orange: rgb(245, 160, 60);
 
+  /* @sito/file-icons category colours (FILE_CATEGORY_COLORS), mapped onto the tag palette. */
+  --sito-file-icon-archive: var(--color-tag-gray);
+  --sito-file-icon-audio: var(--color-tag-purple);
+  --sito-file-icon-video: var(--color-tag-red);
+  --sito-file-icon-image: var(--color-tag-green);
+  --sito-file-icon-pdf: var(--color-tag-red);
+  --sito-file-icon-word: var(--color-tag-blue);
+  --sito-file-icon-spreadsheet: var(--color-tag-green);
+  --sito-file-icon-csv: var(--color-tag-green);
+  --sito-file-icon-presentation: var(--color-tag-orange);
+  --sito-file-icon-code: var(--color-tag-orange);
+  --sito-file-icon-text: var(--color-tag-gray);
+  --sito-file-icon-markdown: var(--color-tag-blue);
+
   /* Opaque background for a tab mid-drag (normal tab surfaces are translucent overlays that would
      let the tab underneath bleed through). Slightly lighter than the app background so it lifts. */
   --color-tab-dragging: #2d3748;

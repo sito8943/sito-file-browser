@@ -10,9 +10,9 @@ import {
   type FileKind,
   type SearchFilters,
 } from "@/shared/search/filters";
-import { FILE_CATEGORY, type FileCategory } from "@/shared/constants";
+import { FILE_CATEGORY, categoryOf, type FileCategory } from "@sito/file-icons";
 
-import { getFileTypeExtensions, categoryOf } from "@/shared/formats";
+import { getFileTypeExtensions } from "@/shared/formats";
 
 // Coarse search-filter kind per file-type category. Categories the user can remap (Settings ›
 // File types) feed this, so a custom extension filters like the category it was put in.

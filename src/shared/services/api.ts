@@ -9,7 +9,8 @@ import { startDrag } from "@crabnebula/tauri-plugin-drag";
 import { notify, TOAST_TYPE } from "@/shared/toast";
 import { t } from "@/lang";
 import { Volume, DirEntry, ContextMenuLayout, Tag } from "@/shared/models";
-import type { FileTypeExtensions, ViewMode } from "@/shared/constants";
+import type { FileTypeExtensions } from "@sito/file-icons";
+import type { ViewMode } from "@/shared/constants";
 import {
   ACCESS_DENIED_ERROR,
   SFTP_SCHEME,

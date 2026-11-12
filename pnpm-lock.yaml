@@ -29,6 +29,9 @@ importers:
       '@sito/feature-usage':
         specifier: github:sito8943/sito-feature-usage-js#v0.1.0-alpha.4
         version: https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00(react@19.2.7)
+      '@sito/file-icons':
+        specifier: link:../../lib/sito-file-icons
+        version: link:../../lib/sito-file-icons
       '@sito/ui':
         specifier: 0.9.1
         version: 0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)

@@ -1,10 +1,7 @@
-import {
-  FILE_CATEGORY_COLORS,
-  TAG_COLOR,
-  TAG_COLOR_CLASS,
-} from "@/shared/constants";
+import { categoryOf, fileCategoryColor } from "@sito/file-icons";
 
-import { categoryOf } from "./utils";
+import { TAG_COLOR, TAG_COLOR_CLASS } from "@/shared/constants";
+
 import type { EntryIconColorArgs } from "./types";
 
 // The inline colour for an entry's glyph, or undefined to keep the surface's default. Folders take
@@ -28,5 +25,5 @@ export const entryIconColor = ({
   }
   if (!colorfulFileTypes) return undefined;
   const category = categoryOf(extensions, extension);
-  return category ? FILE_CATEGORY_COLORS[category] : undefined;
+  return category ? fileCategoryColor(category) : undefined;
 };

@@ -220,7 +220,7 @@ fn default_size_ignores() -> Vec<String> {
 }
 
 // The built-in extension → category map. Mirrors DEFAULT_FILE_TYPE_EXTENSIONS in
-// shared/constants.ts (must stay in sync).
+// @sito/file-icons (must stay in sync).
 fn default_file_type_extensions() -> BTreeMap<String, Vec<String>> {
     [
         ("archive", vec!["zip", "rar", "7z", "tar", "gz", "bz2", "xz"]),

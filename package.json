@@ -23,6 +23,7 @@
     "@fortawesome/react-fontawesome": "3.3.1",
     "@sito/commands": "github:sito8943/sito-commands#v0.1.0-alpha.1",
     "@sito/feature-usage": "github:sito8943/sito-feature-usage-js#v0.1.0-alpha.4",
+    "@sito/file-icons": "link:../../lib/sito-file-icons",
     "@sito/ui": "0.9.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",

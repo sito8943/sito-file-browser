@@ -21,11 +21,8 @@ import {
   findTypeaheadMatch,
   typeaheadStartIndex,
 } from "@/shared/hooks/useTypeahead";
-import {
-  entryIconColor,
-  getFileIcon,
-  useFileTypeExtensions,
-} from "@/shared/formats";
+import { getFileIcon } from "@sito/file-icons";
+import { entryIconColor, useFileTypeExtensions } from "@/shared/formats";
 import { KEY } from "@/shared/constants";
 import { classNames, dirname } from "@/shared/utils";
 import { t } from "@/lang";

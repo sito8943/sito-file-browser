@@ -9,7 +9,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 
 import { FOLDER_THUMBNAIL_COUNT } from "@/features/directory/constants";
 import { FileSystemManager } from "@/shared/managers/FileSystemManager";
-import { SFTP_SCHEME, SVG_FORMAT, FILE_CATEGORY } from "@/shared/constants";
+import { SFTP_SCHEME, SVG_FORMAT } from "@/shared/constants";
 
 import {
   acquireImageSlot,
@@ -18,7 +18,8 @@ import {
 import { THUMBNAIL_PREFETCH_MARGIN, THUMBNAIL_SIZE } from "./constants";
 import type { FolderThumbnail } from "./types";
 import { extensionOf } from "./utils";
-import { useFileTypeExtensions, isCategory } from "@/shared/formats";
+import { FILE_CATEGORY, isCategory } from "@sito/file-icons";
+import { useFileTypeExtensions } from "@/shared/formats";
 
 // Resolve up to four direct image children for one folder. Discovery and thumbnail generation use
 // the same viewport gate and concurrency queue as file thumbnails, so zoomed-out or off-screen

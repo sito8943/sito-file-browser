@@ -11,7 +11,15 @@
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      // Linked @sito/* packages must type-check against our FontAwesome,
+      // not their own dev copy (mirrors resolve.dedupe in vite.config.ts).
+      "@fortawesome/fontawesome-svg-core": [
+        "./node_modules/@fortawesome/fontawesome-svg-core"
+      ],
+      "@fortawesome/free-solid-svg-icons": [
+        "./node_modules/@fortawesome/free-solid-svg-icons"
+      ]
     },
     "isolatedModules": true,
     "noEmit": true,
