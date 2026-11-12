@@ -1,6 +1,10 @@
 import {
   ContextMenu,
   ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSubmenu,
+  SUBMENU_MENU_CLASS,
+  menuItemColor,
 } from "@/shared/components/patterns/ContextMenu";
 import Icon from "@/shared/components/elements/Icon";
 import { useStateContext } from "@/shared/providers/StateProvider";
@@ -142,12 +146,12 @@ const EntryContextMenu = ({
       {shouldShowTags && (
         <>
           <TagPicker targets={targets} onClose={onClose} />
-          <ContextMenuItem isSeparator />
+          <ContextMenuSeparator />
         </>
       )}
       {actionIds.map((id, index) => {
         if (id === ACTION_SEPARATOR)
-          return <ContextMenuItem key={`separator-${index}`} isSeparator />;
+          return <ContextMenuSeparator key={`separator-${index}`} />;
 
         const action = ENTRY_ACTIONS[id as EntryActionId];
         if (!action || !isActionVisible(action, ctx)) return null;
@@ -159,58 +163,81 @@ const EntryContextMenu = ({
             ? formatBinding(keymap[action.keymapAction])
             : undefined);
 
+        const leading = <Icon icon={resolveActionIcon(action, ctx)} />;
+
         // Submenu action (e.g. Sort By): its rows own their behavior; picking one closes the menu.
-        const submenu = action.submenu?.(ctx).map((sub) => ({
-          key: sub.key,
-          text: sub.label,
-          icon: sub.icon ? <Icon icon={sub.icon} /> : undefined,
-          checked: sub.checked,
-          isSeparator: sub.isSeparator,
-          onClick: sub.onClick
-            ? () => {
-                track(usageFeature(USAGE_PREFIX.ACTION, action.id));
-                sub.onClick?.();
-                onClose();
-              }
-            : undefined,
-        }));
+        if (action.submenu)
+          return (
+            <ContextMenuSubmenu
+              key={action.id}
+              label={action.label()}
+              leading={leading}
+              menuClassName={SUBMENU_MENU_CLASS}
+            >
+              {action.submenu(ctx).map((sub) =>
+                sub.isSeparator ? (
+                  <ContextMenuSeparator key={sub.key} />
+                ) : (
+                  <ContextMenuItem
+                    key={sub.key}
+                    leading={sub.icon ? <Icon icon={sub.icon} /> : undefined}
+                    checked={sub.checked}
+                    disabled={!sub.onClick}
+                    onClick={
+                      sub.onClick
+                        ? () => {
+                            track(usageFeature(USAGE_PREFIX.ACTION, action.id));
+                            sub.onClick?.();
+                            onClose();
+                          }
+                        : undefined
+                    }
+                  >
+                    {sub.label}
+                  </ContextMenuItem>
+                ),
+              )}
+            </ContextMenuSubmenu>
+          );
+
+        const run = enabled ? action.run : undefined;
 
         return (
           <ContextMenuItem
             key={action.id}
-            text={action.label()}
-            icon={<Icon icon={resolveActionIcon(action, ctx)} />}
-            hotkey={hotkey}
-            color={action.color}
+            leading={leading}
+            shortcut={hotkey}
+            color={menuItemColor(action.color)}
             checked={action.checked?.(ctx)}
-            submenu={submenu}
+            disabled={!run}
             onClick={
-              submenu
-                ? undefined
-                : enabled && action.run
-                  ? () => {
-                      track(usageFeature(USAGE_PREFIX.ACTION, action.id));
-                      void action.run?.(ctx);
-                    }
-                  : undefined
+              run
+                ? () => {
+                    track(usageFeature(USAGE_PREFIX.ACTION, action.id));
+                    void run(ctx);
+                  }
+                : undefined
             }
-          />
+          >
+            {action.label()}
+          </ContextMenuItem>
         );
       })}
       {customActions.length > 0 && hasVisiblePredefinedActions && (
-        <ContextMenuItem isSeparator />
+        <ContextMenuSeparator />
       )}
       {customActions.map((action) => (
         <ContextMenuItem
           key={`custom-${action.id}`}
-          text={action.label}
-          icon={<Icon icon={customActionIcon(action.icon)} />}
+          leading={<Icon icon={customActionIcon(action.icon)} />}
           onClick={() => {
             track(USAGE_EVENT.FILES.CUSTOM_ACTION_RUN);
             onClose();
             void fs.runContextAction(action.id, elementId, targets);
           }}
-        />
+        >
+          {action.label}
+        </ContextMenuItem>
       ))}
     </ContextMenu>
   );

@@ -6,11 +6,12 @@ import {
   formatBytes,
   formatDate,
 } from "@/shared/utils";
-import { useFileTypeExtensions, isCategory } from "@/shared/formats";
+import { FILE_CATEGORY, isCategory } from "@sito/file-icons";
+import { useFileTypeExtensions } from "@/shared/formats";
 import Tooltip from "@/shared/components/elements/Tooltip";
 import TagDots from "@/shared/components/elements/TagDots";
 import TextInput from "@/shared/components/elements/TextInput";
-import { SFTP_SCHEME, SVG_FORMAT, FILE_CATEGORY } from "@/shared/constants";
+import { SFTP_SCHEME, SVG_FORMAT } from "@/shared/constants";
 import { isMacPlatform } from "@/shared/keymap";
 import { t } from "@/lang";
 

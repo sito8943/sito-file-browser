@@ -8,7 +8,8 @@ import type { DirEntry } from "@/shared/models";
 import { t } from "@/lang";
 import { revealTargetFromUrl } from "@/features/tabs";
 import { opensInAppPreview } from "../../constants";
-import { categoryOf, useFileTypeExtensions } from "@/shared/formats";
+import { categoryOf } from "@sito/file-icons";
+import { useFileTypeExtensions } from "@/shared/formats";
 import { DEFAULT_FILTERS } from "@/shared/search/filters";
 import { USAGE_EVENT, useUsage } from "@/shared/usage";
 

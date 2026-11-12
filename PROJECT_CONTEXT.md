@@ -194,8 +194,10 @@ Cross-feature infrastructure belongs in `src/shared`, notably:
 - `shared/components/elements`: small domain-agnostic primitives;
 - `shared/components/patterns`: reusable compositions such as dialogs, popups, menus, and toasts;
 - `shared/keymap`: app keymap/scopes backed by the shared `@sito/commands` hotkey dispatcher;
-- `shared/formats`: file-type extension store/normalisation, category glyphs (`getFileIcon`) and
-  entry icon colours (`entryIconColor`), shared by the directory, Settings, and the path picker;
+- `shared/formats`: the settings-backed file-type extension store and entry icon colours
+  (`entryIconColor`), shared by the directory, Settings, and the path picker; categories,
+  normalisation, glyphs (`getFileIcon`) and category colours come from `@sito/file-icons`
+  (linked from `../../lib/sito-file-icons`);
 - `shared/managers/FileSystemManager.ts`: filesystem domain boundary;
 - `shared/providers`: modal, confirm, picker, tags, archive, and app-state providers;
 - `shared/services/api.ts`: the frontend/Tauri boundary;

@@ -1,11 +1,11 @@
 import {
-  TAG_COLOR,
   FILE_CATEGORY,
+  isCategory,
   type FileCategory,
   type FileTypeExtensions,
-} from "@/shared/constants";
+} from "@sito/file-icons";
 
-import { isCategory } from "@/shared/formats";
+import { TAG_COLOR } from "@/shared/constants";
 
 // How often the status-bar OS-stats readout re-polls the system (ms). Slow enough to be cheap,
 // fast enough to feel live.

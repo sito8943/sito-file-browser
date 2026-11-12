@@ -1,4 +1,4 @@
-import { FILE_CATEGORY, type FileCategory } from "@/shared/constants";
+import { FILE_CATEGORY, type FileCategory } from "@sito/file-icons";
 import { USAGE_EVENT } from "@/shared/usage";
 
 // The usage feature counted when the in-app preview opens a file of each kind. Only the kinds the

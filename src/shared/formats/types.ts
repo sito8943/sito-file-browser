@@ -1,4 +1,5 @@
-import type { FileTypeExtensions } from "@/shared/constants";
+import type { FileTypeExtensions } from "@sito/file-icons";
+
 import type { Tag } from "@/shared/models";
 
 // Inputs for `entryIconColor`: what an entry is, its Finder tags, and the live file-type settings.

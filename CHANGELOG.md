@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.20.0]
+
+### Changed
+
+- Right-click menus use the shared Sito menu: clicking a row with a submenu (or pressing Enter/Space on it) now opens the submenu, and checked options are announced as checkboxes to screen readers. Items, order, shortcuts and red danger actions are unchanged (`1fe6211`)
+- File-type icons and colors come from the shared `@sito/file-icons` package, also used by Sito Editor; they look the same (`fb4dd69`)
+- Shared Sito packages are installed from npm (`7f11864`)
+
 ## [0.19.1]
 
 ### Fixed

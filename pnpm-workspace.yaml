@@ -2,4 +2,7 @@ packages:
   - "."
 
 minimumReleaseAgeExclude:
-  - "@sito/ui@0.9.1"
+  - "@sito/ui@0.12.0"
+  - "@sito/file-icons@0.1.0"
+  - "@sito/commands@0.1.0-alpha.1"
+  - "@sito/feature-usage@0.1.0-alpha.4"

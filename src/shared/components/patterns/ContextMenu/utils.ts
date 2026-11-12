@@ -1,9 +1,10 @@
-import type { PointerEvent } from "react";
+import { CONTEXT_MENU_ITEM_COLORS, type ContextMenuItemColor } from "@sito/ui";
 
-// Pointer and keyboard navigation share one active row, including portaled submenu items.
-export const focusMenuItem = (event: PointerEvent<HTMLButtonElement>) => {
-  const item = event.currentTarget;
-  if (!item.disabled && item.ownerDocument.activeElement !== item) {
-    item.focus({ preventScroll: true });
-  }
-};
+import { UI_COLOR, type UiColor } from "@/shared/constants";
+
+// Action descriptors carry the app-wide UiColor (also used by the Quick Bar); context-menu rows
+// take @sito/ui's item color, where a destructive row is "error".
+export const menuItemColor = (color?: UiColor): ContextMenuItemColor =>
+  color === UI_COLOR.DANGER
+    ? CONTEXT_MENU_ITEM_COLORS.ERROR
+    : CONTEXT_MENU_ITEM_COLORS.DEFAULT;

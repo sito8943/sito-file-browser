@@ -1,7 +1,11 @@
 import { useState } from "react";
 
-import { FILE_CATEGORY_ORDER, type FileCategory } from "@/shared/constants";
-import { conflictingCategory, normalizeExtension } from "@/shared/formats";
+import {
+  FILE_CATEGORY_ORDER,
+  conflictingCategory,
+  normalizeExtension,
+  type FileCategory,
+} from "@sito/file-icons";
 
 import type { CustomControlProps } from "../../../../schema";
 import { DEFAULT_EDITOR_CATEGORY } from "./constants";

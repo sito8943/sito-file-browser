@@ -12,9 +12,10 @@ import {
   ContextMenu,
   ContextMenuItem,
 } from "@/shared/components/patterns/ContextMenu";
-import { KEY, SFTP_SCHEME, FILE_CATEGORY } from "@/shared/constants";
+import { KEY, SFTP_SCHEME } from "@/shared/constants";
 import { ENTRY_KIND } from "@/features/directory/constants";
-import { useFileTypeExtensions, categoryOf } from "@/shared/formats";
+import { FILE_CATEGORY, categoryOf } from "@sito/file-icons";
+import { useFileTypeExtensions } from "@/shared/formats";
 import {
   useKeymap,
   useHotkey,
@@ -535,11 +536,12 @@ const Preview = ({
         ).map(({ label, currentState }) => (
           <ContextMenuItem
             key={label}
-            text={t.contextMenu[label]}
-            icon={<Icon icon={faCopy} />}
+            leading={<Icon icon={faCopy} />}
             disabled={!localPath}
             onClick={() => handleCopyImage(currentState)}
-          />
+          >
+            {t.contextMenu[label]}
+          </ContextMenuItem>
         ))}
       </ContextMenu>
     </>

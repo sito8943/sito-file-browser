@@ -1,14 +1,10 @@
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { faFolder } from "@fortawesome/free-solid-svg-icons";
+import { FILE_ICONS, FOLDER_ICON, getFileIcon } from "@sito/file-icons";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 
 import { DirEntry } from "@/shared/models";
 import { extension } from "@/shared/utils";
-import {
-  getFileIcon,
-  getFileTypeExtensions,
-  FILE_ICONS,
-} from "@/shared/formats";
+import { getFileTypeExtensions } from "@/shared/formats";
 
 import { setThumbnailPath } from "./thumbnailCache";
 
@@ -80,7 +76,7 @@ const glyphToPng = (icon: IconDefinition): Promise<string> => {
 // Render + cache every glyph a drag might need (folder + all file-type icons). Call once at startup.
 export const prewarmDragGlyphs = async (): Promise<void> => {
   await Promise.all(
-    [faFolder, ...FILE_ICONS].map(async (icon) => {
+    [FOLDER_ICON, ...FILE_ICONS].map(async (icon) => {
       if (cache.has(icon.iconName)) return;
       try {
         cache.set(icon.iconName, await glyphToPng(icon));
@@ -94,7 +90,7 @@ export const prewarmDragGlyphs = async (): Promise<void> => {
 // The cached glyph PNG for an entry (folder or file-type), or undefined if not rendered yet.
 export const glyphPngFor = (entry: DirEntry): string | undefined => {
   const icon = entry.metadata.isDir
-    ? faFolder
+    ? FOLDER_ICON
     : getFileIcon(getFileTypeExtensions(), extension(entry.name));
   return cache.get(icon.iconName);
 };

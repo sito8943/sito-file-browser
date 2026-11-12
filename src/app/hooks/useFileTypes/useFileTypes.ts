@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { setFileTypeExtensions } from "@/shared/formats";
-import type { FileTypeExtensions } from "@/shared/constants";
+import type { FileTypeExtensions } from "@sito/file-icons";
 
 // Mirror the user's extension → category map from settings into the formats store, which is what
 // entry glyphs, thumbnails, the preview and the search filters read. Every window that renders

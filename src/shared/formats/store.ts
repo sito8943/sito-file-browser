@@ -2,10 +2,9 @@ import { useSyncExternalStore } from "react";
 
 import {
   DEFAULT_FILE_TYPE_EXTENSIONS,
+  normalizeFileTypeExtensions,
   type FileTypeExtensions,
-} from "@/shared/constants";
-
-import { normalizeFileTypeExtensions } from "./utils";
+} from "@sito/file-icons";
 
 // The live extension → category map. An external store (ARCHITECTURE_RULES §1) rather than plain
 // context because non-React callers need it too: the native drag-preview glyphs (dragPreview.ts)

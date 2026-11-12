@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { KEY } from "@/shared/constants";
-import { SUBMENU_SELECTOR } from "@/shared/components/patterns/ContextMenu";
+import { CONTEXT_MENU_SUBMENU_SELECTOR } from "@/shared/components/patterns/ContextMenu";
 import { HOTKEY_SCOPE, useHotkey, useHotkeyScope } from "@/shared/keymap";
 
 import { VIEWPORT_PADDING } from "./constants";
@@ -36,7 +36,8 @@ export const useContextMenuState = <T>() => {
       // A submenu flyout is portaled to <body>, so it isn't inside the menu element. Treat a
       // press inside one as a press inside the menu, otherwise the menu closes on mousedown and
       // the row unmounts before its click fires (the pick silently does nothing).
-      if ((target as HTMLElement).closest?.(SUBMENU_SELECTOR)) return;
+      if ((target as HTMLElement).closest?.(CONTEXT_MENU_SUBMENU_SELECTOR))
+        return;
       if (ref.current && !ref.current.contains(target)) setVisible(false);
     };
 

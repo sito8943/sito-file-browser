@@ -25,11 +25,12 @@ const ColumnsMenu = ({
       return (
         <ContextMenuItem
           key={col.key}
-          text={col.label}
-          icon={isVisible ? <Icon icon={faCheck} /> : undefined}
+          leading={isVisible ? <Icon icon={faCheck} /> : undefined}
           onClick={isName ? undefined : () => onToggleColumn(col.key)}
           disabled={isName}
-        />
+        >
+          {col.label}
+        </ContextMenuItem>
       );
     })}
   </ContextMenu>

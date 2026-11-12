@@ -24,14 +24,17 @@ importers:
         specifier: 3.3.1
         version: 3.3.1(@fortawesome/fontawesome-svg-core@7.2.0)(react@19.2.7)
       '@sito/commands':
-        specifier: github:sito8943/sito-commands#v0.1.0-alpha.1
-        version: https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)
+        specifier: 0.1.0-alpha.1
+        version: 0.1.0-alpha.1(react@19.2.7)
       '@sito/feature-usage':
-        specifier: github:sito8943/sito-feature-usage-js#v0.1.0-alpha.4
-        version: https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00(react@19.2.7)
+        specifier: 0.1.0-alpha.4
+        version: 0.1.0-alpha.4(react@19.2.7)
+      '@sito/file-icons':
+        specifier: 0.1.0
+        version: 0.1.0(@fortawesome/fontawesome-svg-core@7.2.0)(@fortawesome/free-solid-svg-icons@7.2.0)
       '@sito/ui':
-        specifier: 0.9.1
-        version: 0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 0.12.0
+        version: 0.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.1
@@ -389,23 +392,27 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@sito/commands@https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0}
-    version: 0.1.0-alpha.1
+  '@sito/commands@0.1.0-alpha.1':
+    resolution: {integrity: sha512-XclDk8Tr7dMCUPRFSdxwmHfM0ioefpa44+JNUZaOxoxJRWjY62mLMFzAr6XZQ/0fWoOcOujrmVyuk/pN1z6XNw==}
     peerDependencies:
       react: ^19.0.0
 
-  '@sito/feature-usage@https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00':
-    resolution: {gitHosted: true, integrity: sha512-E8pakVYs0JtnstP68CX48nvkpsaRrm/QprTt+MBUCC0TLEF5huOsNFfh2NGC1M+Qre4h8VOzhQPOVJReVyzDJg==, tarball: https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00}
-    version: 0.1.0-alpha.4
+  '@sito/feature-usage@0.1.0-alpha.4':
+    resolution: {integrity: sha512-i6rm9srBus725PVLIJHVh+g3x9xh4tVL6V9w9ScCuXHBdsoR6w2/5sqrKKlYHML84w545Q2Rw3QYaol3pQwVpQ==}
     peerDependencies:
       react: ^19.0.0
     peerDependenciesMeta:
       react:
         optional: true
 
-  '@sito/ui@0.9.1':
-    resolution: {integrity: sha512-wHno1hgGgXlnSIn9jNU6bn0hSYngRp9gbNTKnkz5c8SvfR/dA8P+9igQOw9LW2f6EaWsjUkfBKjqU00Px6RwEA==}
+  '@sito/file-icons@0.1.0':
+    resolution: {integrity: sha512-WAtUD9KepC7g1zMpKa0OOtPngT9lYxwhTQWDsDXYjm913BVrZCLu9JfbGGbsotVSRLKnbgh/c5ppOwv9XXc3zA==}
+    peerDependencies:
+      '@fortawesome/fontawesome-svg-core': ^7.2.0
+      '@fortawesome/free-solid-svg-icons': ^7.2.0
+
+  '@sito/ui@0.12.0':
+    resolution: {integrity: sha512-g3bp9Y457+fAN8Z4EBxij6ZDlTrbAW3GAJzyMBZLoc2o3YLZ1kzd+t3mlYtwVVD8+GZvUVj3QdmozXfI3Ni8wA==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
       react: ^19.0.0
@@ -1424,15 +1431,20 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@sito/commands@https://codeload.github.com/sito8943/sito-commands/tar.gz/d7273df92437477a76a0d0a31c7f59076760aed0(react@19.2.7)':
+  '@sito/commands@0.1.0-alpha.1(react@19.2.7)':
     dependencies:
       react: 19.2.7
 
-  '@sito/feature-usage@https://codeload.github.com/sito8943/sito-feature-usage-js/tar.gz/66b7fe7753b5693a7dc4abaf13cfd786def5aa00(react@19.2.7)':
+  '@sito/feature-usage@0.1.0-alpha.4(react@19.2.7)':
     optionalDependencies:
       react: 19.2.7
 
-  '@sito/ui@0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@sito/file-icons@0.1.0(@fortawesome/fontawesome-svg-core@7.2.0)(@fortawesome/free-solid-svg-icons@7.2.0)':
+    dependencies:
+      '@fortawesome/fontawesome-svg-core': 7.2.0
+      '@fortawesome/free-solid-svg-icons': 7.2.0
+
+  '@sito/ui@0.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)

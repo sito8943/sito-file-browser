@@ -1,6 +1,8 @@
 import {
   ContextMenu,
   ContextMenuItem,
+  ContextMenuSeparator,
+  menuItemColor,
 } from "@/shared/components/patterns/ContextMenu";
 import Icon from "@/shared/components/elements/Icon";
 import { useStateContext } from "@/shared/providers/StateProvider";
@@ -55,7 +57,7 @@ const SidebarContextMenu = ({
       {ctx &&
         actionIds.map((id, index) => {
           if (id === ACTION_SEPARATOR)
-            return <ContextMenuItem key={`separator-${index}`} isSeparator />;
+            return <ContextMenuSeparator key={`separator-${index}`} />;
 
           const action = SIDEBAR_ACTIONS[id as SidebarActionId];
           if (!action || (action.isVisible && !action.isVisible(ctx)))
@@ -64,14 +66,15 @@ const SidebarContextMenu = ({
           return (
             <ContextMenuItem
               key={action.id}
-              text={action.label()}
-              icon={<Icon icon={action.icon} />}
-              color={action.color}
+              leading={<Icon icon={action.icon} />}
+              color={menuItemColor(action.color)}
               onClick={() => {
                 track(usageFeature(USAGE_PREFIX.SIDEBAR_MENU, action.id));
                 action.run(ctx);
               }}
-            />
+            >
+              {action.label()}
+            </ContextMenuItem>
           );
         })}
     </ContextMenu>

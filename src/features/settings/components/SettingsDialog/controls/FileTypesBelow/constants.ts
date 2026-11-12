@@ -1,4 +1,4 @@
-import { FILE_CATEGORY, type FileCategory } from "@/shared/constants";
+import { FILE_CATEGORY, type FileCategory } from "@sito/file-icons";
 import { t } from "@/lang";
 
 // The category a freshly opened editor is aimed at. Audio is the common case for a custom

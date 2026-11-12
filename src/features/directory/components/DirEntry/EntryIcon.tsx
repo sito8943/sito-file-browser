@@ -1,12 +1,8 @@
 import Icon from "@/shared/components/elements/Icon";
 import { classNames } from "@/shared/utils";
-import {
-  entryIconColor,
-  getFileIcon,
-  useFileTypeExtensions,
-} from "@/shared/formats";
+import { entryIconColor, useFileTypeExtensions } from "@/shared/formats";
 
-import { faFolder } from "@fortawesome/free-solid-svg-icons";
+import { FOLDER_ICON, getFileIcon } from "@sito/file-icons";
 
 import type { EntryIconProps } from "./types";
 
@@ -44,7 +40,7 @@ const EntryIcon = ({
       {isDir && folderThumbnails.length > 0 ? (
         <>
           <Icon
-            icon={faFolder}
+            icon={FOLDER_ICON}
             style={iconColor ? { color: iconColor } : undefined}
           />
           <span
@@ -76,7 +72,7 @@ const EntryIcon = ({
         />
       ) : (
         <Icon
-          icon={isDir ? faFolder : getFileIcon(fileTypes, extension)}
+          icon={isDir ? FOLDER_ICON : getFileIcon(fileTypes, extension)}
           style={iconColor ? { color: iconColor } : undefined}
         />
       )}

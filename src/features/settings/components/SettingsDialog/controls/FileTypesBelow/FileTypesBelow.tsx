@@ -1,12 +1,16 @@
 import { type KeyboardEvent } from "react";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  FILE_CATEGORY,
+  FILE_CATEGORY_COLORS,
+  FILE_ICON_REGISTRY,
+} from "@sito/file-icons";
 
 import DeletableChip from "@/shared/components/elements/DeletableChip";
 import TextInput from "@/shared/components/elements/TextInput";
 import Button from "@/shared/components/elements/Button";
 import Icon from "@/shared/components/elements/Icon";
-import { FILE_ICON_REGISTRY } from "@/shared/formats";
-import { FILE_CATEGORY, FILE_CATEGORY_COLORS, KEY } from "@/shared/constants";
+import { KEY } from "@/shared/constants";
 import { t } from "@/lang";
 import "@/styles/components/FileTypesBelow.css";
 
