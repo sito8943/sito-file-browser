@@ -330,6 +330,8 @@
   --sito-ui-z-index-dialog: var(--z-index-dialog-backdrop);
   --sito-ui-dialog-backdrop-background: var(--color-surface-backdrop);
   --sito-ui-dialog-backdrop-filter: blur(var(--blur-medium));
+  /* IconButton glyphs swap instantly, as before @sito/ui 0.10's blur swap. */
+  --sito-ui-icon-swap-duration: 0ms;
 }
 
 /* Light theme. The :root tokens above are the dark defaults; these override only the colour

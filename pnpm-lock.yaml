@@ -33,8 +33,8 @@ importers:
         specifier: link:../../lib/sito-file-icons
         version: link:../../lib/sito-file-icons
       '@sito/ui':
-        specifier: 0.9.1
-        version: 0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 0.12.0
+        version: 0.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.1
@@ -407,8 +407,8 @@ packages:
       react:
         optional: true
 
-  '@sito/ui@0.9.1':
-    resolution: {integrity: sha512-wHno1hgGgXlnSIn9jNU6bn0hSYngRp9gbNTKnkz5c8SvfR/dA8P+9igQOw9LW2f6EaWsjUkfBKjqU00Px6RwEA==}
+  '@sito/ui@0.12.0':
+    resolution: {integrity: sha512-g3bp9Y457+fAN8Z4EBxij6ZDlTrbAW3GAJzyMBZLoc2o3YLZ1kzd+t3mlYtwVVD8+GZvUVj3QdmozXfI3Ni8wA==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
       react: ^19.0.0
@@ -1435,7 +1435,7 @@ snapshots:
     optionalDependencies:
       react: 19.2.7
 
-  '@sito/ui@0.9.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@sito/ui@0.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)

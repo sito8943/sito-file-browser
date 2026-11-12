@@ -42,8 +42,10 @@ body {
 /* Pressed-state feedback. @sito/ui only scales buttons carrying its .sito-ui-button class, which
    bespoke controls (`unstyled` Button wrapper, raw <button>s) never get — mirror the same token
    here so every real button control presses alike. Drag surfaces (dir entries, tabs, volume rows,
-   grips) are divs, so this cannot latch onto a drag gesture. */
-button:enabled:not([aria-disabled="true"]):active {
+   grips) are divs, so this cannot latch onto a drag gesture. @sito/ui buttons are left out: since
+   0.10.2 they press with the standalone `scale` property, and adding this transform would scale
+   them twice. The :not() list keeps the specificity of a single attribute selector. */
+button:enabled:not([aria-disabled="true"], .sito-ui-button):active {
   transform: scale(var(--sito-ui-button-active-scale));
 }
 
@@ -51,6 +53,7 @@ button:enabled:not([aria-disabled="true"]):active {
    held-down scale reads as a glitch, not feedback. */
 .list_header.resizing button:active {
   transform: none;
+  scale: none;
 }
 
 /* Buttons that must not shrink when pressed: link-styled ones (paths, status-bar readouts —
@@ -59,6 +62,7 @@ button:enabled:not([aria-disabled="true"]):active {
    order. */
 button:is(.text_link, .no_press):enabled:not([aria-disabled="true"]):active {
   transform: none;
+  scale: none;
 }
 
 /* Shared header for dialogs and side panels: title on the left, close button on the right. */

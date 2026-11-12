@@ -536,11 +536,12 @@ const Preview = ({
         ).map(({ label, currentState }) => (
           <ContextMenuItem
             key={label}
-            text={t.contextMenu[label]}
-            icon={<Icon icon={faCopy} />}
+            leading={<Icon icon={faCopy} />}
             disabled={!localPath}
             onClick={() => handleCopyImage(currentState)}
-          />
+          >
+            {t.contextMenu[label]}
+          </ContextMenuItem>
         ))}
       </ContextMenu>
     </>

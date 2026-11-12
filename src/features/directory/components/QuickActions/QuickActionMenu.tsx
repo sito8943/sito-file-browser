@@ -7,6 +7,7 @@ import IconButton from "@/shared/components/elements/IconButton";
 import {
   ContextMenu,
   ContextMenuItem,
+  ContextMenuSeparator,
   MENU_ROLE,
 } from "@/shared/components/patterns/ContextMenu";
 
@@ -55,23 +56,28 @@ const QuickActionMenu = ({ action, ctx, label }: QuickActionMenuProps) => {
         />
       )}
       <ContextMenu contextMenuVisible={visible} ref={contextMenuRef}>
-        {items.map((item) => (
-          <ContextMenuItem
-            key={item.key}
-            isSeparator={item.isSeparator}
-            text={item.label}
-            icon={item.icon ? <Icon icon={item.icon} /> : undefined}
-            checked={item.checked}
-            onClick={
-              item.onClick
-                ? () => {
-                    item.onClick?.();
-                    setVisible(false);
-                  }
-                : undefined
-            }
-          />
-        ))}
+        {items.map((item) =>
+          item.isSeparator ? (
+            <ContextMenuSeparator key={item.key} />
+          ) : (
+            <ContextMenuItem
+              key={item.key}
+              leading={item.icon ? <Icon icon={item.icon} /> : undefined}
+              checked={item.checked}
+              disabled={!item.onClick}
+              onClick={
+                item.onClick
+                  ? () => {
+                      item.onClick?.();
+                      setVisible(false);
+                    }
+                  : undefined
+              }
+            >
+              {item.label}
+            </ContextMenuItem>
+          ),
+        )}
       </ContextMenu>
     </>
   );

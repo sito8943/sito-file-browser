@@ -1,6 +1,7 @@
 import {
   ContextMenu,
   ContextMenuItem,
+  ContextMenuSeparator,
 } from "@/shared/components/patterns/ContextMenu";
 import Icon from "@/shared/components/elements/Icon";
 import { useStateContext } from "@/shared/providers/StateProvider";
@@ -50,7 +51,7 @@ const VolumeContextMenu = ({
       {ctx &&
         VOLUME_MENU.map((id, index) => {
           if (id === ACTION_SEPARATOR)
-            return <ContextMenuItem key={`separator-${index}`} isSeparator />;
+            return <ContextMenuSeparator key={`separator-${index}`} />;
 
           const action = VOLUME_ACTIONS[id as VolumeActionId];
           if (!action || (action.isVisible && !action.isVisible(ctx)))
@@ -59,13 +60,14 @@ const VolumeContextMenu = ({
           return (
             <ContextMenuItem
               key={action.id}
-              text={action.label()}
-              icon={<Icon icon={action.icon} />}
+              leading={<Icon icon={action.icon} />}
               onClick={() => {
                 track(usageFeature(USAGE_PREFIX.VOLUMES_MENU, action.id));
                 action.run(ctx);
               }}
-            />
+            >
+              {action.label()}
+            </ContextMenuItem>
           );
         })}
     </ContextMenu>
