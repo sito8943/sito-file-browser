@@ -137,9 +137,17 @@ pub fn compress_entries_core(
 
     let file = File::create(&dest).map_err(|e| e.to_string())?;
     let mut writer = ZipWriter::new(file);
+    // DEFLATE only takes levels 1..=9 (the zip crate rejects 0 with "Unsupported compression
+    // level"), so level 0 means "no compression" and stores entries as-is.
+    let level = level.clamp(0, 9);
+    let (method, level) = if level == 0 {
+        (CompressionMethod::Stored, None)
+    } else {
+        (CompressionMethod::Deflated, Some(level))
+    };
     let mut options = SimpleFileOptions::default()
-        .compression_method(CompressionMethod::Deflated)
-        .compression_level(Some(level.clamp(0, 9)))
+        .compression_method(method)
+        .compression_level(level)
         .unix_permissions(0o644);
     // Empty password means "no encryption" — an empty AES password is meaningless.
     if let Some(pw) = password.filter(|p| !p.is_empty()) {
@@ -566,4 +574,37 @@ pub async fn extract_archive(
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Level 0 used to fail with "Unsupported compression level" (DEFLATE takes 1..=9); it must
+    // store entries uncompressed instead, with or without a password, and round-trip on extract.
+    #[test]
+    fn level_zero_stores_and_round_trips() {
+        let root = std::env::temp_dir().join(format!("sfb_zip_level0_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&root).unwrap();
+        let src = root.join("a.txt");
+        fs::write(&src, b"hello level zero").unwrap();
+        let sources = [src.to_string_lossy().into_owned()];
+        let dir = root.to_string_lossy().into_owned();
+
+        for (name, pw) in [("plain.zip", None), ("locked.zip", Some("pw"))] {
+            let out = compress_entries_core(&sources, &dir, name, 0, pw, &mut |_, _| {}).unwrap();
+            let mut zip = ZipArchive::new(File::open(&out).unwrap()).unwrap();
+            assert_eq!(
+                zip.by_index_raw(0).unwrap().compression(),
+                CompressionMethod::Stored
+            );
+            let dest = root.join(format!("{}_out", name));
+            fs::create_dir_all(&dest).unwrap();
+            extract_archive_core(&out, &dest.to_string_lossy(), pw, false, &mut |_, _| {})
+                .unwrap();
+            assert_eq!(fs::read(dest.join("a.txt")).unwrap(), b"hello level zero");
+        }
+        fs::remove_dir_all(&root).ok();
+    }
 }
