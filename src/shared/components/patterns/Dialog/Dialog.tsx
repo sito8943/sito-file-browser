@@ -24,6 +24,7 @@ const Dialog = ({
   onClose,
   children,
   className,
+  closeOnBackdropClick = true,
 }: DialogProps) => {
   const dialogId = `${DIALOG_ID_PREFIX}-${useId()}`;
   const { open: registerModal, close: unregisterModal } = useModal();
@@ -114,7 +115,7 @@ const Dialog = ({
       title={title}
       onClose={onClose}
       initialFocus={DIALOG_INITIAL_FOCUS}
-      closeOnBackdropClick
+      closeOnBackdropClick={closeOnBackdropClick}
       closeOnEscape
       lockBodyScroll={false}
       showCloseButton={false}
