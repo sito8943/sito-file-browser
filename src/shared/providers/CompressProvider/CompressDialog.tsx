@@ -18,7 +18,8 @@ const TITLE_ID = "compress-dialog-title";
 const DEFAULT_LEVEL = 6;
 
 // Compress-options dialog: archive name + DEFLATE level + optional password (AES-256). Enter
-// submits, Escape/backdrop cancels. (Split volumes are planned once 7z/rar land.)
+// submits, Escape cancels; a backdrop click doesn't (it would drop the typed name/password).
+// (Split volumes are planned once 7z/rar land.)
 const CompressDialog = ({
   visible,
   defaultName,
@@ -59,6 +60,7 @@ const CompressDialog = ({
       title={t.archive.compressTitle}
       onClose={onClose}
       className="confirmation_modal"
+      closeOnBackdropClick={false}
     >
       <DialogHeader
         title={t.archive.compressTitle}

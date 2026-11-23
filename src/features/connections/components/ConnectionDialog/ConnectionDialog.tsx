@@ -17,6 +17,14 @@ import { useConnections } from "../../providers/ConnectionsProvider";
 import { CONNECTION_TITLE_ID } from "./constants";
 import type { ConnectionDialogProps } from "./types";
 
+// Host / user / key path are literal identifiers: macOS WebKit would otherwise auto-capitalize the
+// first letter (a typed `ubuntu` became `Ubuntu`, which SSH rejects) and autocorrect them.
+const RAW_TEXT_PROPS = {
+  spellCheck: false,
+  autoCapitalize: "off",
+  autoCorrect: "off",
+} as const;
+
 // Create-connection form (SSH_PLAN.md phase 2). Non-secret fields go to connections.toml; the
 // password / key passphrase go to the OS keychain (handled by the backend). The auth selector only
 // shapes which secret fields show — the backend always tries agent → key → password in order.
@@ -134,6 +142,7 @@ const ConnectionDialog = ({
         <label className="connection_field">
           <span>{t.connections.fieldHost}</span>
           <TextInput
+            {...RAW_TEXT_PROPS}
             value={host}
             placeholder={t.connections.fieldHostPlaceholder}
             onChange={(event) => setHost(event.target.value)}
@@ -144,6 +153,7 @@ const ConnectionDialog = ({
           <label className="connection_field connection_field_user">
             <span>{t.connections.fieldUser}</span>
             <TextInput
+              {...RAW_TEXT_PROPS}
               value={user}
               placeholder={t.connections.fieldUserPlaceholder}
               onChange={(event) => setUser(event.target.value)}
@@ -180,6 +190,7 @@ const ConnectionDialog = ({
             <label className="connection_field">
               <span>{t.connections.fieldKeyPath}</span>
               <TextInput
+                {...RAW_TEXT_PROPS}
                 value={keyPath}
                 placeholder={t.connections.fieldKeyPathPlaceholder}
                 onChange={(event) => setKeyPath(event.target.value)}

@@ -313,6 +313,23 @@ fn candidate_keys(conn: &Connection) -> Vec<PathBuf> {
     }
 }
 
+// Signature hashes to offer for one key. Every rejected offer counts against the server's
+// MaxAuthTries (often 3), so a non-RSA key (ed25519/ecdsa, which ignore the hash) gets exactly one
+// attempt, and an RSA key uses the hash the server advertises in server-sig-algs. Only a server
+// that doesn't advertise it gets the old sweep (legacy ssh-rsa first).
+async fn signature_hashes(
+    handle: &client::Handle<ClientHandler>,
+    is_rsa: bool,
+) -> Vec<Option<HashAlg>> {
+    if !is_rsa {
+        return vec![None];
+    }
+    match handle.best_supported_rsa_hash().await {
+        Ok(Some(hash)) => vec![hash],
+        _ => vec![None, Some(HashAlg::Sha512), Some(HashAlg::Sha256)],
+    }
+}
+
 // Attempt auth via the running ssh-agent (SSH_AUTH_SOCK). This is how most people use keys —
 // especially passphrase-protected ones the agent already holds unlocked — so it matches what plain
 // `ssh` does. Returns Ok(false) (not an error) when there's no agent or it holds nothing useful.
@@ -342,7 +359,7 @@ async fn try_agent_auth(
             continue;
         };
         eprintln!("[sftp] trying agent key ({comment})");
-        for hash in [None, Some(HashAlg::Sha512), Some(HashAlg::Sha256)] {
+        for hash in signature_hashes(handle, key.algorithm().is_rsa()).await {
             let result = handle
                 .authenticate_publickey_with(user, key.clone(), hash, &mut agent)
                 .await
@@ -355,8 +372,7 @@ async fn try_agent_auth(
     Ok(false)
 }
 
-// Attempt public-key auth with one private key. RSA keys need an explicit signature hash, so try
-// the modern algorithms in turn (ed25519/ecdsa ignore the hash and succeed on the first pass).
+// Attempt public-key auth with one private key (see signature_hashes for how many offers it makes).
 // Returns Ok(true) if the server accepted the key, Ok(false) if it rejected it, Err if the key
 // itself couldn't be loaded (bad passphrase / unsupported format).
 async fn try_key_auth(
@@ -366,8 +382,9 @@ async fn try_key_auth(
     passphrase: Option<&str>,
 ) -> Result<bool, String> {
     let key = load_secret_key(key_path, passphrase).map_err(|e| e.to_string())?;
+    let hashes = signature_hashes(handle, key.algorithm().is_rsa()).await;
     let key = Arc::new(key);
-    for hash in [None, Some(HashAlg::Sha512), Some(HashAlg::Sha256)] {
+    for hash in hashes {
         let result = handle
             .authenticate_publickey(user, PrivateKeyWithHashAlg::new(key.clone(), hash))
             .await
@@ -415,7 +432,32 @@ async fn try_password_auth(
     }
 }
 
-// Open a fresh SSH connection, authenticate (key first, then password), and start an SFTP session.
+// Try the connection's private key(s) from disk (its keyPath, or the ~/.ssh/id_* defaults). Needs a
+// passphrase for encrypted keys. A key that won't load (encrypted without passphrase, bad format)
+// is logged and skipped rather than aborting.
+async fn try_disk_keys(handle: &mut client::Handle<ClientHandler>, conn: &Connection) -> bool {
+    // Secret resolution order everywhere: OS keychain → inline toml → env var.
+    let passphrase = keychain::get(&conn.id, FIELD_KEY_PASSPHRASE)
+        .or_else(|| conn.key_passphrase.clone())
+        .or_else(|| std::env::var(KEY_PASSPHRASE_ENV).ok());
+    for key_path in candidate_keys(conn) {
+        if !key_path.exists() {
+            continue;
+        }
+        eprintln!("[sftp] trying key {}", key_path.display());
+        match try_key_auth(handle, &conn.user, &key_path, passphrase.as_deref()).await {
+            Ok(true) => {
+                eprintln!("[sftp] authenticated with key {}", key_path.display());
+                return true;
+            }
+            Ok(false) => eprintln!("[sftp] key {} rejected by server", key_path.display()),
+            Err(e) => eprintln!("[sftp] key {} unusable: {e}", key_path.display()),
+        }
+    }
+    false
+}
+
+// Open a fresh SSH connection, authenticate (keys/agent, then password), and start an SFTP session.
 // Logs each step to stderr (visible in the `tauri dev` terminal) so connection problems are
 // diagnosable — remote failures otherwise surface only as an empty folder.
 async fn open_session(conn: &Connection) -> Result<RemoteSession, String> {
@@ -446,37 +488,24 @@ async fn open_session(conn: &Connection) -> Result<RemoteSession, String> {
         })?;
     eprintln!("[sftp] tcp/ssh handshake ok, authenticating…");
 
-    // 0) ssh-agent — how keys are normally used (esp. encrypted ones the agent holds unlocked).
-    //    Matches plain `ssh`. Skipped silently if there's no agent.
-    eprintln!("[sftp] trying ssh-agent…");
-    let mut authed = try_agent_auth(&mut handle, &conn.user).await?;
-    if authed {
-        eprintln!("[sftp] authenticated via ssh-agent");
+    // Public-key auth. Like `ssh` with an IdentityFile, a connection's explicit keyPath goes first:
+    // every rejected key counts against the server's MaxAuthTries, so unrelated agent keys tried
+    // first can get us disconnected before the right key is offered. Without a keyPath, the agent
+    // (how keys are normally used, esp. encrypted ones it holds unlocked) goes first, then the
+    // common ~/.ssh/id_* files.
+    let mut authed = false;
+    if conn.key_path.is_some() {
+        authed = try_disk_keys(&mut handle, conn).await;
     }
-
-    // 1) Public-key auth from disk — the connection's named key, or the common ~/.ssh/id_* keys.
-    //    Only if the agent didn't already authenticate. Needs a passphrase for encrypted keys.
     if !authed {
-        // Secret resolution order everywhere: OS keychain → inline toml → env var.
-        let passphrase = keychain::get(&conn.id, FIELD_KEY_PASSPHRASE)
-            .or_else(|| conn.key_passphrase.clone())
-            .or_else(|| std::env::var(KEY_PASSPHRASE_ENV).ok());
-        for key_path in candidate_keys(conn) {
-            if !key_path.exists() {
-                continue;
-            }
-            eprintln!("[sftp] trying key {}", key_path.display());
-            match try_key_auth(&mut handle, &conn.user, &key_path, passphrase.as_deref()).await {
-                Ok(true) => {
-                    eprintln!("[sftp] authenticated with key {}", key_path.display());
-                    authed = true;
-                    break;
-                }
-                Ok(false) => eprintln!("[sftp] key {} rejected by server", key_path.display()),
-                // A key that won't load (encrypted w/o passphrase, bad format) shouldn't abort the rest.
-                Err(e) => eprintln!("[sftp] key {} unusable: {e}", key_path.display()),
-            }
+        eprintln!("[sftp] trying ssh-agent…");
+        authed = try_agent_auth(&mut handle, &conn.user).await?;
+        if authed {
+            eprintln!("[sftp] authenticated via ssh-agent");
         }
+    }
+    if !authed && conn.key_path.is_none() {
+        authed = try_disk_keys(&mut handle, conn).await;
     }
 
     // 2) Password / keyboard-interactive — only if a password is configured and keys didn't work.

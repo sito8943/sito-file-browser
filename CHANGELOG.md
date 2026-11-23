@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.20.1]
+
+### Fixed
+
+- Compressing to .zip at level 0 failed with "Unsupported compression level" and left an empty archive; level 0 now stores the files without compressing them (`693950c`)
+- The compress dialog no longer closes when you click outside it, so a typed name or password isn't lost; Escape and Cancel still close it (`2185a00`)
+- SSH connection form: host, user and key path are no longer auto-capitalized, which turned a typed `ubuntu` into `Ubuntu` and made the login fail (`900732e`)
+- SFTP connections with a key file could fail with "Channel send error": wrong keys were tried first and each key up to three times, so servers that allow 3 attempts disconnected before the right key was offered. The connection's own key is now tried first, and each key once (`603f155`)
+
 ## [0.20.0]
 
 ### Changed
