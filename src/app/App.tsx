@@ -275,6 +275,7 @@ const App = () => {
         scrollPosition: tabs.scrollPosition,
         reportScrollPosition: tabs.reportScrollPosition,
         dirContent: directory.dirContent,
+        contentPath: directory.contentPath,
         setDirContent: directory.setDirContent,
         accessDenied: directory.accessDenied,
         loadError: directory.loadError,

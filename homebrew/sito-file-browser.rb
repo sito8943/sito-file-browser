@@ -8,19 +8,17 @@
 #
 # The `app` stanza installs the .app to /Applications; the `binary` stanza symlinks the embedded
 # `sfb` CLI into $(brew --prefix)/bin — which is already on PATH — so `sfb` just works after install.
-# One arm64 .dmg covers both Sonoma (14) and Sequoia (15); the x64 .dmg covers Intel Macs.
+# One arm64 .dmg covers both Sonoma (14) and Sequoia (15). Intel Macs are no longer built.
 cask "sito-file-browser" do
-  arch arm: "aarch64", intel: "x64"
-
   version "0.3.0"
-  sha256 arm:   :no_check, # replaced by CI with the real .dmg sums on release
-         intel: :no_check
+  sha256 :no_check # replaced by CI with the real .dmg sum on release
 
-  url "https://github.com/sito8943/sito-file-browser/releases/download/v#{version}/Sito.File.Browser_#{version}_#{arch}.dmg"
+  url "https://github.com/sito8943/sito-file-browser/releases/download/v#{version}/Sito.File.Browser_#{version}_aarch64.dmg"
   name "Sito File Browser"
   desc "File browser with an AI-friendly `sfb` CLI"
   homepage "https://github.com/sito8943/sito-file-browser"
 
+  depends_on arch: :arm64
   depends_on macos: :sonoma
 
   app "Sito File Browser.app"

@@ -70,3 +70,25 @@
 .dialog.dragging .panel_header.draggable {
   cursor: grabbing;
 }
+
+/* Dialogs portal outside .App, so they miss its `user-select: none`: dragging the header
+   rubber-band-selected body text (code, paths). Same rule as .App — chrome is not text; fields
+   and explicit opt-ins (e.g. Properties values) stay selectable. */
+.sito-ui-dialog.dialog {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.sito-ui-dialog.dialog input,
+.sito-ui-dialog.dialog textarea,
+.sito-ui-dialog.dialog [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Mid-drag nothing is selectable, opt-ins included. */
+.sito-ui-dialog.dialog.dragging,
+.sito-ui-dialog.dialog.dragging * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}

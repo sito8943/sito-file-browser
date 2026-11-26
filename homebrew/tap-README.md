@@ -40,8 +40,8 @@ normally.
 brew upgrade --cask sito-file-browser
 ```
 
-New releases are published automatically: each GitHub release rebuilds the Intel and Apple-Silicon
-DMGs and pushes the updated cask here.
+New releases are published automatically: each GitHub release rebuilds the Apple-Silicon DMG and
+pushes the updated cask here.
 
 ## Uninstall
 
@@ -53,7 +53,7 @@ brew uninstall --zap --cask sito-file-browser  # also remove app settings & cach
 ## Requirements
 
 - **macOS 14 (Sonoma) or later** — a single Apple-Silicon build covers Sonoma and Sequoia.
-- **Apple Silicon and Intel** are both supported (the cask picks the right DMG for your Mac).
+- **Apple Silicon only.** Intel Macs are no longer built.
 
 ## What's in this tap
 

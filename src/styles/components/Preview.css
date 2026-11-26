@@ -331,10 +331,89 @@
   font-size: 0.9em;
 }
 
-.preview_container .preview_content.markdown ul {
+.preview_container .preview_content.markdown ul,
+.preview_container .preview_content.markdown ol {
   margin-left: var(--space-5);
+  margin-bottom: var(--space-2-5);
 }
 
+/* Nested lists sit right under their parent item. */
+.preview_container .preview_content.markdown li > ul,
+.preview_container .preview_content.markdown li > ol {
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-0);
+}
+
+/* GFM task lists: the checkbox replaces the bullet. */
+.preview_container .preview_content.markdown li:has(> input[type="checkbox"]) {
+  list-style: none;
+}
+
+.preview_container .preview_content.markdown li > input[type="checkbox"] {
+  margin-right: var(--space-1);
+  vertical-align: middle;
+}
+
+.preview_container .preview_content.markdown li > p {
+  opacity: 1;
+  font-size: 1em;
+}
+
+.preview_container .preview_content.markdown code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-row);
+}
+
+.preview_container .preview_content.markdown pre {
+  margin-bottom: var(--space-2-5);
+  padding: var(--space-3);
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-row);
+}
+
+.preview_container .preview_content.markdown pre code {
+  padding: var(--space-0);
+  background-color: transparent;
+  white-space: pre;
+}
+
+.preview_container .preview_content.markdown blockquote {
+  margin-bottom: var(--space-2-5);
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+}
+
+.preview_container .preview_content.markdown hr {
+  margin: var(--space-4) var(--space-0);
+  border: none;
+  border-top: var(--border-width-default) solid var(--color-border-default);
+}
+
+.preview_container .preview_content.markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-bottom: var(--space-2-5);
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.preview_container .preview_content.markdown th,
+.preview_container .preview_content.markdown td {
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-default) solid var(--color-border-default);
+}
+
+.preview_container .preview_content.markdown th {
+  font-weight: 600;
+}
+
+.preview_container .preview_content.markdown ol li,
 .preview_container .preview_content.markdown ul li {
   font-size: 0.9em;
   font-weight: 300;

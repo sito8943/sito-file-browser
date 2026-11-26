@@ -68,6 +68,7 @@ const Directory = () => {
     accessDenied,
     loadError,
     loadingDir,
+    contentPath,
     stalled,
     zoom,
     gridIconSize,
@@ -348,6 +349,10 @@ const Directory = () => {
   // Show a spinner instead of the listing while a navigation loads the new folder (matters for
   // slow SFTP), or while a search hasn't returned its first result yet. Both hide the (stale or
   // empty) directory content underneath rather than flashing it.
+  // The listing on screen belongs to the current path (not the previous tab/folder still mounted
+  // while the new one loads). Scroll restore and scroll reporting wait for this.
+  const contentCurrent = contentPath === path;
+
   const showLoader =
     !accessDenied &&
     !showStalled &&
@@ -395,7 +400,9 @@ const Directory = () => {
           } as CSSProperties
         }
         onScroll={(event) => {
-          if (!searchActive && !showLoader)
+          // Stale content (previous folder/tab still mounted while the new one loads) must not
+          // report: the browser clamps scrollTop to it and would overwrite the saved position.
+          if (!searchActive && !showLoader && contentCurrent)
             reportScrollPosition(event.currentTarget.scrollTop);
         }}
       >
@@ -473,6 +480,7 @@ const Directory = () => {
             metadataTooltipDisabled={metadataTooltipDisabled}
             typeaheadQuery={typeaheadQuery}
             scrollRestoreKey={scrollRestoreKey}
+            scrollRestoreReady={contentCurrent}
             scrollPosition={searchActive ? 0 : scrollPosition}
             revealID={revealID}
             clearRevealID={clearRevealID}

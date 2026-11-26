@@ -39,6 +39,10 @@ export const useDirectoryContents = ({
 }: UseDirectoryContentsArgs) => {
   const [volumes, setVolumes] = useState<Volume[]>([]);
   const [dirContent, setDirContent] = useState<DirEntry[]>([]);
+  // The path `dirContent` was loaded for. Lags `path` while a navigation is in flight (the previous
+  // folder's entries stay mounted until the new listing lands), so the view can tell stale content
+  // apart — scroll restore must wait for the real listing or it applies against the old one.
+  const [contentPath, setContentPath] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState<boolean>(false);
   // Human-readable reason the current listing failed (remote connect/auth errors), or null. Shown
   // as a persistent notice in the directory view — a toast would vanish while the folder stays
@@ -328,6 +332,7 @@ export const useDirectoryContents = ({
       setStalled(false);
       if (denied) {
         setDirContent([]);
+        setContentPath(path);
         setAccessDenied(false);
         setLoadError(null);
         markReady();
@@ -335,6 +340,7 @@ export const useDirectoryContents = ({
         return;
       }
       setDirContent(files);
+      setContentPath(path);
       setAccessDenied(false);
       setLoadError(error);
       markReady();
@@ -354,6 +360,7 @@ export const useDirectoryContents = ({
     volumes,
     setVolumes,
     dirContent,
+    contentPath,
     setDirContent,
     accessDenied,
     loadError,
