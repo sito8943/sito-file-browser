@@ -35,6 +35,8 @@ export type EntriesViewProps = {
   // Saved viewport for this exact tab/history entry. EntriesView grows its lazy render slice as
   // needed before restoring deep positions in large folders.
   scrollRestoreKey: string;
+  // False while the entries are still the previous location's; restore waits for the real listing.
+  scrollRestoreReady: boolean;
   scrollPosition: number;
   // A revealed entry (sfb <file> / URL scheme / dock) to scroll into view once; the view grows the
   // render slice to include it if needed, scrolls to it, then calls clearRevealID. Null when none.

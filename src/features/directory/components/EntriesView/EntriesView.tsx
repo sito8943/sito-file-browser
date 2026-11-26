@@ -33,6 +33,7 @@ const EntriesView = ({
   metadataTooltipDisabled,
   typeaheadQuery,
   scrollRestoreKey,
+  scrollRestoreReady,
   scrollPosition,
   revealID,
   clearRevealID,
@@ -54,6 +55,7 @@ const EntriesView = ({
   // initial lazy-render batch; grow one batch at a time until the container can reach it, then set
   // the final scrollTop. The ref prevents ordinary rerenders from snapping the user back.
   useEffect(() => {
+    if (!scrollRestoreReady) return;
     if (restoredScrollKeyRef.current === scrollRestoreKey) return;
     const container =
       viewRef.current?.closest<HTMLElement>(".directory_content");
@@ -73,7 +75,14 @@ const EntriesView = ({
       restoredScrollKeyRef.current = scrollRestoreKey;
     });
     return () => cancelAnimationFrame(raf);
-  }, [scrollRestoreKey, scrollPosition, hasMore, entries.length, renderCount]);
+  }, [
+    scrollRestoreKey,
+    scrollRestoreReady,
+    scrollPosition,
+    hasMore,
+    entries.length,
+    renderCount,
+  ]);
 
   // Scroll a revealed or type-to-find entry into view. If it sits past the current render batch,
   // grow the slice to include it first (this effect re-runs once it's mounted), then scroll. An
