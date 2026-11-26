@@ -1,13 +1,15 @@
-use markdown::to_html;
+use markdown::{to_html, to_html_with_options, Options};
 use tauri::AppHandle;
 
 use crate::filesystem::sftp::{resolve, write_text, Target};
 
 // Render a markdown *string* to HTML. Takes the content (not a path) so the in-app preview can
-// render unsaved edits held in the editor, not just what's on disk.
+// render unsaved edits held in the editor, not just what's on disk. GFM so tables, task lists,
+// strikethrough, autolinks and footnotes render (plain CommonMark leaves them as raw text). Raw
+// HTML stays escaped (Options::gfm keeps allow_dangerous_html off).
 #[tauri::command]
 pub fn md_render(content: String) -> String {
-    to_html(&content)
+    to_html_with_options(&content, &Options::gfm()).unwrap_or_else(|_| to_html(&content))
 }
 
 // Read a text file's raw contents (the markdown source for the editor). Returns the error string
