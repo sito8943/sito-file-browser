@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.21.0]
+
+### Removed
+
+- Intel Macs are no longer built: releases ship only the Apple-Silicon DMG, and the Homebrew cask now requires an Apple-Silicon Mac (`f6343a8`)
+
+### Fixed
+
+- Markdown preview: tables, task lists, strikethrough and bare links now render instead of showing as raw text, and numbered lists, inline code, code blocks, quotes, tables and dividers are styled (`3d2a50d`)
+- Dragging a dialog by its title bar no longer selects the text inside it (`5578a41`)
+- Switching tabs now returns each tab to where you had scrolled, also on slow folders like SFTP (`baf556e`)
+
 ## [0.20.1]
 
 ### Fixed
